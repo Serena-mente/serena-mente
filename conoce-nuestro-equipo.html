@@ -62,7 +62,7 @@
             <span class="text-serena-600 font-semibold text-sm uppercase tracking-wider">Excelencia y Rigor Profesional</span>
             <h1 class="text-4xl font-extrabold text-slate-900">Conoce Nuestro Equipo y Modelos de Trabajo</h1>
             <p class="text-slate-600 text-lg">
-                Cada profesional de nuestra plataforma fundamenta su práctica en marcos teóricos rigurosos, adaptados a las necesidades particulares de cada consultante. Tarifa única de consulta: $80.000 COP.
+                Cada profesional de nuestra plataforma fundamenta su práctica en marcos teóricos rigurosos, adaptados a las necesidades particulares de cada consultante. Horario de atención: <strong>8:00 AM a 6:00 PM</strong>. Tarifa única de consulta: $80.000 COP.
             </p>
         </div>
 
@@ -103,6 +103,12 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const RECEIPTS_BUCKET = 'comprobantes';
+
+        // Franja de atención de 8:00 AM a 6:00 PM (cada hora en punto)
+        const AGENDA_SLOTS = [
+            '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+            '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
+        ];
 
         // Credenciales de EmailJS para enviar el comprobante y código por correo desde el navegador
         const EMAILJS_PUBLIC_KEY = 'TU_PUBLIC_KEY';
@@ -186,6 +192,7 @@
         ];
 
         let appointments = JSON.parse(localStorage.getItem('serena_appointments')) || [];
+        let bookedSlotsForModal = new Set();
 
         document.addEventListener('DOMContentLoaded', () => {
             renderPsychologists();
@@ -198,6 +205,14 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        }
+
+        function getTodayIsoDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         function sanitizeFileName(name) {
@@ -304,7 +319,7 @@
                     </div>
                     <div class="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
                         <div>
-                            <span class="text-xs text-slate-400 block">Consulta individual</span>
+                            <span class="text-xs text-slate-400 block">8:00 AM - 6:00 PM</span>
                             <span class="text-base font-extrabold text-slate-900">$80.000 COP</span>
                         </div>
                         <button onclick="openBookingModal(${p.id})" class="bg-serena-600 hover:bg-serena-700 text-white font-medium px-5 py-2.5 rounded-xl text-sm transition shadow-sm">
@@ -315,14 +330,15 @@
             `).join('');
         }
 
-        function openBookingModal(psiId) {
+        async function openBookingModal(psiId) {
             const psi = psychologists.find(p => p.id === psiId);
             const modal = document.getElementById('booking-modal');
             const content = document.getElementById('modal-content');
+            const today = getTodayIsoDate();
 
             content.innerHTML = `
                 <div class="mb-6">
-                    <span class="bg-serena-100 text-serena-700 text-xs font-semibold px-3 py-1 rounded-full">Reserva con Validación</span>
+                    <span class="bg-serena-100 text-serena-700 text-xs font-semibold px-3 py-1 rounded-full">Agenda 8:00 AM – 6:00 PM</span>
                     <h3 class="text-2xl font-bold text-slate-900 mt-2">Agendar con ${escapeHtml(psi.name)}</h3>
                     <p class="text-xs text-slate-500 mt-1">${escapeHtml(psi.area)}</p>
                 </div>
@@ -341,22 +357,34 @@
                             <input type="tel" id="book-phone" required placeholder="300 123 4567" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Fecha</label>
-                            <input type="date" id="book-date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
+
+                    <!-- Fecha y Calendario de Disponibilidad (8:00 AM - 6:00 PM) -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Fecha de Sesión</label>
+                                <input type="date" id="book-date" min="${today}" value="${today}" required
+                                    onchange="refreshAvailability(${psi.id})"
+                                    class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Hora Seleccionada</label>
+                                <select id="book-time" required onchange="onTimeSelectChange()"
+                                    class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    ${AGENDA_SLOTS.map(slot => `<option value="${slot}">${slot}</option>`).join('')}
+                                </select>
+                            </div>
                         </div>
+
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Hora</label>
-                            <select id="book-time" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
-                                <option value="09:00 AM">09:00 AM</option>
-                                <option value="11:00 AM">11:00 AM</option>
-                                <option value="03:00 PM">03:00 PM</option>
-                                <option value="05:00 PM">05:00 PM</option>
-                                <option value="07:00 PM">07:00 PM</option>
-                            </select>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Disponibilidad del día (8 AM – 6 PM)</span>
+                                <span id="slots-status" class="text-[11px] text-slate-500">Consultando...</span>
+                            </div>
+                            <div id="slots-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-1.5"></div>
                         </div>
                     </div>
+
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Adjuntar Comprobante de Pago (Nequi / Daviplata)</label>
                         <input type="file" id="book-receipt" accept="image/*,.pdf" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-600">
@@ -369,6 +397,99 @@
                 </form>
             `;
             modal.classList.remove('hidden');
+            await refreshAvailability(psiId);
+        }
+
+        async function refreshAvailability(psiId) {
+            const dateInput = document.getElementById('book-date');
+            const statusEl = document.getElementById('slots-status');
+            const selectEl = document.getElementById('book-time');
+            if (!dateInput || !statusEl || !selectEl) return;
+
+            const chosenDate = dateInput.value;
+            const proUuid = SUPABASE_PRO_IDS[psiId];
+            bookedSlotsForModal = new Set();
+
+            if (!chosenDate) {
+                renderSlotButtons();
+                return;
+            }
+
+            statusEl.textContent = 'Verificando...';
+
+            if (proUuid) {
+                const { data, error } = await supabaseClient.rpc('obtener_horarios_ocupados', {
+                    p_psicologo_id: proUuid,
+                    p_fecha: chosenDate
+                });
+                if (!error && Array.isArray(data)) {
+                    data.forEach(row => {
+                        if (row?.hora_sesion) bookedSlotsForModal.add(row.hora_sesion.trim());
+                    });
+                }
+            }
+
+            // También considera reservas locales en este navegador
+            appointments
+                .filter(a => a.psiId === psiId && a.date === chosenDate && a.time)
+                .forEach(a => bookedSlotsForModal.add(a.time.trim()));
+
+            const firstFree = AGENDA_SLOTS.find(slot => !bookedSlotsForModal.has(slot));
+            if (firstFree && bookedSlotsForModal.has(selectEl.value)) {
+                selectEl.value = firstFree;
+            }
+
+            const freeCount = AGENDA_SLOTS.filter(slot => !bookedSlotsForModal.has(slot)).length;
+            statusEl.textContent = `${freeCount} de ${AGENDA_SLOTS.length} horarios libres`;
+            renderSlotButtons();
+        }
+
+        function renderSlotButtons() {
+            const grid = document.getElementById('slots-grid');
+            const selectEl = document.getElementById('book-time');
+            if (!grid || !selectEl) return;
+
+            const currentVal = selectEl.value;
+            grid.innerHTML = AGENDA_SLOTS.map(slot => {
+                const isBooked = bookedSlotsForModal.has(slot);
+                const isSelected = !isBooked && currentVal === slot;
+
+                if (isBooked) {
+                    return `
+                        <button type="button" disabled title="Horario ocupado"
+                            class="py-1.5 px-2 rounded-lg text-xs font-medium bg-slate-200/70 text-slate-400 line-through cursor-not-allowed">
+                            ${escapeHtml(slot)}
+                        </button>
+                    `;
+                }
+
+                return `
+                    <button type="button" onclick="selectSlotButton('${escapeHtml(slot)}')"
+                        class="py-1.5 px-2 rounded-lg text-xs font-semibold border transition ${
+                            isSelected
+                                ? 'bg-serena-600 text-white border-serena-600 shadow-sm'
+                                : 'bg-white text-slate-700 border-slate-200 hover:border-serena-500 hover:bg-serena-50'
+                        }">
+                        ${escapeHtml(slot)}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectSlotButton(slot) {
+            const selectEl = document.getElementById('book-time');
+            if (!selectEl || bookedSlotsForModal.has(slot)) return;
+            selectEl.value = slot;
+            renderSlotButtons();
+        }
+
+        function onTimeSelectChange() {
+            const selectEl = document.getElementById('book-time');
+            if (selectEl && bookedSlotsForModal.has(selectEl.value)) {
+                const firstFree = AGENDA_SLOTS.find(slot => !bookedSlotsForModal.has(slot));
+                if (firstFree) selectEl.value = firstFree;
+            }
+            renderSlotButtons();
         }
 
         function closeModal() {
@@ -398,6 +519,18 @@
             const timeLabel = document.getElementById('book-time').value;
             const receiptFile = document.getElementById('book-receipt').files[0];
             const receiptName = receiptFile ? receiptFile.name : "Comprobante.jpg";
+
+            if (!AGENDA_SLOTS.includes(timeLabel)) {
+                errorBox.textContent = 'Selecciona un horario válido entre las 8:00 AM y las 6:00 PM.';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            if (bookedSlotsForModal.has(timeLabel)) {
+                errorBox.textContent = 'Ese horario ya está ocupado en la fecha seleccionada. Elige otro horario disponible.';
+                errorBox.classList.remove('hidden');
+                return;
+            }
 
             submitBtn.disabled = true;
             submitBtn.textContent = 'Subiendo comprobante...';

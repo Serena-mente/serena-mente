@@ -38,7 +38,7 @@
                     Serena Mente
                 </a>
                 <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
-                    Portal Profesional · v2.4
+                    Portal Profesional · v2.5
                 </span>
             </div>
             <div id="session-bar" class="hidden items-center space-x-3 text-sm">
@@ -283,6 +283,35 @@
             return `${year}-${month}-${day}`;
         }
 
+        function normalizeTimeSlot(rawTime) {
+            const s = String(rawTime || '').trim();
+            if (!s) return '';
+            if (AGENDA_SLOTS.includes(s)) return s;
+
+            // Formato 24h: "15:00:00" o "15:00" o "08:00"
+            const m24 = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+            if (m24) {
+                const hour24 = parseInt(m24[1], 10);
+                const mins = m24[2];
+                const period = hour24 >= 12 ? 'PM' : 'AM';
+                const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+                const formatted = `${String(hour12).padStart(2, '0')}:${mins} ${period}`;
+                if (AGENDA_SLOTS.includes(formatted)) return formatted;
+            }
+
+            // Formato 12h sin cero inicial: "3:00 PM"
+            const m12 = s.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+            if (m12) {
+                const hour12 = parseInt(m12[1], 10);
+                const mins = m12[2];
+                const period = m12[3].toUpperCase();
+                const formatted = `${String(hour12).padStart(2, '0')}:${mins} ${period}`;
+                if (AGENDA_SLOTS.includes(formatted)) return formatted;
+            }
+
+            return s;
+        }
+
         function escapeHtml(value) {
             return String(value ?? '')
                 .replace(/&/g, '&amp;')
@@ -401,7 +430,7 @@
 
             let occupiedCount = 0;
             grid.innerHTML = AGENDA_SLOTS.map(slot => {
-                const match = dayItems.find(h => (h.hora_sesion || '').trim() === slot);
+                const match = dayItems.find(h => normalizeTimeSlot(h.hora_sesion) === slot);
                 if (match) {
                     occupiedCount += 1;
                     const isSelected = selectedHistoria && selectedHistoria.id === match.id;
@@ -457,7 +486,7 @@
                             </span>
                         </div>
                         <p class="font-bold text-sm text-slate-900 mt-1 truncate">${escapeHtml(h.nombre_consultante || 'Consultante')}</p>
-                        <p class="text-xs text-slate-500 truncate">${escapeHtml(h.fecha_sesion || '')} · ${escapeHtml(h.hora_sesion || '')}</p>
+                        <p class="text-xs text-slate-500 truncate">${escapeHtml(h.fecha_sesion || '')} · ${escapeHtml(normalizeTimeSlot(h.hora_sesion) || h.hora_sesion || '')}</p>
                     </button>
                 `;
             }).join('');
@@ -480,10 +509,11 @@
             document.getElementById('active-editor').classList.remove('hidden');
             document.getElementById('editor-feedback').classList.add('hidden');
 
+            const horaMostrada = normalizeTimeSlot(item.hora_sesion) || item.hora_sesion || '—';
             document.getElementById('hc-codigo').textContent = item.codigo_caso || 'HC';
             document.getElementById('hc-nombre').textContent = item.nombre_consultante || 'Consultante';
             document.getElementById('hc-meta').textContent =
-                `Correo: ${item.cliente_email || '—'} · Fecha: ${item.fecha_sesion || '—'} · Hora: ${item.hora_sesion || '—'}`;
+                `Correo: ${item.cliente_email || '—'} · Fecha: ${item.fecha_sesion || '—'} · Hora: ${horaMostrada}`;
 
             updatePagoUI(item.estado_pago);
 

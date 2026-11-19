@@ -38,7 +38,7 @@
                     Serena Mente
                 </a>
                 <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
-                    Portal Profesional
+                    Portal Profesional · v2.4
                 </span>
             </div>
             <div id="session-bar" class="hidden items-center space-x-3 text-sm">
@@ -90,7 +90,7 @@
             </div>
 
             <!-- Bloque de Agenda del Día (8:00 AM - 6:00 PM) -->
-            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <div id="agenda-day-panel" class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">Agenda del Día (8:00 AM – 6:00 PM)</h2>
@@ -520,4 +520,165 @@
 
         async function loadReceiptPreview(comprobantePath) {
             const statusEl = document.getElementById('hc-comprobante-estado');
-            const linkEl = document.getElementById('hc-comprobante-link
+            const linkEl = document.getElementById('hc-comprobante-link');
+            const previewEl = document.getElementById('hc-comprobante-preview');
+
+            linkEl.classList.add('hidden');
+            previewEl.classList.add('hidden');
+            previewEl.innerHTML = '';
+
+            if (!comprobantePath) {
+                statusEl.textContent = 'Este registro no tiene un comprobante asociado.';
+                return;
+            }
+
+            statusEl.textContent = `Archivo: ${comprobantePath}`;
+
+            const { data, error } = await supabaseClient.storage
+                .from(RECEIPTS_BUCKET)
+                .createSignedUrl(comprobantePath, 300);
+
+            if (error || !data?.signedUrl) {
+                statusEl.textContent = `No se pudo generar el enlace del comprobante: ${error?.message || 'Error de acceso'}`;
+                return;
+            }
+
+            const signedUrl = data.signedUrl;
+            linkEl.href = signedUrl;
+            linkEl.classList.remove('hidden');
+
+            const isPdf = /\.pdf($|\?)/i.test(comprobantePath);
+            if (isPdf) {
+                previewEl.innerHTML = `<iframe src="${escapeHtml(signedUrl)}" class="w-full h-72 rounded-xl border border-slate-200 bg-white"></iframe>`;
+            } else {
+                previewEl.innerHTML = `<img src="${escapeHtml(signedUrl)}" alt="Comprobante de pago" class="max-h-80 rounded-xl border border-slate-200 object-contain bg-white">`;
+            }
+            previewEl.classList.remove('hidden');
+        }
+
+        async function confirmarPagoActual() {
+            if (!selectedHistoria) return;
+            const btn = document.getElementById('btn-confirmar-pago');
+            btn.disabled = true;
+            btn.textContent = 'Confirmando...';
+
+            const { error } = await supabaseClient
+                .from('historias_clinicas')
+                .update({
+                    estado_pago: 'Confirmado',
+                    actualizado_en: new Date().toISOString()
+                })
+                .eq('id', selectedHistoria.id)
+                .eq('psicologo_id', currentUser.id);
+
+            if (error) {
+                showFeedback(`No se pudo confirmar el pago: ${error.message}`, 'error');
+                updatePagoUI(selectedHistoria.estado_pago);
+                return;
+            }
+
+            selectedHistoria.estado_pago = 'Confirmado';
+            updatePagoUI('Confirmado');
+            renderCasesList();
+            showFeedback('Pago confirmado correctamente.', 'success');
+        }
+
+        async function guardarHistoriaClinica(event) {
+            event.preventDefault();
+            if (!selectedHistoria || !currentUser) return;
+
+            const meetRaw = document.getElementById('hc-meet').value.trim();
+            if (meetRaw && !isSafeUrl(meetRaw)) {
+                showFeedback('El enlace de Meet debe comenzar con https:// o http://', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-guardar-hc');
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            const payload = {
+                link_meet: meetRaw || null,
+                edad: document.getElementById('hc-edad').value.trim() || null,
+                genero: document.getElementById('hc-genero').value || null,
+                consentimiento_aceptado: document.getElementById('hc-consentimiento').checked,
+                sueno: document.getElementById('hc-sueno').value.trim() || null,
+                vigilia: document.getElementById('hc-vigilia').value.trim() || null,
+                alimentacion: document.getElementById('hc-alimentacion').value.trim() || null,
+                discurso: document.getElementById('hc-discurso').value.trim() || null,
+                observacion_clinica: document.getElementById('hc-observacion').value.trim() || null,
+                actualizado_en: new Date().toISOString()
+            };
+
+            const { error } = await supabaseClient
+                .from('historias_clinicas')
+                .update(payload)
+                .eq('id', selectedHistoria.id)
+                .eq('psicologo_id', currentUser.id);
+
+            btn.disabled = false;
+            btn.textContent = 'Guardar Historia Clínica';
+
+            if (error) {
+                showFeedback(`Error al guardar la historia clínica: ${error.message}`, 'error');
+                return;
+            }
+
+            Object.assign(selectedHistoria, payload);
+            syncMeetPreview();
+            renderCasesList();
+            showFeedback('Historia clínica y enlace de Meet guardados en Supabase.', 'success');
+        }
+
+        async function eliminarHistoriaActual() {
+            if (!selectedHistoria || !currentUser) return;
+
+            const nombre = selectedHistoria.nombre_consultante || 'este consultante';
+            const codigo = selectedHistoria.codigo_caso || '';
+            const ok = window.confirm(
+                `¿Seguro que deseas eliminar permanentemente el registro de ${nombre} (${codigo}) de la base de datos? Esta acción no se puede deshacer.`
+            );
+            if (!ok) return;
+
+            const btn = document.getElementById('btn-eliminar-hc');
+            btn.disabled = true;
+            btn.textContent = 'Eliminando...';
+
+            const { error } = await supabaseClient
+                .from('historias_clinicas')
+                .delete()
+                .eq('id', selectedHistoria.id)
+                .eq('psicologo_id', currentUser.id);
+
+            btn.disabled = false;
+            btn.textContent = 'Eliminar registro';
+
+            if (error) {
+                showFeedback(`No se pudo eliminar el registro: ${error.message}`, 'error');
+                return;
+            }
+
+            historiasList = historiasList.filter(h => h.id !== selectedHistoria.id);
+            selectedHistoria = historiasList[0] || null;
+            renderDayAgenda();
+            renderCasesList();
+
+            if (selectedHistoria) {
+                selectHistoria(selectedHistoria.id);
+            } else {
+                document.getElementById('active-editor').classList.add('hidden');
+                document.getElementById('empty-editor').classList.remove('hidden');
+            }
+        }
+
+        function showFeedback(message, type) {
+            const box = document.getElementById('editor-feedback');
+            box.textContent = message;
+            box.className = type === 'success'
+                ? 'text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl p-3'
+                : 'text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3';
+            box.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -79,10 +79,85 @@
                     <p id="pro-details" class="text-sm text-slate-600 break-all">Rol · Correo · UID</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="toggleNewRecordForm()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition">
+                        + Nueva consulta
+                    </button>
                     <button type="button" onclick="refreshRecords()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition">
                         Actualizar registros
                     </button>
                 </div>
+            </section>
+
+            <!-- Feedback Banner -->
+            <div id="workspace-alert" class="hidden rounded-2xl p-4 text-sm border"></div>
+
+            <!-- New Record Form (Hidden by default) -->
+            <section id="new-record-section" class="hidden bg-white rounded-3xl border border-sky-200 p-6 sm:p-8 shadow-sm space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Registrar Nueva Consulta / Historia Clínica</h2>
+                        <p class="text-xs text-slate-500">Se asociará automáticamente a tu perfil profesional.</p>
+                    </div>
+                    <button type="button" onclick="toggleNewRecordForm(false)" class="text-xs font-semibold text-slate-500 hover:text-slate-800 px-3 py-1.5 rounded-lg border border-slate-200">
+                        Cancelar
+                    </button>
+                </div>
+
+                <form id="new-record-form" onsubmit="createClinicalRecord(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre del consultante *</label>
+                        <input type="text" id="rec-nombre" required placeholder="Ej. Laura Gómez" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Correo del consultante *</label>
+                        <input type="email" id="rec-email" required placeholder="consultante@correo.com" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Documento o NIT</label>
+                        <input type="text" id="rec-documento" placeholder="CC / TI / NIT" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Edad o cargo</label>
+                        <input type="text" id="rec-edad" placeholder="Ej. 28 años" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de caso</label>
+                        <select id="rec-tipo" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 bg-white focus:outline-none focus:border-emerald-600">
+                            <option value="Orientación Individual">Orientación Individual</option>
+                            <option value="Seguimiento Clínico">Seguimiento Clínico</option>
+                            <option value="Orientación Jurídica">Orientación Jurídica</option>
+                            <option value="Consultoría Organizacional">Consultoría Organizacional</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Estado de pago</label>
+                        <select id="rec-pago" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 bg-white focus:outline-none focus:border-emerald-600">
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Pagado">Pagado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Fecha de sesión</label>
+                        <input type="date" id="rec-fecha" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Hora de sesión</label>
+                        <input type="time" id="rec-hora" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Enlace Google Meet</label>
+                        <input type="url" id="rec-meet" placeholder="https://meet.google.com/..." class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
+                    </div>
+                    <div class="sm:col-span-2 lg:col-span-3 flex items-center justify-between pt-2">
+                        <label class="inline-flex items-center gap-2 text-xs text-slate-600">
+                            <input type="checkbox" id="rec-consentimiento" checked class="rounded border-slate-300 text-emerald-600">
+                            Consentimiento informado aceptado
+                        </label>
+                        <button type="submit" id="btn-save-record" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-sm transition">
+                            Guardar consulta
+                        </button>
+                    </div>
+                </form>
             </section>
 
             <!-- Summary Cards -->
@@ -103,10 +178,18 @@
 
             <!-- Clinical Records / Appointments -->
             <section class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
                     <div>
                         <h2 class="text-lg font-bold text-slate-900">Historias Clínicas y Consultas</h2>
-                        <p class="text-xs text-slate-500">Registros asociados a tu cuenta profesional en <code>public.historias_clinicas</code>.</p>
+                        <p class="text-xs text-slate-500">Gestiona estados de pago y enlaces de Google Meet de tus casos.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Buscar por nombre o correo..." class="border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-emerald-600">
+                        <select id="filter-payment" onchange="applyFilters()" class="border border-slate-200 rounded-xl px-3.5 py-2 text-xs bg-white focus:outline-none focus:border-emerald-600">
+                            <option value="all">Todos los pagos</option>
+                            <option value="paid">Pagados / Confirmados</option>
+                            <option value="pending">Pendientes</option>
+                        </select>
                     </div>
                 </div>
                 <div id="pro-records-list" class="space-y-3 text-sm text-slate-600">
@@ -126,6 +209,30 @@
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentTherapistId = null;
+        let allRecords = [];
+
+        function showWorkspaceAlert(message, type = 'success') {
+            const alertEl = document.getElementById('workspace-alert');
+            alertEl.classList.remove('hidden');
+            if (type === 'error') {
+                alertEl.className = 'rounded-2xl p-4 text-sm border bg-red-50 border-red-200 text-red-700';
+            } else {
+                alertEl.className = 'rounded-2xl p-4 text-sm border bg-emerald-50 border-emerald-200 text-emerald-800';
+            }
+            alertEl.textContent = message;
+            setTimeout(() => {
+                alertEl.classList.add('hidden');
+            }, 5000);
+        }
+
+        function toggleNewRecordForm(forceState) {
+            const section = document.getElementById('new-record-section');
+            if (typeof forceState === 'boolean') {
+                section.classList.toggle('hidden', !forceState);
+            } else {
+                section.classList.toggle('hidden');
+            }
+        }
 
         function showPortalError(message) {
             const statusEl = document.getElementById('portal-status');
@@ -139,6 +246,83 @@
             `;
         }
 
+        function isPaidStatus(status) {
+            const val = (status || '').toLowerCase();
+            return val.includes('pagad') || val.includes('confirm');
+        }
+
+        function renderRecords(rows) {
+            const listEl = document.getElementById('pro-records-list');
+
+            if (!rows || rows.length === 0) {
+                listEl.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 text-sm">
+                        No hay registros que coincidan con el filtro actual. Usa el botón <strong>+ Nueva consulta</strong> para crear uno.
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = rows.map(row => {
+                const paid = isPaidStatus(row.estado_pago);
+                return `
+                    <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                            <div class="space-y-1 text-xs sm:text-sm">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <p class="font-bold text-slate-900 text-base">${row.nombre_consultante || 'Consultante sin nombre'}</p>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${paid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                        ${row.estado_pago || 'Pendiente'}
+                                    </span>
+                                </div>
+                                <p class="text-slate-600"><strong>Correo:</strong> ${row.cliente_email || 'No registrado'} ${row.documento_o_nit ? '· <strong>Doc:</strong> ' + row.documento_o_nit : ''} ${row.edad_o_cargo ? '· ' + row.edad_o_cargo : ''}</p>
+                                <p class="text-slate-600"><strong>Caso:</strong> ${row.tipo_caso || 'Consulta'} · <strong>Fecha / Hora:</strong> ${row.fecha_sesion || 'Por definir'} ${row.hora_sesion ? '· ' + row.hora_sesion : ''}</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button type="button" onclick="togglePaymentStatus('${row.id}', '${paid ? 'Pendiente' : 'Pagado'}')" class="text-xs font-semibold px-3 py-2 rounded-xl border transition ${paid ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100' : 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700'}">
+                                    ${paid ? 'Marcar Pendiente' : 'Confirmar Pago'}
+                                </button>
+                                ${row.enlace_meet ? `
+                                    <a href="${row.enlace_meet}" target="_blank" rel="noopener noreferrer" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition">
+                                        Abrir Meet
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Inline Meet Link Editor -->
+                        <div class="pt-2 border-t border-slate-200/80 flex flex-col sm:flex-row gap-2">
+                            <input type="url" id="meet-input-${row.id}" value="${row.enlace_meet || ''}" placeholder="Pegar enlace de Google Meet (https://meet.google.com/...)" class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-sky-600">
+                            <button type="button" onclick="saveMeetLink('${row.id}')" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl transition">
+                                Guardar enlace Meet
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function applyFilters() {
+            const term = (document.getElementById('filter-search').value || '').trim().toLowerCase();
+            const payFilter = document.getElementById('filter-payment').value;
+
+            const filtered = allRecords.filter(row => {
+                const matchesTerm = !term ||
+                    (row.nombre_consultante || '').toLowerCase().includes(term) ||
+                    (row.cliente_email || '').toLowerCase().includes(term) ||
+                    (row.tipo_caso || '').toLowerCase().includes(term);
+
+                const paid = isPaidStatus(row.estado_pago);
+                const matchesPay = payFilter === 'all' ||
+                    (payFilter === 'paid' && paid) ||
+                    (payFilter === 'pending' && !paid);
+
+                return matchesTerm && matchesPay;
+            });
+
+            renderRecords(filtered);
+        }
+
         async function loadClinicalRecords(therapistId) {
             const listEl = document.getElementById('pro-records-list');
             const totalEl = document.getElementById('stat-total');
@@ -149,7 +333,7 @@
 
             const { data, error } = await supabaseClient
                 .from('historias_clinicas')
-                .select('id, psicologo_id, cliente_email, tipo_caso, nombre_consultante, fecha_sesion, hora_sesion, estado_pago, enlace_meet')
+                .select('id, psicologo_id, cliente_email, tipo_caso, nombre_consultante, edad_o_cargo, documento_o_nit, consentimiento_aceptado, fecha_sesion, hora_sesion, estado_pago, enlace_meet')
                 .eq('psicologo_id', therapistId)
                 .order('fecha_sesion', { ascending: true });
 
@@ -158,40 +342,94 @@
                 return;
             }
 
-            const rows = data || [];
-            totalEl.textContent = rows.length;
-            paidEl.textContent = rows.filter(r => (r.estado_pago || '').toLowerCase().includes('pagad') || (r.estado_pago || '').toLowerCase().includes('confirm')).length;
-            meetEl.textContent = rows.filter(r => Boolean(r.enlace_meet)).length;
+            allRecords = data || [];
+            totalEl.textContent = allRecords.length;
+            paidEl.textContent = allRecords.filter(r => isPaidStatus(r.estado_pago)).length;
+            meetEl.textContent = allRecords.filter(r => Boolean(r.enlace_meet)).length;
 
-            if (rows.length === 0) {
-                listEl.innerHTML = `
-                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 text-sm">
-                        Conexión activa con <code>historias_clinicas</code>: aún no tienes registros asignados.
-                    </div>
-                `;
+            applyFilters();
+        }
+
+        async function createClinicalRecord(e) {
+            e.preventDefault();
+            if (!currentTherapistId) return;
+
+            const btn = document.getElementById('btn-save-record');
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            const payload = {
+                psicologo_id: currentTherapistId,
+                nombre_consultante: document.getElementById('rec-nombre').value.trim(),
+                cliente_email: document.getElementById('rec-email').value.trim().toLowerCase(),
+                documento_o_nit: document.getElementById('rec-documento').value.trim() || null,
+                edad_o_cargo: document.getElementById('rec-edad').value.trim() || null,
+                tipo_caso: document.getElementById('rec-tipo').value,
+                estado_pago: document.getElementById('rec-pago').value,
+                fecha_sesion: document.getElementById('rec-fecha').value || null,
+                hora_sesion: document.getElementById('rec-hora').value || null,
+                enlace_meet: document.getElementById('rec-meet').value.trim() || null,
+                consentimiento_aceptado: document.getElementById('rec-consentimiento').checked
+            };
+
+            const { error } = await supabaseClient
+                .from('historias_clinicas')
+                .insert([payload]);
+
+            btn.disabled = false;
+            btn.textContent = 'Guardar consulta';
+
+            if (error) {
+                showWorkspaceAlert(`Error al guardar la consulta: ${error.message}`, 'error');
                 return;
             }
 
-            listEl.innerHTML = rows.map(row => `
-                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div class="space-y-1 text-xs sm:text-sm">
-                        <p class="font-bold text-slate-900">${row.nombre_consultante || 'Consultante sin nombre'}</p>
-                        <p class="text-slate-600"><strong>Correo:</strong> ${row.cliente_email || 'No registrado'} · <strong>Tipo:</strong> ${row.tipo_caso || 'Consulta'}</p>
-                        <p class="text-slate-600"><strong>Fecha / Hora:</strong> ${row.fecha_sesion || 'Por definir'} ${row.hora_sesion ? '· ' + row.hora_sesion : ''}</p>
-                        <p class="text-slate-600"><strong>Estado de pago:</strong> <span class="font-semibold text-emerald-700">${row.estado_pago || 'Pendiente'}</span></p>
-                    </div>
-                    ${row.enlace_meet ? `
-                        <a href="${row.enlace_meet}" target="_blank" rel="noopener noreferrer" class="self-start sm:self-center bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
-                            Unirse a Meet
-                        </a>
-                    ` : ''}
-                </div>
-            `).join('');
+            document.getElementById('new-record-form').reset();
+            document.getElementById('rec-consentimiento').checked = true;
+            toggleNewRecordForm(false);
+            showWorkspaceAlert('Consulta registrada correctamente.');
+            await loadClinicalRecords(currentTherapistId);
+        }
+
+        async function togglePaymentStatus(recordId, nextStatus) {
+            const { error } = await supabaseClient
+                .from('historias_clinicas')
+                .update({ estado_pago: nextStatus, actualizado_en: new Date().toISOString() })
+                .eq('id', recordId)
+                .eq('psicologo_id', currentTherapistId);
+
+            if (error) {
+                showWorkspaceAlert(`No se pudo actualizar el pago: ${error.message}`, 'error');
+                return;
+            }
+
+            showWorkspaceAlert(`Estado de pago actualizado a "${nextStatus}".`);
+            await loadClinicalRecords(currentTherapistId);
+        }
+
+        async function saveMeetLink(recordId) {
+            const input = document.getElementById(`meet-input-${recordId}`);
+            const link = (input?.value || '').trim() || null;
+
+            const { error } = await supabaseClient
+                .from('historias_clinicas')
+                .update({ enlace_meet: link, actualizado_en: new Date().toISOString() })
+                .eq('id', recordId)
+                .eq('psicologo_id', currentTherapistId);
+
+            if (error) {
+                showWorkspaceAlert(`No se pudo guardar el enlace Meet: ${error.message}`, 'error');
+                return;
+            }
+
+            showWorkspaceAlert('Enlace de Google Meet actualizado.');
+            await loadClinicalRecords(currentTherapistId);
         }
 
         async function refreshRecords() {
             if (currentTherapistId) {
                 await loadClinicalRecords(currentTherapistId);
+                showWorkspaceAlert('Registros actualizados.');
             }
         }
 

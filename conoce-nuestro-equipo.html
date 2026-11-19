@@ -445,7 +445,7 @@
             const codigoCaso = created.codigo_caso || 'HC-2026-PEND';
 
             appointments.push({
-                id: created.id || Date.now(),
+                id: created.cita_id || Date.now(),
                 codigoCaso,
                 comprobantePath: uploadResult.path,
                 psiId,

@@ -27,6 +27,9 @@
             }
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Opcional: SDK de EmailJS para enviar el comprobante y código por correo desde el navegador -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
@@ -94,68 +97,89 @@
         </p>
     </footer>
 
-    <!-- JavaScript Logic -->
     <script>
+        const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Configura EmailJS si deseas enviar el correo automáticamente al agendar
+        const EMAILJS_PUBLIC_KEY = '';   // Ej. 'tu_public_key'
+        const EMAILJS_SERVICE_ID = '';   // Ej. 'tu_service_id'
+        const EMAILJS_TEMPLATE_ID = '';  // Ej. 'tu_template_id'
+        if (EMAILJS_PUBLIC_KEY && window.emailjs) {
+            window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+        }
+
+        // UUIDs reales en Supabase Auth / perfiles para cada profesional
+        const SUPABASE_PRO_IDS = {
+            1: 'cbba4266-df13-4286-b246-d1f11cc90b2', // Psi. María Camila Jarma
+            2: '20f7c4d2-b450-4258-8f94-876eac1f2e73', // Psi. Alexander Sarmiento
+            3: null,
+            4: 'E67286bc-4a93-4867-b6a5-d1098e06615d', // Psi. Kenny Ariza
+            5: null,
+            6: null
+        };
+
         const psychologists = [
-            { 
-                id: 1, 
-                name: "Psi. María Camila Jarma", 
-                area: "Área Jurídica y Forense", 
-                email: "maricamilajarma@serenamente.co", 
+            {
+                id: 1,
+                name: "Psi. María Camila Jarma",
+                area: "Área Jurídica y Forense",
+                email: "psicomariacjarma@gmail.com",
                 modelDescription: "Su modelo de trabajo se centra en la evaluación, asesoría y orientación especializada en contextos legales y forenses. Aplica metodologías de análisis de perfil y valoración de testimonio bajo rigor técnico, apoyando procesos jurídicos con imparcialidad y fundamentación científica.",
-                badge: "Área Jurídica", 
-                rating: 4.9, 
-                reviewsCount: 18 
+                badge: "Área Jurídica",
+                rating: 4.9,
+                reviewsCount: 18
             },
-            { 
-                id: 2, 
-                name: "Psi. Alexander Sarmiento", 
-                area: "Área Clínica - Terapia Cognitivo-Conductual (TCC)", 
-                email: "alexandersarmiento@serenamente.co", 
+            {
+                id: 2,
+                name: "Psi. Alexander Sarmiento",
+                area: "Área Clínica - Terapia Cognitivo-Conductual (TCC)",
+                email: "alexandersarmiento@serenamente.co",
                 modelDescription: "Su modelo de trabajo se basa en la Terapia Cognitivo-Conductual (TCC) aplicada a la infancia y adolescencia. Utiliza herramientas psicoeducativas estructuradas y técnicas orientadas a la modificación de conductas disfuncionales y gestión emocional temprana.",
-                badge: "Área Infantil y TCC", 
-                rating: 5.0, 
-                reviewsCount: 24 
+                badge: "Área Infantil y TCC",
+                rating: 5.0,
+                reviewsCount: 24
             },
-            { 
-                id: 3, 
-                name: "Psi. Jesús Cervera", 
-                area: "Área Clínica - Enfoque Conductual", 
-                email: "jesuscervera@serenamente.co", 
+            {
+                id: 3,
+                name: "Psi. Jesús Cervera",
+                area: "Área Clínica - Enfoque Conductual",
+                email: "jesuscervera@serenamente.co",
                 modelDescription: "Su modelo de trabajo prioriza el análisis funcional de la conducta y la intervención breve enfocada en la resolución de problemas. Trabaja activamente en la gestión de la ansiedad, la regulación emocional y la adquisición de hábitos adaptativos para adultos.",
-                badge: "Área Clínica General", 
-                rating: 4.8, 
-                reviewsCount: 15 
+                badge: "Área Clínica General",
+                rating: 4.8,
+                reviewsCount: 15
             },
-            { 
-                id: 4, 
-                name: "Psi. Kenny Ariza", 
-                area: "Área Clínica y Bienestar Emocional", 
-                email: "kennyariza@serenamente.co", 
+            {
+                id: 4,
+                name: "Psi. Kenny Ariza",
+                area: "Área Clínica y Bienestar Emocional",
+                email: "psikennyariza@gmail.com",
                 modelDescription: "Su modelo de trabajo integra la orientación psicológica basada en evidencia y el acompañamiento humanista. Su enfoque acompaña al consultante en la superación de crisis vitales, fortalecimiento de recursos personales y búsqueda de estabilidad emocional.",
-                badge: "Área Bienestar", 
-                rating: 4.9, 
-                reviewsCount: 21 
+                badge: "Área Bienestar",
+                rating: 4.9,
+                reviewsCount: 21
             },
-            { 
-                id: 5, 
-                name: "Psi. María Fernanda Quintero", 
-                area: "Área Organizacional y Laboral", 
-                email: "mariafernanda@serenamente.co", 
+            {
+                id: 5,
+                name: "Psi. María Fernanda Quintero",
+                area: "Área Organizacional y Laboral",
+                email: "mariafernanda@serenamente.co",
                 modelDescription: "Su modelo de trabajo se orienta al desarrollo profesional, optimización del clima laboral, prevención del burnout y manejo del estrés ocupacional. Ofrece herramientas prácticas de liderazgo, comunicación asertiva y gestión del desempeño.",
-                badge: "Área Organizacional", 
-                rating: 4.8, 
-                reviewsCount: 12 
+                badge: "Área Organizacional",
+                rating: 4.8,
+                reviewsCount: 12
             },
-            { 
-                id: 6, 
-                name: "Psi. Angely Surmay", 
-                area: "Área Organizacional y Gestión de Equipos", 
-                email: "angelysurmay@serenamente.co", 
+            {
+                id: 6,
+                name: "Psi. Angely Surmay",
+                area: "Área Organizacional y Gestión de Equipos",
+                email: "angelysurmay@serenamente.co",
                 modelDescription: "Su modelo de trabajo enfoca la salud mental en el entorno laboral y corporativo. Diseña estrategias para la armonización de equipos de trabajo, mitigación de riesgos psicosociales y fomento de entornos de productividad saludable.",
-                badge: "Área Organizacional", 
-                rating: 4.9, 
-                reviewsCount: 16 
+                badge: "Área Organizacional",
+                rating: 4.9,
+                reviewsCount: 16
             }
         ];
 
@@ -165,27 +189,83 @@
             renderPsychologists();
         });
 
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function convert12hTo24h(timeStr) {
+            const match = String(timeStr || '').trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+            if (!match) return null;
+            let hours = parseInt(match[1], 10);
+            const minutes = match[2];
+            const period = match[3].toUpperCase();
+            if (period === 'PM' && hours !== 12) hours += 12;
+            if (period === 'AM' && hours === 12) hours = 0;
+            return `${String(hours).padStart(2, '0')}:${minutes}:00`;
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                if (!file) return resolve(null);
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function sendBookingEmail({ codigoCaso, psiName, psiEmail, clientName, clientEmail, clientPhone, date, time, receiptName, receiptDataUrl }) {
+            if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !window.emailjs) {
+                return { sent: false, reason: 'EmailJS no configurado aún' };
+            }
+
+            try {
+                await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                    codigo_caso: codigoCaso,
+                    psicologo_nombre: psiName,
+                    psicologo_email: psiEmail,
+                    consultante_nombre: clientName,
+                    consultante_email: clientEmail,
+                    consultante_telefono: clientPhone,
+                    fecha_sesion: date,
+                    hora_sesion: time,
+                    comprobante_nombre: receiptName,
+                    comprobante_base64: receiptDataUrl || '',
+                    to_email: clientEmail,
+                    reply_to: psiEmail
+                });
+                return { sent: true };
+            } catch (err) {
+                return { sent: false, reason: err?.message || 'Error al enviar correo' };
+            }
+        }
+
         function renderPsychologists() {
             const grid = document.getElementById('psychologists-grid');
-            if(!grid) return;
+            if (!grid) return;
             grid.innerHTML = psychologists.map(p => `
                 <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition">
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
-                            <span class="bg-serena-50 text-serena-700 text-xs font-semibold px-3 py-1 rounded-full">${p.badge}</span>
+                            <span class="bg-serena-50 text-serena-700 text-xs font-semibold px-3 py-1 rounded-full">${escapeHtml(p.badge)}</span>
                             <div class="flex items-center space-x-1 text-amber-400 text-sm font-semibold">
                                 <span>★</span>
-                                <span class="text-slate-700">${p.rating}</span>
-                                <span class="text-slate-400 text-xs">(${p.reviewsCount})</span>
+                                <span class="text-slate-700">${escapeHtml(p.rating)}</span>
+                                <span class="text-slate-400 text-xs">(${escapeHtml(p.reviewsCount)})</span>
                             </div>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-slate-900">${p.name}</h3>
-                            <p class="text-xs font-semibold text-serena-600 mt-0.5">${p.area}</p>
+                            <h3 class="text-xl font-bold text-slate-900">${escapeHtml(p.name)}</h3>
+                            <p class="text-xs font-semibold text-serena-600 mt-0.5">${escapeHtml(p.area)}</p>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Modelo de Trabajo:</h4>
-                            <p class="text-slate-600 text-xs leading-relaxed">${p.modelDescription}</p>
+                            <p class="text-slate-600 text-xs leading-relaxed">${escapeHtml(p.modelDescription)}</p>
                         </div>
                     </div>
                     <div class="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
@@ -209,10 +289,10 @@
             content.innerHTML = `
                 <div class="mb-6">
                     <span class="bg-serena-100 text-serena-700 text-xs font-semibold px-3 py-1 rounded-full">Reserva con Validación</span>
-                    <h3 class="text-2xl font-bold text-slate-900 mt-2">Agendar con ${psi.name}</h3>
-                    <p class="text-xs text-slate-500 mt-1">${psi.area}</p>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-2">Agendar con ${escapeHtml(psi.name)}</h3>
+                    <p class="text-xs text-slate-500 mt-1">${escapeHtml(psi.area)}</p>
                 </div>
-                <form id="booking-form" onsubmit="submitBooking(event, ${psi.id}, '${psi.name}', '${psi.email}')" class="space-y-4">
+                <form id="booking-form" onsubmit="submitBooking(event, ${psi.id})" class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nombre Completo</label>
                         <input type="text" id="book-name" required placeholder="Tu nombre y apellido" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
@@ -248,7 +328,8 @@
                         <input type="file" id="book-receipt" accept="image/*,.pdf" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-600">
                         <p class="text-[10px] text-slate-400 mt-1">Sube la captura de tu transferencia de $80.000 COP al 300 000 0000.</p>
                     </div>
-                    <button type="submit" class="w-full bg-serena-600 hover:bg-serena-700 text-white font-medium py-3.5 rounded-xl transition text-sm shadow-md">
+                    <div id="booking-error" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3"></div>
+                    <button type="submit" id="btn-submit-booking" class="w-full bg-serena-600 hover:bg-serena-700 text-white font-medium py-3.5 rounded-xl transition text-sm shadow-md">
                         Enviar Reserva y Comprobante para Validación
                     </button>
                 </form>
@@ -260,45 +341,118 @@
             document.getElementById('booking-modal').classList.add('hidden');
         }
 
-        function submitBooking(event, psiId, psiName, psiEmail) {
+        async function submitBooking(event, psiId) {
             event.preventDefault();
-            const name = document.getElementById('book-name').value;
-            const email = document.getElementById('book-email').value.trim().toLowerCase();
-            const phone = document.getElementById('book-phone').value;
-            const date = document.getElementById('book-date').value;
-            const time = document.getElementById('book-time').value;
-            const receiptInput = document.getElementById('book-receipt');
-            const receiptName = receiptInput.files[0] ? receiptInput.files[0].name : "Comprobante.jpg";
 
-            const newAppt = {
-                id: Date.now(),
+            const psi = psychologists.find(p => p.id === psiId);
+            const proUuid = SUPABASE_PRO_IDS[psiId];
+            const errorBox = document.getElementById('booking-error');
+            const submitBtn = document.getElementById('btn-submit-booking');
+
+            errorBox.classList.add('hidden');
+
+            if (!proUuid) {
+                errorBox.textContent = `Este profesional (${psi.name}) aún no tiene su UUID configurado en SUPABASE_PRO_IDS para registrar citas en la base de datos.`;
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            const name = document.getElementById('book-name').value.trim();
+            const email = document.getElementById('book-email').value.trim().toLowerCase();
+            const phone = document.getElementById('book-phone').value.trim();
+            const date = document.getElementById('book-date').value;
+            const timeLabel = document.getElementById('book-time').value;
+            const time24 = convert12hTo24h(timeLabel);
+            const receiptFile = document.getElementById('book-receipt').files[0];
+            const receiptName = receiptFile ? receiptFile.name : "Comprobante.jpg";
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Registrando reserva...';
+
+            const mensajeInicial = `Reserva solicitada (${timeLabel}) · WhatsApp: ${phone} · Comprobante adjunto: ${receiptName}`;
+
+            const { data: rpcData, error: rpcError } = await supabaseClient.rpc('agendar_cita_consultante', {
+                p_psicologo_id: proUuid,
+                p_cliente_email: email,
+                p_nombre_consultante: name,
+                p_tipo_caso: psi.area,
+                p_fecha_sesion: date || null,
+                p_hora_sesion: time24,
+                p_mensaje_consultante: mensajeInicial,
+                p_comprobante_url: null
+            });
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar Reserva y Comprobante para Validación';
+
+            if (rpcError || !rpcData || rpcData.length === 0) {
+                errorBox.textContent = `No se pudo guardar la reserva en Supabase: ${rpcError?.message || 'Error inesperado'}.`;
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            const created = rpcData[0];
+            const codigoCaso = created.codigo_caso || 'HC-2026-PEND';
+
+            appointments.push({
+                id: created.id || Date.now(),
+                codigoCaso,
                 psiId,
-                psiName,
-                psiEmail,
+                psiName: psi.name,
+                psiEmail: psi.email,
                 clientName: name,
                 clientEmail: email,
                 clientPhone: phone,
                 date,
-                time,
+                time: timeLabel,
                 receiptName,
-                status: "Pendiente de Validación",
-                meetLink: "https://meet.google.com/new"
-            };
-
-            appointments.push(newAppt);
+                status: created.estado_pago || "Pendiente"
+            });
             localStorage.setItem('serena_appointments', JSON.stringify(appointments));
+
+            const receiptDataUrl = await fileToBase64(receiptFile);
+            const emailResult = await sendBookingEmail({
+                codigoCaso,
+                psiName: psi.name,
+                psiEmail: psi.email,
+                clientName: name,
+                clientEmail: email,
+                clientPhone: phone,
+                date,
+                time: timeLabel,
+                receiptName,
+                receiptDataUrl
+            });
+
+            const emailNotice = emailResult.sent
+                ? `<p class="text-xs text-emerald-700 font-medium">Enviamos un correo con los datos de tu reserva y comprobante.</p>`
+                : `<p class="text-xs text-amber-700">Nota: el correo automático aún no está activo (${escapeHtml(emailResult.reason)}). Guarda tu código para entrar a tu portal.</p>`;
 
             const modalContent = document.getElementById('modal-content');
             modalContent.innerHTML = `
                 <div class="text-center space-y-4 py-4">
-                    <h3 class="text-2xl font-bold text-slate-900">¡Reserva en Proceso de Validación!</h3>
+                    <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">Reserva Registrada</span>
+                    <h3 class="text-2xl font-bold text-slate-900">¡Solicitud Enviada a ${escapeHtml(psi.name)}!</h3>
                     <p class="text-sm text-slate-600">
-                        Tu comprobante (<strong>${receiptName}</strong>) ha sido enviado al profesional <strong>${psiName}</strong>. En breve recibirás la confirmación y activación de tu Meet.
+                        Tu cita quedó registrada con el comprobante <strong>${escapeHtml(receiptName)}</strong> para el <strong>${escapeHtml(date)}</strong> a las <strong>${escapeHtml(timeLabel)}</strong>.
                     </p>
-                    <button onclick="closeModal()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-sm font-medium">Entendido y Cerrar</button>
+                    <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4 space-y-1">
+                        <p class="text-xs font-semibold text-sky-900 uppercase">Tu código de consulta</p>
+                        <p class="text-xl font-extrabold font-mono text-sky-950">${escapeHtml(codigoCaso)}</p>
+                        <p class="text-xs text-sky-800">Úsalo junto con tu correo (<strong>${escapeHtml(email)}</strong>) en el Portal del Consultante.</p>
+                    </div>
+                    ${emailNotice}
+                    <div class="flex flex-col sm:flex-row gap-2 pt-2">
+                        <a href="portal-consultante.html" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white py-3 rounded-xl text-sm font-semibold transition">
+                            Ir al Portal del Consultante
+                        </a>
+                        <button onclick="closeModal()" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl text-sm font-medium transition">
+                            Cerrar
+                        </button>
+                    </div>
                 </div>
             `;
-            showToast("¡Comprobante enviado para revisión!");
+            showToast("¡Reserva registrada y enviada al profesional!");
         }
 
         function showToast(msg) {

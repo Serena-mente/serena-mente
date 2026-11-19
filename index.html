@@ -151,22 +151,6 @@
                     </form>
 
                     <div id="therapist-status-banner" class="hidden text-xs text-left p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800"></div>
-
-                    <div id="therapist-dashboard" class="hidden text-left mt-4 p-4 bg-white rounded-2xl border border-emerald-200 text-xs space-y-3 max-h-80 overflow-y-auto">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                            <div>
-                                <p id="therapist-name-display" class="font-bold text-emerald-900 text-sm">Profesional</p>
-                                <p id="therapist-meta-display" class="text-[11px] text-slate-500">Rol y UID</p>
-                            </div>
-                            <button type="button" onclick="logoutTherapist()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg text-[11px] transition">
-                                Cerrar sesión
-                            </button>
-                        </div>
-                        <div class="space-y-1.5">
-                            <p class="font-bold text-slate-800">Registros y Citas en Historias Clínicas:</p>
-                            <div id="therapist-agenda-list" class="space-y-2 text-slate-600">Cargando registros...</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -255,81 +239,6 @@
             banner.textContent = text;
         }
 
-        async function loadTherapistRecords(listEl, therapistId) {
-            listEl.innerHTML = `<p class="text-slate-500">Consultando registros asignados...</p>`;
-
-            const { data, error } = await supabaseClient
-                .from('historias_clinicas')
-                .select('id, psicologo_id, cliente_email, tipo_caso, nombre_consultante, fecha_sesion, hora_sesion, estado_pago, enlace_meet')
-                .eq('psicologo_id', therapistId)
-                .order('fecha_sesion', { ascending: true });
-
-            if (error) {
-                listEl.innerHTML = `<p class="text-amber-700">No se pudieron cargar registros de <code>historias_clinicas</code>: ${error.message}</p>`;
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                listEl.innerHTML = `<p class="text-slate-500">Conexión activa con <code>historias_clinicas</code>: no tienes registros asignados por ahora.</p>`;
-                return;
-            }
-
-            listEl.innerHTML = data.map(row => `
-                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                    <p><strong>Consultante:</strong> ${row.nombre_consultante || 'Sin nombre'}</p>
-                    <p><strong>Correo:</strong> ${row.cliente_email || 'No registrado'}</p>
-                    <p><strong>Fecha / Hora:</strong> ${row.fecha_sesion || 'Por definir'} · ${row.hora_sesion || ''}</p>
-                    <p><strong>Estado de pago:</strong> ${row.estado_pago || 'Pendiente'}</p>
-                    ${row.enlace_meet ? `<p><a href="${row.enlace_meet}" target="_blank" rel="noopener noreferrer" class="text-sky-600 underline font-medium">Abrir sala Google Meet</a></p>` : ''}
-                </div>
-            `).join('');
-        }
-
-        async function renderAuthenticatedTherapist(user, emailFallback) {
-            const form = document.getElementById('therapist-login-form');
-            const dash = document.getElementById('therapist-dashboard');
-            const banner = document.getElementById('therapist-status-banner');
-            const subtitle = document.getElementById('therapist-subtitle');
-            const nameDisplay = document.getElementById('therapist-name-display');
-            const metaDisplay = document.getElementById('therapist-meta-display');
-            const agendaList = document.getElementById('therapist-agenda-list');
-
-            const { data: filasPerfil, error: perfilError } = await supabaseClient
-                .from('perfiles')
-                .select('*')
-                .eq('id', user.id);
-
-            if (perfilError) {
-                showTherapistMessage(`Error consultando perfiles: ${perfilError.message}`, true);
-                return;
-            }
-
-            if (!filasPerfil || filasPerfil.length === 0) {
-                showTherapistMessage(`Sesión iniciada (UID: ${user.id}), pero no se encontró fila en perfiles.`, true);
-                return;
-            }
-
-            const perfilData = filasPerfil[0];
-            banner.classList.add('hidden');
-            form.classList.add('hidden');
-            dash.classList.remove('hidden');
-
-            subtitle.textContent = 'Sesión profesional activa.';
-            nameDisplay.textContent = `${perfilData.nombre_completo || 'Profesional'} · ${perfilData.rol || 'psicologo'}`;
-            metaDisplay.textContent = `${perfilData.email || user.email || emailFallback} · UID: ${user.id}`;
-
-            await loadTherapistRecords(agendaList, user.id);
-        }
-
-        async function logoutTherapist() {
-            await supabaseClient.auth.signOut();
-            document.getElementById('therapist-dashboard').classList.add('hidden');
-            document.getElementById('therapist-status-banner').classList.add('hidden');
-            document.getElementById('therapist-login-form').classList.remove('hidden');
-            document.getElementById('therapist-password').value = '';
-            document.getElementById('therapist-subtitle').textContent = 'Inicia sesión con tu cuenta registrada para validar tu perfil y gestionar tus consultas.';
-        }
-
         async function loginConsultant(e) {
             e.preventDefault();
             const email = document.getElementById('consultant-email').value.trim().toLowerCase();
@@ -379,15 +288,24 @@
                 return;
             }
 
-            await renderAuthenticatedTherapist(authData.user, email);
-        }
+            const user = authData.user;
+            const { data: filasPerfil, error: perfilError } = await supabaseClient
+                .from('perfiles')
+                .select('id, rol')
+                .eq('id', user.id);
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            const { data } = await supabaseClient.auth.getSession();
-            if (data?.session?.user) {
-                await renderAuthenticatedTherapist(data.session.user, data.session.user.email);
+            if (perfilError) {
+                showTherapistMessage(`Error consultando perfiles: ${perfilError.message}`, true);
+                return;
             }
-        });
+
+            if (!filasPerfil || filasPerfil.length === 0) {
+                showTherapistMessage(`Sesión iniciada (UID: ${user.id}), pero no se encontró fila en perfiles.`, true);
+                return;
+            }
+
+            window.location.href = 'portal-profesional.html';
+        }
     </script>
 </body>
 </html>

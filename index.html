@@ -122,9 +122,10 @@
                 <!-- Portal Consultantes -->
                 <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 text-center">
                     <h3 class="text-xl font-bold text-slate-900">Portal de Consultantes</h3>
-                    <p class="text-sm text-slate-600">Ingresa con tu correo registrado para ver tu sesión, confirmar consentimiento, enviar un mensaje a tu psicólogo y unirte a Google Meet.</p>
+                    <p class="text-sm text-slate-600">Ingresa tu correo registrado y tu código de caso para ver tu sesión, confirmar consentimiento, enviar un mensaje a tu psicólogo y unirte a Google Meet.</p>
                     <form onsubmit="loginConsultant(event)" class="space-y-3 pt-2">
                         <input type="email" id="consultant-email" required placeholder="Tu correo electrónico registrado" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-sky-600">
+                        <input type="text" id="consultant-code" required placeholder="Código de caso (Ej. HC-2026-1234)" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm uppercase focus:outline-none focus:border-sky-600">
                         <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-3 rounded-xl text-sm transition shadow-md">
                             Ingresar a Mi Consulta
                         </button>
@@ -148,7 +149,7 @@
                     </div>
                     
                     <form id="therapist-login-form" onsubmit="loginTherapist(event)" class="space-y-3 pt-2">
-                        <input type="email" id="therapist-email" required value="psicoalexandersarmiento@gmail.com" placeholder="correo.profesional@gmail.com" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
+                        <input type="email" id="therapist-email" required placeholder="correo.profesional@gmail.com" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
                         <input type="password" id="therapist-password" required placeholder="Tu contraseña de Supabase" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
                         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl text-sm transition shadow-md">
                             Iniciar Sesión Profesional
@@ -243,7 +244,25 @@
             banner.textContent = text;
         }
 
-        async function sendConsultantUpdate(recordId, email) {
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function isSafeUrl(url) {
+            try {
+                const parsed = new URL(url);
+                return parsed.protocol === 'https:';
+            } catch {
+                return false;
+            }
+        }
+
+        async function sendConsultantUpdate(recordId, email, codigoCaso) {
             const msgInput = document.getElementById(`msg-input-${recordId}`);
             const consentCheck = document.getElementById(`consent-check-${recordId}`);
             const statusEl = document.getElementById(`msg-status-${recordId}`);
@@ -254,19 +273,15 @@
             statusEl.textContent = 'Guardando actualización...';
             statusEl.className = 'text-[11px] text-slate-500';
 
-            const { error } = await supabaseClient
-                .from('historias_clinicas')
-                .update({
-                    mensaje_consultante: mensaje || null,
-                    consentimiento_aceptado: consentimiento,
-                    consentimiento_fecha: consentimiento ? new Date().toISOString() : null,
-                    actualizado_en: new Date().toISOString()
-                })
-                .eq('id', recordId)
-                .eq('cliente_email', email);
+            const { data: updatedOk, error } = await supabaseClient.rpc('actualizar_mensaje_consultante', {
+                p_email: email,
+                p_codigo_caso: codigoCaso,
+                p_mensaje: mensaje,
+                p_consentimiento: consentimiento
+            });
 
-            if (error) {
-                statusEl.textContent = `No se pudo guardar (${error.message}). Revisa políticas RLS para consultantes si aplica.`;
+            if (error || !updatedOk) {
+                statusEl.textContent = `No se pudo guardar (${error?.message || 'verifica correo y código de caso'}).`;
                 statusEl.className = 'text-[11px] text-amber-700';
                 return;
             }
@@ -278,60 +293,73 @@
         async function loginConsultant(e) {
             e.preventDefault();
             const email = document.getElementById('consultant-email').value.trim().toLowerCase();
+            const codigoCaso = document.getElementById('consultant-code').value.trim().toUpperCase();
             const dash = document.getElementById('consultant-dashboard');
             const list = document.getElementById('consultant-appointments-list');
 
             dash.classList.remove('hidden');
             list.innerHTML = `<p class="text-slate-500">Consultando tu sesión...</p>`;
 
-            const { data, error } = await supabaseClient
-                .from('historias_clinicas')
-                .select('id, codigo_caso, cliente_email, tipo_caso, fecha_sesion, hora_sesion, estado_pago, enlace_meet, consentimiento_aceptado, mensaje_consultante')
-                .eq('cliente_email', email);
+            const { data, error } = await supabaseClient.rpc('consultar_cita_consultante', {
+                p_email: email,
+                p_codigo_caso: codigoCaso
+            });
 
             if (error) {
-                list.innerHTML = `<p class="text-amber-700">No fue posible consultar registros para <strong>${email}</strong> (${error.message}).</p>`;
+                list.innerHTML = `<p class="text-amber-700">No fue posible consultar tu cita (${escapeHtml(error.message)}).</p>`;
                 return;
             }
 
             if (!data || data.length === 0) {
-                list.innerHTML = `<p class="text-amber-700">No hay sesiones registradas con el correo <strong>${email}</strong>.</p>`;
+                list.innerHTML = `<p class="text-amber-700">No se encontró una cita con ese correo y código de caso.</p>`;
                 return;
             }
 
-            list.innerHTML = data.map(item => `
-                <div class="p-3.5 bg-sky-50/80 rounded-2xl border border-sky-100 space-y-2.5">
-                    <div class="flex items-center justify-between gap-2">
-                        <span class="font-bold text-sky-950">Código: ${item.codigo_caso || 'Asignado en consulta'}</span>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white border border-sky-200 text-sky-800">${item.estado_pago || 'Pendiente'}</span>
-                    </div>
-                    <p><strong>Tipo:</strong> ${item.tipo_caso || 'Orientación'}</p>
-                    <p><strong>Fecha / Hora:</strong> ${item.fecha_sesion || 'Por confirmar'} ${item.hora_sesion ? '· ' + item.hora_sesion : ''}</p>
+            list.innerHTML = data.map(item => {
+                const safeCode = escapeHtml(item.codigo_caso || codigoCaso);
+                const safeProName = escapeHtml(item.psicologo_nombre || 'Profesional asignado');
+                const safeProEmail = escapeHtml(item.psicologo_email || 'Por confirmar');
+                const safeTipo = escapeHtml(item.tipo_caso || 'Orientación');
+                const safeFecha = escapeHtml(item.fecha_sesion || 'Por confirmar');
+                const safeHora = item.hora_sesion ? `· ${escapeHtml(item.hora_sesion)}` : '';
+                const safePago = escapeHtml(item.estado_pago || 'Pendiente');
+                const safeMsg = escapeHtml(item.mensaje_consultante || '');
+                const meetButton = (item.enlace_meet && isSafeUrl(item.enlace_meet))
+                    ? `<div class="pt-1">
+                           <a href="${escapeHtml(item.enlace_meet)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3 rounded-xl transition">
+                               Entrar a Videollamada (Google Meet)
+                           </a>
+                       </div>`
+                    : `<p class="text-[11px] text-slate-500">El enlace de Google Meet aparecerá aquí cuando tu profesional lo habilite.</p>`;
 
-                    ${item.enlace_meet ? `
-                        <div class="pt-1">
-                            <a href="${item.enlace_meet}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3 rounded-xl transition">
-                                Entrar a Videollamada (Google Meet)
-                            </a>
+                return `
+                    <div class="p-3.5 bg-sky-50/80 rounded-2xl border border-sky-100 space-y-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-bold text-sky-950">Código: ${safeCode}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white border border-sky-200 text-sky-800">${safePago}</span>
                         </div>
-                    ` : `<p class="text-[11px] text-slate-500">El enlace de Google Meet aparecerá aquí cuando tu profesional lo habilite.</p>`}
-
-                    <div class="pt-2 border-t border-sky-200/70 space-y-2">
-                        <label class="inline-flex items-center gap-2 text-[11px] text-slate-700">
-                            <input type="checkbox" id="consent-check-${item.id}" ${item.consentimiento_aceptado ? 'checked' : ''} class="rounded border-slate-300 text-sky-600">
-                            Acepto el consentimiento informado para orientación virtual
-                        </label>
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Mensaje para tu psicólogo tratante:</label>
-                            <textarea id="msg-input-${item.id}" rows="2" placeholder="Escribe cómo te sientes o algún detalle previo a la sesión..." class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs focus:outline-none focus:border-sky-600">${item.mensaje_consultante || ''}</textarea>
+                        <p><strong>Psicólogo:</strong> ${safeProName}</p>
+                        <p><strong>Correo del psicólogo:</strong> ${safeProEmail}</p>
+                        <p><strong>Tipo:</strong> ${safeTipo}</p>
+                        <p><strong>Fecha / Hora:</strong> ${safeFecha} ${safeHora}</p>
+                        ${meetButton}
+                        <div class="pt-2 border-t border-sky-200/70 space-y-2">
+                            <label class="inline-flex items-center gap-2 text-[11px] text-slate-700">
+                                <input type="checkbox" id="consent-check-${escapeHtml(item.id)}" ${item.consentimiento_aceptado ? 'checked' : ''} class="rounded border-slate-300 text-sky-600">
+                                Acepto el consentimiento informado para orientación virtual
+                            </label>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Mensaje para tu psicólogo tratante:</label>
+                                <textarea id="msg-input-${escapeHtml(item.id)}" rows="2" placeholder="Escribe cómo te sientes o algún detalle previo a la sesión..." class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs focus:outline-none focus:border-sky-600">${safeMsg}</textarea>
+                            </div>
+                            <button type="button" onclick="sendConsultantUpdate('${escapeHtml(item.id)}', '${escapeHtml(email)}', '${safeCode}')" class="bg-sky-700 hover:bg-sky-800 text-white font-semibold px-3 py-1.5 rounded-xl text-[11px] transition">
+                                Guardar consentimiento y mensaje
+                            </button>
+                            <p id="msg-status-${escapeHtml(item.id)}" class="text-[11px] text-slate-500"></p>
                         </div>
-                        <button type="button" onclick="sendConsultantUpdate('${item.id}', '${email}')" class="bg-sky-700 hover:bg-sky-800 text-white font-semibold px-3 py-1.5 rounded-xl text-[11px] transition">
-                            Guardar consentimiento y mensaje
-                        </button>
-                        <p id="msg-status-${item.id}" class="text-[11px] text-slate-500"></p>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         async function loginTherapist(e) {

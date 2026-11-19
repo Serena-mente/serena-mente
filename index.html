@@ -138,19 +138,34 @@
                 </div>
 
                 <!-- Portal Profesionales -->
-                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 text-center">
+                <div id="therapist-card" class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 text-center">
                     <h3 class="text-xl font-bold text-slate-900">Portal de Profesionales</h3>
-                    <p class="text-sm text-slate-600">Inicia sesión con tu cuenta registrada para validar tu perfil y gestionar tus consultas.</p>
-                    <form onsubmit="loginTherapist(event)" class="space-y-3 pt-2">
+                    <p id="therapist-subtitle" class="text-sm text-slate-600">Inicia sesión con tu cuenta registrada para validar tu perfil y gestionar tus consultas.</p>
+                    
+                    <form id="therapist-login-form" onsubmit="loginTherapist(event)" class="space-y-3 pt-2">
                         <input type="email" id="therapist-email" required value="psicoalexandersarmiento@gmail.com" placeholder="correo.profesional@gmail.com" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
                         <input type="password" id="therapist-password" required placeholder="Tu contraseña de Supabase" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
                         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl text-sm transition shadow-md">
                             Iniciar Sesión Profesional
                         </button>
                     </form>
-                    <div id="therapist-dashboard" class="hidden text-left mt-4 p-4 bg-white rounded-2xl border border-emerald-200 text-xs space-y-2 max-h-60 overflow-y-auto">
-                        <p class="font-bold text-emerald-900">Sesión y Perfil:</p>
-                        <div id="therapist-agenda-list" class="space-y-2 text-slate-600">Validando acceso...</div>
+
+                    <div id="therapist-status-banner" class="hidden text-xs text-left p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800"></div>
+
+                    <div id="therapist-dashboard" class="hidden text-left mt-4 p-4 bg-white rounded-2xl border border-emerald-200 text-xs space-y-3 max-h-80 overflow-y-auto">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <div>
+                                <p id="therapist-name-display" class="font-bold text-emerald-900 text-sm">Profesional</p>
+                                <p id="therapist-meta-display" class="text-[11px] text-slate-500">Rol y UID</p>
+                            </div>
+                            <button type="button" onclick="logoutTherapist()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg text-[11px] transition">
+                                Cerrar sesión
+                            </button>
+                        </div>
+                        <div class="space-y-1.5">
+                            <p class="font-bold text-slate-800">Registros y Citas en Historias Clínicas:</p>
+                            <div id="therapist-agenda-list" class="space-y-2 text-slate-600">Cargando registros...</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -231,6 +246,86 @@
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        function showTherapistMessage(text, isError = true) {
+            const banner = document.getElementById('therapist-status-banner');
+            banner.classList.remove('hidden');
+            banner.className = isError
+                ? 'text-xs text-left p-3 rounded-xl bg-red-50 border border-red-200 text-red-700'
+                : 'text-xs text-left p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800';
+            banner.textContent = text;
+        }
+
+        async function loadTherapistRecords(listEl) {
+            listEl.innerHTML = `<p class="text-slate-500">Consultando registros en <code>historias_clinicas</code>...</p>`;
+
+            const { data, error } = await supabaseClient
+                .from('historias_clinicas')
+                .select('*')
+                .limit(20);
+
+            if (error) {
+                listEl.innerHTML = `<p class="text-amber-700">No se pudieron cargar registros de <code>historias_clinicas</code>: ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                listEl.innerHTML = `<p class="text-slate-500">Conexión activa con <code>historias_clinicas</code>: no hay registros visibles por ahora.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = data.map(row => `
+                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                    <p><strong>ID:</strong> ${row.id ?? 'Sin ID'}</p>
+                    <p><strong>Consultante:</strong> ${row.client_email || row.nombre_consultante || row.paciente || 'Registro #' + (row.id ?? '')}</p>
+                </div>
+            `).join('');
+        }
+
+        async function renderAuthenticatedTherapist(user, emailFallback) {
+            const form = document.getElementById('therapist-login-form');
+            const dash = document.getElementById('therapist-dashboard');
+            const banner = document.getElementById('therapist-status-banner');
+            const subtitle = document.getElementById('therapist-subtitle');
+            const nameDisplay = document.getElementById('therapist-name-display');
+            const metaDisplay = document.getElementById('therapist-meta-display');
+            const agendaList = document.getElementById('therapist-agenda-list');
+
+            const { data: filasPerfil, error: perfilError } = await supabaseClient
+                .from('perfiles')
+                .select('*')
+                .eq('id', user.id);
+
+            if (perfilError) {
+                showTherapistMessage(`Error consultando perfiles: ${perfilError.message}`, true);
+                return;
+            }
+
+            if (!filasPerfil || filasPerfil.length === 0) {
+                showTherapistMessage(`Sesión iniciada (UID: ${user.id}), pero no se encontró fila en perfiles.`, true);
+                return;
+            }
+
+            const perfilData = filasPerfil[0];
+            banner.classList.add('hidden');
+            form.classList.add('hidden');
+            dash.classList.remove('hidden');
+
+            subtitle.textContent = 'Sesión profesional activa.';
+            nameDisplay.textContent = `${perfilData.nombre_completo || 'Profesional'} · ${perfilData.rol || 'psicologo'}`;
+            metaDisplay.textContent = `${perfilData.email || user.email || emailFallback} · UID: ${user.id}`;
+
+            await loadTherapistRecords(agendaList);
+        }
+
+        async function logoutTherapist() {
+            await supabaseClient.auth.signOut();
+            document.getElementById('therapist-dashboard').classList.add('hidden');
+            document.getElementById('therapist-status-banner').classList.add('hidden');
+            document.getElementById('therapist-login-form').classList.remove('hidden');
+            document.getElementById('therapist-password').value = '';
+            document.getElementById('therapist-subtitle').textContent = 'Inicia sesión con tu cuenta registrada para validar tu perfil y gestionar tus consultas.';
+        }
+
         async function loginConsultant(e) {
             e.preventDefault();
             const email = document.getElementById('consultant-email').value.trim().toLowerCase();
@@ -267,11 +362,8 @@
             e.preventDefault();
             const email = document.getElementById('therapist-email').value.trim().toLowerCase();
             const password = document.getElementById('therapist-password').value;
-            const dash = document.getElementById('therapist-dashboard');
-            const list = document.getElementById('therapist-agenda-list');
 
-            dash.classList.remove('hidden');
-            list.innerHTML = `<p class="text-slate-500">Autenticando en Supabase...</p>`;
+            showTherapistMessage('Autenticando en Supabase...', false);
 
             const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
                 email,
@@ -279,36 +371,19 @@
             });
 
             if (authError) {
-                list.innerHTML = `<p class="text-red-600">Error de inicio de sesión: ${authError.message}</p>`;
+                showTherapistMessage(`Error de inicio de sesión: ${authError.message}`, true);
                 return;
             }
 
-            const user = authData.user;
-            const { data: filasPerfil, error: perfilError } = await supabaseClient
-                .from('perfiles')
-                .select('*')
-                .eq('id', user.id);
-
-            if (perfilError) {
-                list.innerHTML = `<p class="text-red-600">Error consultando <code>perfiles</code>: ${perfilError.message}</p>`;
-                return;
-            }
-
-            if (!filasPerfil || filasPerfil.length === 0) {
-                list.innerHTML = `<p class="text-amber-700">Sesión iniciada (UID: <strong>${user.id}</strong>), pero la consulta a <code>perfiles</code> devolvió 0 filas.</p>`;
-                return;
-            }
-
-            const perfilData = filasPerfil[0];
-            list.innerHTML = `
-                <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100 space-y-1">
-                    <p><strong>Profesional:</strong> ${perfilData.nombre_completo || 'Registrado'}</p>
-                    <p><strong>Rol:</strong> <span class="font-bold text-emerald-700">${perfilData.rol}</span></p>
-                    <p><strong>Correo:</strong> ${perfilData.email || email}</p>
-                    <p><strong>UID:</strong> <span class="font-mono text-[11px]">${user.id}</span></p>
-                </div>
-            `;
+            await renderAuthenticatedTherapist(authData.user, email);
         }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data } = await supabaseClient.auth.getSession();
+            if (data?.session?.user) {
+                await renderAuthenticatedTherapist(data.session.user, data.session.user.email);
+            }
+        });
     </script>
 </body>
 </html>

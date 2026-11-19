@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Portal Profesional — Serena Mente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        serena: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                            light: '#e0f2fe',
+                            blue: '#0284c7',
+                            darkblue: '#0369a1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Topbar -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="text-lg font-bold bg-gradient-to-r from-serena-700 to-serena-blue bg-clip-text text-transparent">
+                    Serena Mente
+                </a>
+                <span class="hidden sm:inline-block text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">
+                    Portal Profesional
+                </span>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="index.html" class="text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 bg-white transition">
+                    Inicio
+                </a>
+                <button type="button" onclick="logoutTherapist()" class="text-xs sm:text-sm font-semibold text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg border border-red-200 bg-white transition">
+                    Cerrar sesión
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+        <!-- Loading / Status State -->
+        <div id="portal-status" class="bg-white rounded-2xl border border-slate-200 p-6 text-sm text-slate-600 shadow-sm">
+            Verificando sesión profesional en Supabase...
+        </div>
+
+        <!-- Authenticated Workspace -->
+        <div id="portal-workspace" class="hidden space-y-6">
+            <!-- Profile Banner -->
+            <section class="bg-white rounded-3xl border border-emerald-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="space-y-1">
+                    <span class="inline-block text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
+                        Sesión activa
+                    </span>
+                    <h1 id="pro-name" class="text-2xl sm:text-3xl font-extrabold text-slate-900 pt-1">Profesional</h1>
+                    <p id="pro-details" class="text-sm text-slate-600 break-all">Rol · Correo · UID</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="refreshRecords()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition">
+                        Actualizar registros
+                    </button>
+                </div>
+            </section>
+
+            <!-- Summary Cards -->
+            <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase text-slate-500">Registros asignados</p>
+                    <p id="stat-total" class="text-2xl font-extrabold text-slate-900 mt-1">0</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase text-slate-500">Pagos confirmados</p>
+                    <p id="stat-paid" class="text-2xl font-extrabold text-emerald-700 mt-1">0</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                    <p class="text-xs font-semibold uppercase text-slate-500">Salas Meet listas</p>
+                    <p id="stat-meet" class="text-2xl font-extrabold text-sky-700 mt-1">0</p>
+                </div>
+            </section>
+
+            <!-- Clinical Records / Appointments -->
+            <section class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Historias Clínicas y Consultas</h2>
+                        <p class="text-xs text-slate-500">Registros asociados a tu cuenta profesional en <code>public.historias_clinicas</code>.</p>
+                    </div>
+                </div>
+                <div id="pro-records-list" class="space-y-3 text-sm text-slate-600">
+                    Cargando registros...
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-center py-5 px-4 text-xs">
+        &copy; 2026 Serena Mente — Espacio Profesional
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentTherapistId = null;
+
+        function showPortalError(message) {
+            const statusEl = document.getElementById('portal-status');
+            statusEl.classList.remove('hidden');
+            statusEl.className = 'bg-red-50 rounded-2xl border border-red-200 p-6 text-sm text-red-700 space-y-3';
+            statusEl.innerHTML = `
+                <p class="font-semibold">${message}</p>
+                <a href="index.html#portal-acceso" class="inline-block bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg">
+                    Volver al acceso
+                </a>
+            `;
+        }
+
+        async function loadClinicalRecords(therapistId) {
+            const listEl = document.getElementById('pro-records-list');
+            const totalEl = document.getElementById('stat-total');
+            const paidEl = document.getElementById('stat-paid');
+            const meetEl = document.getElementById('stat-meet');
+
+            listEl.innerHTML = `<p class="text-slate-500">Consultando registros en <code>historias_clinicas</code>...</p>`;
+
+            const { data, error } = await supabaseClient
+                .from('historias_clinicas')
+                .select('id, psicologo_id, cliente_email, tipo_caso, nombre_consultante, fecha_sesion, hora_sesion, estado_pago, enlace_meet')
+                .eq('psicologo_id', therapistId)
+                .order('fecha_sesion', { ascending: true });
+
+            if (error) {
+                listEl.innerHTML = `<p class="text-amber-700">No se pudieron cargar registros: ${error.message}</p>`;
+                return;
+            }
+
+            const rows = data || [];
+            totalEl.textContent = rows.length;
+            paidEl.textContent = rows.filter(r => (r.estado_pago || '').toLowerCase().includes('pagad') || (r.estado_pago || '').toLowerCase().includes('confirm')).length;
+            meetEl.textContent = rows.filter(r => Boolean(r.enlace_meet)).length;
+
+            if (rows.length === 0) {
+                listEl.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 text-sm">
+                        Conexión activa con <code>historias_clinicas</code>: aún no tienes registros asignados.
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = rows.map(row => `
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="space-y-1 text-xs sm:text-sm">
+                        <p class="font-bold text-slate-900">${row.nombre_consultante || 'Consultante sin nombre'}</p>
+                        <p class="text-slate-600"><strong>Correo:</strong> ${row.cliente_email || 'No registrado'} · <strong>Tipo:</strong> ${row.tipo_caso || 'Consulta'}</p>
+                        <p class="text-slate-600"><strong>Fecha / Hora:</strong> ${row.fecha_sesion || 'Por definir'} ${row.hora_sesion ? '· ' + row.hora_sesion : ''}</p>
+                        <p class="text-slate-600"><strong>Estado de pago:</strong> <span class="font-semibold text-emerald-700">${row.estado_pago || 'Pendiente'}</span></p>
+                    </div>
+                    ${row.enlace_meet ? `
+                        <a href="${row.enlace_meet}" target="_blank" rel="noopener noreferrer" class="self-start sm:self-center bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+                            Unirse a Meet
+                        </a>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function refreshRecords() {
+            if (currentTherapistId) {
+                await loadClinicalRecords(currentTherapistId);
+            }
+        }
+
+        async function logoutTherapist() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'index.html#portal-acceso';
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+
+            if (sessionError || !sessionData?.session?.user) {
+                window.location.href = 'index.html#portal-acceso';
+                return;
+            }
+
+            const user = sessionData.session.user;
+            const { data: perfiles, error: perfilError } = await supabaseClient
+                .from('perfiles')
+                .select('*')
+                .eq('id', user.id);
+
+            if (perfilError) {
+                showPortalError(`Error al validar tu perfil: ${perfilError.message}`);
+                return;
+            }
+
+            if (!perfiles || perfiles.length === 0) {
+                showPortalError(`Tu sesión está activa (UID: ${user.id}), pero no se encontró tu registro en perfiles.`);
+                return;
+            }
+
+            const perfil = perfiles[0];
+            currentTherapistId = user.id;
+
+            document.getElementById('portal-status').classList.add('hidden');
+            document.getElementById('portal-workspace').classList.remove('hidden');
+
+            document.getElementById('pro-name').textContent = perfil.nombre_completo || 'Profesional';
+            document.getElementById('pro-details').textContent = `Rol: ${perfil.rol || 'psicologo'} · Correo: ${perfil.email || user.email} · UID: ${user.id}`;
+
+            await loadClinicalRecords(user.id);
+        });
+    </script>
+</body>
+</html>

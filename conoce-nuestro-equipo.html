@@ -102,10 +102,12 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        const RECEIPTS_BUCKET = 'comprobantes';
+
         // Configura EmailJS si deseas enviar el correo automáticamente al agendar
-        const EMAILJS_PUBLIC_KEY = '';   // Ej. 'tu_public_key'
-        const EMAILJS_SERVICE_ID = '';   // Ej. 'tu_service_id'
-        const EMAILJS_TEMPLATE_ID = '';  // Ej. 'tu_template_id'
+        const EMAILJS_PUBLIC_KEY = '';
+        const EMAILJS_SERVICE_ID = '';
+        const EMAILJS_TEMPLATE_ID = '';
         if (EMAILJS_PUBLIC_KEY && window.emailjs) {
             window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
         }
@@ -198,6 +200,14 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function sanitizeFileName(name) {
+            return String(name || 'comprobante')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9._-]/g, '_')
+                .slice(0, 80);
+        }
+
         function convert12hTo24h(timeStr) {
             const match = String(timeStr || '').trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
             if (!match) return null;
@@ -219,7 +229,35 @@
             });
         }
 
-        async function sendBookingEmail({ codigoCaso, psiName, psiEmail, clientName, clientEmail, clientPhone, date, time, receiptName, receiptDataUrl }) {
+        async function uploadReceiptToStorage(file, proUuid) {
+            if (!file) return { path: null, error: 'No se seleccionó archivo' };
+
+            const maxBytes = 5 * 1024 * 1024; // 5 MB
+            if (file.size > maxBytes) {
+                return { path: null, error: 'El comprobante supera el límite de 5 MB.' };
+            }
+
+            const now = new Date();
+            const dateFolder = now.toISOString().slice(0, 10);
+            const safeName = sanitizeFileName(file.name);
+            const filePath = `${proUuid}/${dateFolder}/${Date.now()}-${safeName}`;
+
+            const { data, error } = await supabaseClient.storage
+                .from(RECEIPTS_BUCKET)
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false,
+                    contentType: file.type || undefined
+                });
+
+            if (error) {
+                return { path: null, error: error.message };
+            }
+
+            return { path: data?.path || filePath, error: null };
+        }
+
+        async function sendBookingEmail({ codigoCaso, comprobantePath, psiName, psiEmail, clientName, clientEmail, clientPhone, date, time, receiptName, receiptDataUrl }) {
             if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !window.emailjs) {
                 return { sent: false, reason: 'EmailJS no configurado aún' };
             }
@@ -227,6 +265,7 @@
             try {
                 await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                     codigo_caso: codigoCaso,
+                    comprobante_ruta: comprobantePath || '',
                     psicologo_nombre: psiName,
                     psicologo_email: psiEmail,
                     consultante_nombre: clientName,
@@ -326,7 +365,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Adjuntar Comprobante de Pago (Nequi / Daviplata)</label>
                         <input type="file" id="book-receipt" accept="image/*,.pdf" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-600">
-                        <p class="text-[10px] text-slate-400 mt-1">Sube la captura de tu transferencia de $80.000 COP al 300 000 0000.</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Sube la captura de tu transferencia de $80.000 COP al 300 000 0000 (máx. 5 MB).</p>
                     </div>
                     <div id="booking-error" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3"></div>
                     <button type="submit" id="btn-submit-booking" class="w-full bg-serena-600 hover:bg-serena-700 text-white font-medium py-3.5 rounded-xl transition text-sm shadow-md">
@@ -367,9 +406,20 @@
             const receiptName = receiptFile ? receiptFile.name : "Comprobante.jpg";
 
             submitBtn.disabled = true;
+            submitBtn.textContent = 'Subiendo comprobante...';
+
+            const uploadResult = await uploadReceiptToStorage(receiptFile, proUuid);
+            if (uploadResult.error) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Reserva y Comprobante para Validación';
+                errorBox.textContent = `No se pudo subir el comprobante a Storage: ${uploadResult.error}`;
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
             submitBtn.textContent = 'Registrando reserva...';
 
-            const mensajeInicial = `Reserva solicitada (${timeLabel}) · WhatsApp: ${phone} · Comprobante adjunto: ${receiptName}`;
+            const mensajeInicial = `Reserva solicitada (${timeLabel}) · WhatsApp: ${phone} · Comprobante: ${receiptName}`;
 
             const { data: rpcData, error: rpcError } = await supabaseClient.rpc('agendar_cita_consultante', {
                 p_psicologo_id: proUuid,
@@ -379,7 +429,7 @@
                 p_fecha_sesion: date || null,
                 p_hora_sesion: time24,
                 p_mensaje_consultante: mensajeInicial,
-                p_comprobante_url: null
+                p_comprobante_url: uploadResult.path
             });
 
             submitBtn.disabled = false;
@@ -397,6 +447,7 @@
             appointments.push({
                 id: created.id || Date.now(),
                 codigoCaso,
+                comprobantePath: uploadResult.path,
                 psiId,
                 psiName: psi.name,
                 psiEmail: psi.email,
@@ -413,6 +464,7 @@
             const receiptDataUrl = await fileToBase64(receiptFile);
             const emailResult = await sendBookingEmail({
                 codigoCaso,
+                comprobantePath: uploadResult.path,
                 psiName: psi.name,
                 psiEmail: psi.email,
                 clientName: name,
@@ -434,7 +486,7 @@
                     <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">Reserva Registrada</span>
                     <h3 class="text-2xl font-bold text-slate-900">¡Solicitud Enviada a ${escapeHtml(psi.name)}!</h3>
                     <p class="text-sm text-slate-600">
-                        Tu cita quedó registrada con el comprobante <strong>${escapeHtml(receiptName)}</strong> para el <strong>${escapeHtml(date)}</strong> a las <strong>${escapeHtml(timeLabel)}</strong>.
+                        Tu comprobante (<strong>${escapeHtml(receiptName)}</strong>) fue subido a la plataforma y tu cita quedó registrada para el <strong>${escapeHtml(date)}</strong> a las <strong>${escapeHtml(timeLabel)}</strong>.
                     </p>
                     <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4 space-y-1">
                         <p class="text-xs font-semibold text-sky-900 uppercase">Tu código de consulta</p>
@@ -452,7 +504,7 @@
                     </div>
                 </div>
             `;
-            showToast("¡Reserva registrada y enviada al profesional!");
+            showToast("¡Comprobante subido y reserva registrada!");
         }
 
         function showToast(msg) {

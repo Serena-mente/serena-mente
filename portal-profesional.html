@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>Portal Profesional — Serena Mente</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -20,9 +17,7 @@
                             600: '#059669',
                             700: '#047857',
                             900: '#064e3b',
-                            light: '#e0f2fe',
-                            blue: '#0284c7',
-                            darkblue: '#0369a1'
+                            blue: '#0284c7'
                         }
                     }
                 }
@@ -31,229 +26,203 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- Topbar (sin botón de Inicio) -->
-    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <!-- Header -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <span class="text-lg font-bold bg-gradient-to-r from-serena-700 to-serena-blue bg-clip-text text-transparent">
+                <a href="index.html" class="text-lg font-bold bg-gradient-to-r from-serena-700 to-serena-blue bg-clip-text text-transparent">
                     Serena Mente
-                </span>
-                <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">
+                </a>
+                <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
                     Portal Profesional
                 </span>
             </div>
-            <button type="button" onclick="logoutTherapist()" class="text-xs sm:text-sm font-semibold text-red-700 hover:bg-red-50 px-3.5 py-1.5 rounded-lg border border-red-200 bg-white transition">
-                Cerrar sesión
-            </button>
+            <div id="session-bar" class="hidden items-center space-x-3 text-sm">
+                <span id="pro-email-label" class="text-slate-600 font-medium hidden sm:inline"></span>
+                <button onclick="logoutPro()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-1.5 rounded-xl font-medium transition">
+                    Cerrar sesión
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <!-- Main -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <!-- Loading / Status State -->
-        <div id="portal-status" class="bg-white rounded-2xl border border-slate-200 p-6 text-sm text-slate-600 shadow-sm">
-            Verificando sesión profesional en Supabase...
-        </div>
+        <!-- Login View -->
+        <section id="login-section" class="max-w-md mx-auto bg-white rounded-3xl p-8 shadow-md border border-slate-200 mt-8">
+            <h1 class="text-2xl font-extrabold text-slate-900">Acceso Profesional</h1>
+            <p class="text-sm text-slate-500 mt-1">Inicia sesión con tu cuenta registrada en Serena Mente para gestionar citas, pagos e historias clínicas.</p>
 
-        <!-- Authenticated Workspace -->
-        <div id="portal-workspace" class="hidden space-y-6">
-            <!-- Profile Banner -->
-            <section class="bg-white rounded-3xl border border-emerald-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div class="space-y-1">
-                    <span class="inline-block text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-                        Sesión activa
-                    </span>
-                    <h1 id="pro-name" class="text-2xl sm:text-3xl font-extrabold text-slate-900 pt-1">Profesional</h1>
-                    <p id="pro-details" class="text-sm text-slate-600 break-all">Rol · Correo · UID</p>
+            <form id="pro-login-form" onsubmit="loginPro(event)" class="space-y-4 mt-6">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Correo electrónico</label>
+                    <input type="email" id="pro-email" required placeholder="tu-correo@ejemplo.com"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="openNewRecordForm()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition">
-                        + Nueva historia clínica
-                    </button>
-                    <button type="button" onclick="refreshRecords()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition">
-                        Actualizar registros
-                    </button>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Contraseña</label>
+                    <input type="password" id="pro-password" required placeholder="••••••••"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
                 </div>
-            </section>
+                <div id="login-error" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3"></div>
+                <button type="submit" id="btn-login"
+                    class="w-full bg-serena-600 hover:bg-serena-700 text-white font-semibold py-3 rounded-xl text-sm shadow transition">
+                    Ingresar al Panel
+                </button>
+            </form>
+        </section>
 
-            <!-- Feedback Banner -->
-            <div id="workspace-alert" class="hidden rounded-2xl p-4 text-sm border"></div>
+        <!-- Dashboard View -->
+        <section id="dashboard-section" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-900">Historias Clínicas y Reservas</h1>
+                    <p class="text-sm text-slate-500">Revisa comprobantes de pago, confirma reservas y diligencia la valoración clínica.</p>
+                </div>
+                <button onclick="loadHistorias()" class="self-start bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
+                    Actualizar lista
+                </button>
+            </div>
 
-            <!-- New Clinical Record Form -->
-            <section id="new-record-section" class="hidden bg-white rounded-3xl border border-sky-200 p-6 sm:p-8 shadow-sm space-y-5">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-900">Redactar Historia Clínica Inicial</h2>
-                        <p class="text-xs text-slate-500">Incluye código confidencial automático, examen mental, funciones biológicas y consentimiento.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Lista de consultantes -->
+                <div class="lg:col-span-4 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">Consultantes asignados</h2>
+                    <div id="cases-list" class="space-y-2.5 max-h-[70vh] overflow-y-auto pr-1">
+                        <p class="text-sm text-slate-400">Cargando registros...</p>
                     </div>
-                    <button type="button" onclick="toggleNewRecordForm(false)" class="text-xs font-semibold text-slate-500 hover:text-slate-800 px-3 py-1.5 rounded-lg border border-slate-200">
-                        Cancelar
-                    </button>
                 </div>
 
-                <form id="new-record-form" onsubmit="createClinicalRecord(event)" class="space-y-5 text-sm">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Código confidencial</label>
-                            <div class="flex gap-1.5">
-                                <input type="text" id="rec-codigo" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800">
-                                <button type="button" onclick="setGeneratedCode()" title="Generar nuevo código" class="px-2.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold">↻</button>
+                <!-- Detalle y Edición -->
+                <div id="editor-container" class="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+                    <div id="empty-editor" class="text-center py-16 text-slate-400 space-y-2">
+                        <p class="text-base font-medium text-slate-600">Selecciona un consultante de la lista</p>
+                        <p class="text-sm">Podrás ver el comprobante de pago, confirmarlo y editar su historia clínica.</p>
+                    </div>
+
+                    <div id="active-editor" class="hidden space-y-6">
+                        <!-- Encabezado del caso + Estado de Pago -->
+                        <div class="flex flex-wrap items-start justify-between gap-4 pb-5 border-b border-slate-100">
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span id="hc-codigo" class="font-mono text-sm font-extrabold bg-sky-50 text-sky-900 border border-sky-200 px-3 py-1 rounded-lg"></span>
+                                    <span id="hc-pago-badge" class="text-xs font-bold px-3 py-1 rounded-full"></span>
+                                </div>
+                                <h2 id="hc-nombre" class="text-xl font-extrabold text-slate-900 mt-2"></h2>
+                                <p id="hc-meta" class="text-xs text-slate-500 mt-0.5"></p>
                             </div>
+                            <button type="button" id="btn-confirmar-pago" onclick="confirmarPagoActual()"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm shadow-sm transition">
+                                ✓ Confirmar Pago
+                            </button>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre consultante *</label>
-                            <input type="text" id="rec-nombre" required placeholder="Nombre completo" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Edad</label>
-                            <input type="text" id="rec-edad" placeholder="Ej. 27 años" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Género</label>
-                            <select id="rec-genero" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 bg-white focus:outline-none focus:border-emerald-600">
-                                <option value="No especificado">No especificado</option>
-                                <option value="Femenino">Femenino</option>
-                                <option value="Masculino">Masculino</option>
-                                <option value="No binario">No binario</option>
-                                <option value="Otro">Otro</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Número de documento</label>
-                            <input type="text" id="rec-documento" placeholder="CC / TI / CE" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Correo consultante *</label>
-                            <input type="email" id="rec-email" required placeholder="consultante@correo.com" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de caso</label>
-                            <select id="rec-tipo" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 bg-white focus:outline-none focus:border-emerald-600">
-                                <option value="Orientación Individual">Orientación Individual</option>
-                                <option value="Seguimiento Clínico">Seguimiento Clínico</option>
-                                <option value="Orientación Jurídica">Orientación Jurídica</option>
-                                <option value="Consultoría Organizacional">Consultoría Organizacional</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Estado de pago</label>
-                            <select id="rec-pago" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 bg-white focus:outline-none focus:border-emerald-600">
-                                <option value="Pendiente">Pendiente</option>
-                                <option value="Pagado">Pagado</option>
-                            </select>
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Orientación (Tiempo, Lugar y Persona)</label>
-                            <input type="text" id="rec-orientacion" placeholder="Ej. Orientado en tiempo, lugar y persona" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
+                        <!-- Visor de Comprobante -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Comprobante de Pago</h3>
+                                <a id="hc-comprobante-link" href="#" target="_blank" rel="noopener noreferrer"
+                                    class="hidden text-xs font-semibold text-serena-700 hover:underline">
+                                    Abrir en pestaña nueva ↗
+                                </a>
+                            </div>
+                            <p id="hc-comprobante-estado" class="text-xs text-slate-500">Sin comprobante adjunto.</p>
+                            <div id="hc-comprobante-preview" class="hidden pt-1"></div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Ciclo de sueño y vigilia</label>
-                            <input type="text" id="rec-sueno" placeholder="Ej. Sueño reparador 7h / despertar nocturno" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Alimentación</label>
-                            <input type="text" id="rec-alimentacion" placeholder="Ej. Conservada / disminuida en últimos días" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Discurso / Relato del consultante</label>
-                            <textarea id="rec-discurso" rows="3" placeholder="Narrativa, motivo de consulta y expresión verbal..." class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-emerald-600"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Observación / Impresión clínica del psicólogo</label>
-                            <textarea id="rec-observacion" rows="3" placeholder="Actitud, afecto, coherencia, hallazgos clínicos..." class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-emerald-600"></textarea>
-                        </div>
-                    </div>
+                        <!-- Formulario de Historia Clínica -->
+                        <form id="hc-form" onsubmit="guardarHistoriaClinica(event)" class="space-y-5">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Edad</label>
+                                    <input type="text" id="hc-edad" placeholder="Ej. 26 años"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Género</label>
+                                    <select id="hc-genero"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Femenino">Femenino</option>
+                                        <option value="Masculino">Masculino</option>
+                                        <option value="No binario">No binario</option>
+                                        <option value="Prefiero no decir">Prefiero no decir</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-end pb-1">
+                                    <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 w-full">
+                                        <input type="checkbox" id="hc-consentimiento" class="w-4 h-4 accent-serena-600 rounded">
+                                        <span class="text-xs font-semibold text-slate-700">Consentimiento informado</span>
+                                    </label>
+                                </div>
+                            </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Fecha de sesión</label>
-                            <input type="date" id="rec-fecha" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Hora de sesión</label>
-                            <input type="time" id="rec-hora" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Enlace Google Meet</label>
-                            <input type="url" id="rec-meet" placeholder="https://meet.google.com/..." class="w-full border border-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-600">
-                        </div>
-                    </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Sueño</label>
+                                    <textarea id="hc-sueno" rows="2" placeholder="Calidad, horas, conciliación, despertares..."
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Vigilia</label>
+                                    <textarea id="hc-vigilia" rows="2" placeholder="Nivel de alerta, energía diurna, fatiga..."
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Alimentación</label>
+                                    <textarea id="hc-alimentacion" rows="2" placeholder="Apetito, hábitos, cambios recientes..."
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Discurso</label>
+                                    <textarea id="hc-discurso" rows="2" placeholder="Ritmo, coherencia, tono afectivo, claridad..."
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                </div>
+                            </div>
 
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-                        <label class="inline-flex items-center gap-2 text-xs font-medium text-slate-700">
-                            <input type="checkbox" id="rec-consentimiento" required class="rounded border-slate-300 text-emerald-600">
-                            Consentimiento informado verificado / aceptado para atención psicológica virtual
-                        </label>
-                        <button type="submit" id="btn-save-record" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-sm transition">
-                            Guardar historia clínica
-                        </button>
-                    </div>
-                </form>
-            </section>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Observación Clínica</label>
+                                <textarea id="hc-observacion" rows="4" placeholder="Apreciación clínica, motivo de consulta, formulación o plan de intervención..."
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                            </div>
 
-            <!-- Summary Cards -->
-            <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase text-slate-500">Registros asignados</p>
-                    <p id="stat-total" class="text-2xl font-extrabold text-slate-900 mt-1">0</p>
-                </div>
-                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase text-slate-500">Pagos confirmados</p>
-                    <p id="stat-paid" class="text-2xl font-extrabold text-emerald-700 mt-1">0</p>
-                </div>
-                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase text-slate-500">Salas Meet listas</p>
-                    <p id="stat-meet" class="text-2xl font-extrabold text-sky-700 mt-1">0</p>
-                </div>
-            </section>
+                            <div id="editor-feedback" class="hidden text-xs rounded-xl p-3"></div>
 
-            <!-- Clinical Records List -->
-            <section class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-900">Historias Clínicas y Consultas</h2>
-                        <p class="text-xs text-slate-500">Visualiza tus fichas clínicas, mensajes del consultante, pagos y enlaces de Google Meet.</p>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Buscar código, nombre o correo..." class="border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-emerald-600">
-                        <select id="filter-payment" onchange="applyFilters()" class="border border-slate-200 rounded-xl px-3.5 py-2 text-xs bg-white focus:outline-none focus:border-emerald-600">
-                            <option value="all">Todos los pagos</option>
-                            <option value="paid">Pagados / Confirmados</option>
-                            <option value="pending">Pendientes</option>
-                        </select>
+                            <div class="flex justify-end gap-3 pt-2">
+                                <button type="submit" id="btn-guardar-hc"
+                                    class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow transition">
+                                    Guardar Historia Clínica
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div id="pro-records-list" class="space-y-4 text-sm text-slate-600">
-                    Cargando registros...
-                </div>
-            </section>
-        </div>
+            </div>
+        </section>
     </main>
-
-    <footer class="bg-slate-900 text-slate-400 text-center py-5 px-4 text-xs">
-        &copy; 2026 Serena Mente — Espacio Profesional
-    </footer>
 
     <script>
         const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
-
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let currentTherapistId = null;
-        let allRecords = [];
+        const RECEIPTS_BUCKET = 'comprobantes';
+
+        let currentUser = null;
+        let historiasList = [];
+        let selectedHistoria = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session?.user) {
+                onAuthenticated(session.user);
+            }
+        });
 
         function escapeHtml(value) {
             return String(value ?? '')
@@ -264,408 +233,261 @@
                 .replace(/'/g, '&#39;');
         }
 
-        function isSafeUrl(url) {
-            try {
-                const parsed = new URL(url);
-                return parsed.protocol === 'https:';
-            } catch {
-                return false;
-            }
-        }
+        async function loginPro(event) {
+            event.preventDefault();
+            const email = document.getElementById('pro-email').value.trim();
+            const password = document.getElementById('pro-password').value;
+            const errBox = document.getElementById('login-error');
+            const btn = document.getElementById('btn-login');
 
-        function generateCaseCode() {
-            const year = new Date().getFullYear();
-            const randomPart = Math.floor(1000 + Math.random() * 9000);
-            return `HC-${year}-${randomPart}`;
-        }
+            errBox.classList.add('hidden');
+            btn.disabled = true;
+            btn.textContent = 'Ingresando...';
 
-        function setGeneratedCode() {
-            const input = document.getElementById('rec-codigo');
-            if (input) input.value = generateCaseCode();
-        }
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
-        function openNewRecordForm() {
-            setGeneratedCode();
-            toggleNewRecordForm(true);
-        }
+            btn.disabled = false;
+            btn.textContent = 'Ingresar al Panel';
 
-        function toggleNewRecordForm(forceState) {
-            const section = document.getElementById('new-record-section');
-            if (typeof forceState === 'boolean') {
-                section.classList.toggle('hidden', !forceState);
-            } else {
-                section.classList.toggle('hidden');
-            }
-        }
-
-        function showWorkspaceAlert(message, type = 'success') {
-            const alertEl = document.getElementById('workspace-alert');
-            alertEl.classList.remove('hidden');
-            alertEl.className = type === 'error'
-                ? 'rounded-2xl p-4 text-sm border bg-red-50 border-red-200 text-red-700'
-                : 'rounded-2xl p-4 text-sm border bg-emerald-50 border-emerald-200 text-emerald-800';
-            alertEl.textContent = message;
-            setTimeout(() => alertEl.classList.add('hidden'), 5000);
-        }
-
-        function showPortalError(message) {
-            const statusEl = document.getElementById('portal-status');
-            statusEl.classList.remove('hidden');
-            statusEl.className = 'bg-red-50 rounded-2xl border border-red-200 p-6 text-sm text-red-700 space-y-3';
-            statusEl.innerHTML = `
-                <p class="font-semibold">${escapeHtml(message)}</p>
-                <a href="index.html#portal-acceso" class="inline-block bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg">
-                    Volver al acceso
-                </a>
-            `;
-        }
-
-        async function deriveAesKey(saltText) {
-            const enc = new TextEncoder();
-            const keyMaterial = await window.crypto.subtle.importKey(
-                'raw',
-                enc.encode(`${SUPABASE_URL}::${saltText}`),
-                { name: 'PBKDF2' },
-                false,
-                ['deriveKey']
-            );
-            return window.crypto.subtle.deriveKey(
-                {
-                    name: 'PBKDF2',
-                    salt: enc.encode(`SerenaMente:${saltText}`),
-                    iterations: 100000,
-                    hash: 'SHA-256'
-                },
-                keyMaterial,
-                { name: 'AES-GCM', length: 256 },
-                false,
-                ['encrypt', 'decrypt']
-            );
-        }
-
-        function bytesToBase64(bytes) {
-            let binary = '';
-            const arr = new Uint8Array(bytes);
-            for (let i = 0; i < arr.length; i++) binary += String.fromCharCode(arr[i]);
-            return btoa(binary);
-        }
-
-        async function encryptClinicalPayload(obj, therapistId) {
-            const key = await deriveAesKey(therapistId);
-            const iv = window.crypto.getRandomValues(new Uint8Array(12));
-            const encoded = new TextEncoder().encode(JSON.stringify(obj));
-            const cipherBuffer = await window.crypto.subtle.encrypt(
-                { name: 'AES-GCM', iv },
-                key,
-                encoded
-            );
-            return {
-                cipherText: bytesToBase64(cipherBuffer),
-                ivText: bytesToBase64(iv)
-            };
-        }
-
-        function isPaidStatus(status) {
-            const val = (status || '').toLowerCase();
-            return val.includes('pagad') || val.includes('confirm');
-        }
-
-        function renderRecords(rows) {
-            const listEl = document.getElementById('pro-records-list');
-
-            if (!rows || rows.length === 0) {
-                listEl.innerHTML = `
-                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 text-sm">
-                        No hay registros que coincidan con el filtro actual. Usa <strong>+ Nueva historia clínica</strong> para crear uno.
-                    </div>
-                `;
+            if (error || !data.user) {
+                errBox.textContent = error?.message || 'Credenciales inválidas.';
+                errBox.classList.remove('hidden');
                 return;
             }
 
-            listEl.innerHTML = rows.map(row => {
-                const paid = isPaidStatus(row.estado_pago);
-                const nombre = row.nombre_consultante || 'Consultante sin nombre';
-                const edad = row.edad_o_cargo || 'No registrada';
-                const genero = row.genero || 'No especificado';
-                const doc = row.documento_o_nit || 'No registrado';
-                const orientacion = row.orientacion_tlp || 'Sin registrar';
-                const sueno = row.sueno_vigilia || 'Sin registrar';
-                const alimentacion = row.alimentacion || 'Sin registrar';
-                const discurso = row.discurso_relato || 'Sin relato registrado';
-                const observacion = row.observacion_clinica || 'Sin observación registrada';
-
-                const meetLinkHtml = (row.enlace_meet && isSafeUrl(row.enlace_meet))
-                    ? `<a href="${escapeHtml(row.enlace_meet)}" target="_blank" rel="noopener noreferrer" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition">Abrir Meet</a>`
-                    : '';
-
-                return `
-                    <div class="p-4 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
-                        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                            <div class="space-y-1 text-xs sm:text-sm">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="px-2.5 py-0.5 rounded-lg bg-slate-900 text-white font-mono text-xs font-bold">${escapeHtml(row.codigo_caso || 'SIN-COD')}</span>
-                                    <p class="font-bold text-slate-900 text-base">${escapeHtml(nombre)}</p>
-                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${paid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                                        ${escapeHtml(row.estado_pago || 'Pendiente')}
-                                    </span>
-                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${row.consentimiento_aceptado ? 'bg-sky-100 text-sky-800' : 'bg-red-100 text-red-800'}">
-                                        ${row.consentimiento_aceptado ? 'Consentimiento aceptado' : 'Consentimiento pendiente'}
-                                    </span>
-                                </div>
-                                <p class="text-slate-600"><strong>Edad:</strong> ${escapeHtml(edad)} · <strong>Género:</strong> ${escapeHtml(genero)} · <strong>Doc:</strong> ${escapeHtml(doc)}</p>
-                                <p class="text-slate-600"><strong>Correo:</strong> ${escapeHtml(row.cliente_email || 'No registrado')} · <strong>Tipo:</strong> ${escapeHtml(row.tipo_caso || 'Consulta')}</p>
-                                <p class="text-slate-600"><strong>Fecha / Hora:</strong> ${escapeHtml(row.fecha_sesion || 'Por definir')} ${row.hora_sesion ? '· ' + escapeHtml(row.hora_sesion) : ''}</p>
-                            </div>
-                            <div class="flex flex-wrap items-center gap-2">
-                                <button type="button" onclick="togglePaymentStatus('${escapeHtml(row.id)}', '${paid ? 'Pendiente' : 'Pagado'}')" class="text-xs font-semibold px-3 py-2 rounded-xl border transition ${paid ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100' : 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700'}">
-                                    ${paid ? 'Marcar Pendiente' : 'Confirmar Pago'}
-                                </button>
-                                ${meetLinkHtml}
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs bg-white p-3.5 rounded-xl border border-slate-200/80">
-                            <p><strong>Orientación T/L/P:</strong> ${escapeHtml(orientacion)}</p>
-                            <p><strong>Sueño y vigilia:</strong> ${escapeHtml(sueno)}</p>
-                            <p><strong>Alimentación:</strong> ${escapeHtml(alimentacion)}</p>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-white p-3.5 rounded-xl border border-slate-200/80">
-                            <div>
-                                <p class="font-bold text-slate-800 mb-1">Discurso / Relato:</p>
-                                <p class="text-slate-600 whitespace-pre-line">${escapeHtml(discurso)}</p>
-                            </div>
-                            <div>
-                                <p class="font-bold text-slate-800 mb-1">Observación clínica:</p>
-                                <p class="text-slate-600 whitespace-pre-line">${escapeHtml(observacion)}</p>
-                            </div>
-                        </div>
-
-                        ${row.mensaje_consultante ? `
-                            <div class="text-xs bg-sky-50 p-3 rounded-xl border border-sky-200 text-sky-950">
-                                <strong>Mensaje del consultante:</strong> ${escapeHtml(row.mensaje_consultante)}
-                            </div>
-                        ` : ''}
-
-                        <div class="pt-2 border-t border-slate-200/80 flex flex-col sm:flex-row gap-2">
-                            <input type="url" id="meet-input-${escapeHtml(row.id)}" value="${escapeHtml(row.enlace_meet || '')}" placeholder="Pegar enlace de Google Meet (https://meet.google.com/...)" class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-sky-600">
-                            <button type="button" onclick="saveMeetLink('${escapeHtml(row.id)}')" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl transition">
-                                Guardar enlace Meet
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            onAuthenticated(data.user);
         }
 
-        function applyFilters() {
-            const term = (document.getElementById('filter-search').value || '').trim().toLowerCase();
-            const payFilter = document.getElementById('filter-payment').value;
-
-            const filtered = allRecords.filter(row => {
-                const nombre = (row.nombre_consultante || '').toLowerCase();
-                const codigo = (row.codigo_caso || '').toLowerCase();
-                const correo = (row.cliente_email || '').toLowerCase();
-                const tipo = (row.tipo_caso || '').toLowerCase();
-
-                const matchesTerm = !term || nombre.includes(term) || codigo.includes(term) || correo.includes(term) || tipo.includes(term);
-                const paid = isPaidStatus(row.estado_pago);
-                const matchesPay = payFilter === 'all' || (payFilter === 'paid' && paid) || (payFilter === 'pending' && !paid);
-
-                return matchesTerm && matchesPay;
-            });
-
-            renderRecords(filtered);
+        async function logoutPro() {
+            await supabaseClient.auth.signOut();
+            currentUser = null;
+            selectedHistoria = null;
+            document.getElementById('session-bar').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
         }
 
-        async function loadClinicalRecords(therapistId) {
-            const listEl = document.getElementById('pro-records-list');
-            const totalEl = document.getElementById('stat-total');
-            const paidEl = document.getElementById('stat-paid');
-            const meetEl = document.getElementById('stat-meet');
+        function onAuthenticated(user) {
+            currentUser = user;
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            const bar = document.getElementById('session-bar');
+            bar.classList.remove('hidden');
+            bar.classList.add('flex');
+            document.getElementById('pro-email-label').textContent = user.email || '';
+            loadHistorias();
+        }
 
-            listEl.innerHTML = `<p class="text-slate-500">Consultando registros...</p>`;
+        async function loadHistorias() {
+            if (!currentUser) return;
+            const listEl = document.getElementById('cases-list');
+            listEl.innerHTML = '<p class="text-sm text-slate-400">Cargando registros...</p>';
 
             const { data, error } = await supabaseClient
                 .from('historias_clinicas')
                 .select('*')
-                .eq('psicologo_id', therapistId)
-                .order('fecha_sesion', { ascending: true });
+                .eq('psicologo_id', currentUser.id)
+                .order('actualizado_en', { ascending: false });
 
             if (error) {
-                listEl.innerHTML = `<p class="text-amber-700">No se pudieron cargar registros: ${escapeHtml(error.message)}</p>`;
+                listEl.innerHTML = `<p class="text-xs text-red-600 bg-red-50 p-3 rounded-xl">Error al cargar: ${escapeHtml(error.message)}</p>`;
                 return;
             }
 
-            allRecords = data || [];
-            totalEl.textContent = allRecords.length;
-            paidEl.textContent = allRecords.filter(r => isPaidStatus(r.estado_pago)).length;
-            meetEl.textContent = allRecords.filter(r => Boolean(r.enlace_meet)).length;
+            historiasList = data || [];
+            renderCasesList();
 
-            applyFilters();
+            if (selectedHistoria) {
+                const refreshed = historiasList.find(h => h.id === selectedHistoria.id);
+                if (refreshed) selectHistoria(refreshed.id);
+            } else if (historiasList.length > 0) {
+                selectHistoria(historiasList[0].id);
+            }
         }
 
-        async function createClinicalRecord(e) {
-            e.preventDefault();
-            if (!currentTherapistId) return;
-
-            const meetRaw = document.getElementById('rec-meet').value.trim();
-            if (meetRaw && !isSafeUrl(meetRaw)) {
-                showWorkspaceAlert('El enlace de Google Meet debe comenzar con https://', 'error');
+        function renderCasesList() {
+            const listEl = document.getElementById('cases-list');
+            if (!historiasList.length) {
+                listEl.innerHTML = '<p class="text-sm text-slate-400">No tienes citas o historias registradas aún.</p>';
                 return;
             }
 
-            const btn = document.getElementById('btn-save-record');
+            listEl.innerHTML = historiasList.map(h => {
+                const isSelected = selectedHistoria && selectedHistoria.id === h.id;
+                const pagoConfirmado = (h.estado_pago || '').toLowerCase().includes('confirm') || (h.estado_pago || '').toLowerCase().includes('pagad');
+                return `
+                    <button type="button" onclick="selectHistoria('${escapeHtml(h.id)}')"
+                        class="w-full text-left p-3.5 rounded-2xl border transition ${isSelected ? 'bg-serena-50 border-serena-500 shadow-sm' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'}">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-mono text-xs font-bold text-slate-700">${escapeHtml(h.codigo_caso || 'Sin código')}</span>
+                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${pagoConfirmado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                ${escapeHtml(h.estado_pago || 'Pendiente')}
+                            </span>
+                        </div>
+                        <p class="font-bold text-sm text-slate-900 mt-1 truncate">${escapeHtml(h.nombre_consultante || 'Consultante')}</p>
+                        <p class="text-xs text-slate-500 truncate">${escapeHtml(h.fecha_sesion || '')} · ${escapeHtml(h.hora_sesion || '')}</p>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        async function selectHistoria(id) {
+            const item = historiasList.find(h => String(h.id) === String(id));
+            if (!item) return;
+            selectedHistoria = item;
+            renderCasesList();
+
+            document.getElementById('empty-editor').classList.add('hidden');
+            document.getElementById('active-editor').classList.remove('hidden');
+            document.getElementById('editor-feedback').classList.add('hidden');
+
+            document.getElementById('hc-codigo').textContent = item.codigo_caso || 'HC';
+            document.getElementById('hc-nombre').textContent = item.nombre_consultante || 'Consultante';
+            document.getElementById('hc-meta').textContent =
+                `Correo: ${item.cliente_email || '—'} · Fecha: ${item.fecha_sesion || '—'} · Hora: ${item.hora_sesion || '—'}`;
+
+            updatePagoUI(item.estado_pago);
+
+            document.getElementById('hc-edad').value = item.edad || '';
+            document.getElementById('hc-genero').value = item.genero || '';
+            document.getElementById('hc-consentimiento').checked = Boolean(item.consentimiento_aceptado);
+            document.getElementById('hc-sueno').value = item.sueno || '';
+            document.getElementById('hc-vigilia').value = item.vigilia || '';
+            document.getElementById('hc-alimentacion').value = item.alimentacion || '';
+            document.getElementById('hc-discurso').value = item.discurso || '';
+            document.getElementById('hc-observacion').value = item.observacion_clinica || '';
+
+            await loadReceiptPreview(item.comprobante_url);
+        }
+
+        function updatePagoUI(estadoPago) {
+            const badge = document.getElementById('hc-pago-badge');
+            const btn = document.getElementById('btn-confirmar-pago');
+            const estado = estadoPago || 'Pendiente';
+            const confirmado = estado.toLowerCase().includes('confirm') || estado.toLowerCase().includes('pagad');
+
+            badge.textContent = `Pago: ${estado}`;
+            badge.className = `text-xs font-bold px-3 py-1 rounded-full ${confirmado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`;
+
+            btn.disabled = confirmado;
+            btn.textContent = confirmado ? '✓ Pago Confirmado' : '✓ Confirmar Pago';
+            btn.className = confirmado
+                ? 'bg-emerald-100 text-emerald-800 font-semibold px-4 py-2.5 rounded-xl text-sm cursor-default'
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm shadow-sm transition';
+        }
+
+        async function loadReceiptPreview(comprobantePath) {
+            const statusEl = document.getElementById('hc-comprobante-estado');
+            const linkEl = document.getElementById('hc-comprobante-link');
+            const previewEl = document.getElementById('hc-comprobante-preview');
+
+            linkEl.classList.add('hidden');
+            previewEl.classList.add('hidden');
+            previewEl.innerHTML = '';
+
+            if (!comprobantePath) {
+                statusEl.textContent = 'Este registro no tiene un comprobante asociado.';
+                return;
+            }
+
+            statusEl.textContent = `Archivo: ${comprobantePath}`;
+
+            const { data, error } = await supabaseClient.storage
+                .from(RECEIPTS_BUCKET)
+                .createSignedUrl(comprobantePath, 300);
+
+            if (error || !data?.signedUrl) {
+                statusEl.textContent = `No se pudo generar el enlace del comprobante: ${error?.message || 'Error de acceso'}`;
+                return;
+            }
+
+            const signedUrl = data.signedUrl;
+            linkEl.href = signedUrl;
+            linkEl.classList.remove('hidden');
+
+            const isPdf = /\.pdf($|\?)/i.test(comprobantePath);
+            if (isPdf) {
+                previewEl.innerHTML = `<iframe src="${escapeHtml(signedUrl)}" class="w-full h-72 rounded-xl border border-slate-200 bg-white"></iframe>`;
+            } else {
+                previewEl.innerHTML = `<img src="${escapeHtml(signedUrl)}" alt="Comprobante de pago" class="max-h-80 rounded-xl border border-slate-200 object-contain bg-white">`;
+            }
+            previewEl.classList.remove('hidden');
+        }
+
+        async function confirmarPagoActual() {
+            if (!selectedHistoria) return;
+            const btn = document.getElementById('btn-confirmar-pago');
+            btn.disabled = true;
+            btn.textContent = 'Confirmando...';
+
+            const { error } = await supabaseClient
+                .from('historias_clinicas')
+                .update({
+                    estado_pago: 'Confirmado',
+                    actualizado_en: new Date().toISOString()
+                })
+                .eq('id', selectedHistoria.id)
+                .eq('psicologo_id', currentUser.id);
+
+            if (error) {
+                showFeedback(`No se pudo confirmar el pago: ${error.message}`, 'error');
+                updatePagoUI(selectedHistoria.estado_pago);
+                return;
+            }
+
+            selectedHistoria.estado_pago = 'Confirmado';
+            updatePagoUI('Confirmado');
+            renderCasesList();
+            showFeedback('Pago confirmado correctamente.', 'success');
+        }
+
+        async function guardarHistoriaClinica(event) {
+            event.preventDefault();
+            if (!selectedHistoria || !currentUser) return;
+
+            const btn = document.getElementById('btn-guardar-hc');
             btn.disabled = true;
             btn.textContent = 'Guardando...';
 
-            const consentimiento = document.getElementById('rec-consentimiento').checked;
-
-            const sensitiveData = {
-                nombre_consultante: document.getElementById('rec-nombre').value.trim(),
-                edad_o_cargo: document.getElementById('rec-edad').value.trim() || null,
-                genero: document.getElementById('rec-genero').value,
-                documento_o_nit: document.getElementById('rec-documento').value.trim() || null,
-                orientacion_tlp: document.getElementById('rec-orientacion').value.trim() || null,
-                sueno_vigilia: document.getElementById('rec-sueno').value.trim() || null,
-                alimentacion: document.getElementById('rec-alimentacion').value.trim() || null,
-                discurso_relato: document.getElementById('rec-discurso').value.trim() || null,
-                observacion_clinica: document.getElementById('rec-observacion').value.trim() || null
-            };
-
-            const { cipherText, ivText } = await encryptClinicalPayload(sensitiveData, currentTherapistId);
-
             const payload = {
-                psicologo_id: currentTherapistId,
-                codigo_caso: document.getElementById('rec-codigo').value.trim() || generateCaseCode(),
-                cliente_email: document.getElementById('rec-email').value.trim().toLowerCase(),
-                tipo_caso: document.getElementById('rec-tipo').value,
-                nombre_consultante: sensitiveData.nombre_consultante,
-                edad_o_cargo: sensitiveData.edad_o_cargo,
-                genero: sensitiveData.genero,
-                documento_o_nit: sensitiveData.documento_o_nit,
-                orientacion_tlp: sensitiveData.orientacion_tlp,
-                sueno_vigilia: sensitiveData.sueno_vigilia,
-                alimentacion: sensitiveData.alimentacion,
-                discurso_relato: sensitiveData.discurso_relato,
-                observacion_clinica: sensitiveData.observacion_clinica,
-                fecha_sesion: document.getElementById('rec-fecha').value || null,
-                hora_sesion: document.getElementById('rec-hora').value || null,
-                estado_pago: document.getElementById('rec-pago').value,
-                enlace_meet: meetRaw || null,
-                consentimiento_aceptado: consentimiento,
-                consentimiento_fecha: consentimiento ? new Date().toISOString() : null,
-                datos_clinicos_cifrados: cipherText,
-                iv: ivText,
+                edad: document.getElementById('hc-edad').value.trim() || null,
+                genero: document.getElementById('hc-genero').value || null,
+                consentimiento_aceptado: document.getElementById('hc-consentimiento').checked,
+                sueno: document.getElementById('hc-sueno').value.trim() || null,
+                vigilia: document.getElementById('hc-vigilia').value.trim() || null,
+                alimentacion: document.getElementById('hc-alimentacion').value.trim() || null,
+                discurso: document.getElementById('hc-discurso').value.trim() || null,
+                observacion_clinica: document.getElementById('hc-observacion').value.trim() || null,
                 actualizado_en: new Date().toISOString()
             };
 
             const { error } = await supabaseClient
                 .from('historias_clinicas')
-                .insert([payload]);
+                .update(payload)
+                .eq('id', selectedHistoria.id)
+                .eq('psicologo_id', currentUser.id);
 
             btn.disabled = false;
-            btn.textContent = 'Guardar historia clínica';
+            btn.textContent = 'Guardar Historia Clínica';
 
             if (error) {
-                showWorkspaceAlert(`Error al guardar la historia clínica: ${error.message}`, 'error');
+                showFeedback(`Error al guardar la historia clínica: ${error.message}`, 'error');
                 return;
             }
 
-            document.getElementById('new-record-form').reset();
-            document.getElementById('rec-consentimiento').checked = true;
-            toggleNewRecordForm(false);
-            showWorkspaceAlert('Historia clínica guardada correctamente.');
-            await loadClinicalRecords(currentTherapistId);
+            Object.assign(selectedHistoria, payload);
+            renderCasesList();
+            showFeedback('Historia clínica guardada en Supabase.', 'success');
         }
 
-        async function togglePaymentStatus(recordId, nextStatus) {
-            const { error } = await supabaseClient
-                .from('historias_clinicas')
-                .update({ estado_pago: nextStatus, actualizado_en: new Date().toISOString() })
-                .eq('id', recordId)
-                .eq('psicologo_id', currentTherapistId);
-
-            if (error) {
-                showWorkspaceAlert(`No se pudo actualizar el pago: ${error.message}`, 'error');
-                return;
-            }
-
-            showWorkspaceAlert(`Estado de pago actualizado a "${nextStatus}".`);
-            await loadClinicalRecords(currentTherapistId);
+        function showFeedback(message, type) {
+            const box = document.getElementById('editor-feedback');
+            box.textContent = message;
+            box.className = type === 'success'
+                ? 'text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl p-3'
+                : 'text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3';
+            box.classList.remove('hidden');
         }
-
-        async function saveMeetLink(recordId) {
-            const input = document.getElementById(`meet-input-${recordId}`);
-            const link = (input?.value || '').trim();
-
-            if (link && !isSafeUrl(link)) {
-                showWorkspaceAlert('El enlace de Google Meet debe comenzar con https://', 'error');
-                return;
-            }
-
-            const { error } = await supabaseClient
-                .from('historias_clinicas')
-                .update({ enlace_meet: link || null, actualizado_en: new Date().toISOString() })
-                .eq('id', recordId)
-                .eq('psicologo_id', currentTherapistId);
-
-            if (error) {
-                showWorkspaceAlert(`No se pudo guardar el enlace Meet: ${error.message}`, 'error');
-                return;
-            }
-
-            showWorkspaceAlert('Enlace de Google Meet actualizado.');
-            await loadClinicalRecords(currentTherapistId);
-        }
-
-        async function refreshRecords() {
-            if (currentTherapistId) {
-                await loadClinicalRecords(currentTherapistId);
-                showWorkspaceAlert('Registros actualizados.');
-            }
-        }
-
-        async function logoutTherapist() {
-            await supabaseClient.auth.signOut();
-            window.location.href = 'index.html#portal-acceso';
-        }
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
-
-            if (sessionError || !sessionData?.session?.user) {
-                window.location.href = 'index.html#portal-acceso';
-                return;
-            }
-
-            const user = sessionData.session.user;
-            const { data: perfiles, error: perfilError } = await supabaseClient
-                .from('perfiles')
-                .select('*')
-                .eq('id', user.id);
-
-            if (perfilError) {
-                showPortalError(`Error al validar tu perfil: ${perfilError.message}`);
-                return;
-            }
-
-            if (!perfiles || perfiles.length === 0) {
-                showPortalError(`Tu sesión está activa (UID: ${user.id}), pero no se encontró tu registro en perfiles.`);
-                return;
-            }
-
-            const perfil = perfiles[0];
-            currentTherapistId = user.id;
-
-            document.getElementById('portal-status').classList.add('hidden');
-            document.getElementById('portal-workspace').classList.remove('hidden');
-
-            document.getElementById('pro-name').textContent = perfil.nombre_completo || 'Profesional';
-            document.getElementById('pro-details').textContent = `Rol: ${perfil.rol || 'psicologo'} · Correo: ${perfil.email || user.email} · UID: ${user.id}`;
-
-            await loadClinicalRecords(user.id);
-        });
     </script>
 </body>
 </html>

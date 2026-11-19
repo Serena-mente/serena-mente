@@ -224,7 +224,7 @@
     <!-- Supabase Connection & Portal Logic -->
     <script>
         const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_F8ymFs8vxUksIWl2wRsirg_DDtMu9SP';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -302,5 +302,309 @@
         }
     </script>
 </body>
-    </html>
+</html>
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serena Mente — Orientación Psicológica Virtual</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        serena: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                            light: '#e0f2fe',
+                            blue: '#0284c7',
+                            darkblue: '#0369a1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Supabase JS v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
 
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-xl font-bold bg-gradient-to-r from-serena-700 to-serena-blue bg-clip-text text-transparent">Serena Mente</span>
+            </div>
+            <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-slate-600">
+                <a href="index.html" class="text-serena-600 font-bold">Inicio</a>
+                <a href="quienes-somos.html" class="hover:text-serena-600 transition">Quiénes Somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-serena-600 transition">Conoce Nuestro Equipo</a>
+                <a href="#nosotros" class="hover:text-serena-600 transition">¿Cómo Funciona?</a>
+                <a href="#tarifas" class="hover:text-serena-600 transition">Tarifas</a>
+                <a href="faq.html" class="hover:text-serena-600 transition">Preguntas Frecuentes</a>
+                <a href="contacto.html" class="hover:text-serena-600 transition">Contacto</a>
+                <a href="#portal-acceso" class="text-emerald-600 font-bold hover:underline">Acceso Plataforma</a>
+            </nav>
+            <div>
+                <a href="conoce-nuestro-equipo.html" class="bg-serena-600 hover:bg-serena-700 text-white font-medium px-5 py-2.5 rounded-full shadow-md transition text-sm">
+                    Agendar Cita
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="relative overflow-hidden bg-gradient-to-b from-serena-50 via-sky-50/50 to-white py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center space-x-2 bg-serena-100 text-serena-700 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider">
+                        <span>Atención Psicológica Profesional y Segura</span>
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        Tu espacio seguro para el <span class="bg-gradient-to-r from-serena-600 to-serena-blue bg-clip-text text-transparent">bienestar emocional</span>
+                    </h1>
+                    <p class="text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                        Orientación psicológica virtual accesible con profesionales orientados a distintas áreas de trabajo y rigurosos modelos metodológicos. Sesiones confidenciales mediadas por Google Meet.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+                        <a href="conoce-nuestro-equipo.html" class="w-full sm:w-auto bg-serena-600 hover:bg-serena-700 text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg transition text-center">
+                            Conoce Nuestro Equipo y Modelos
+                        </a>
+                        <a href="#portal-acceso" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-semibold px-8 py-3.5 rounded-xl transition text-center shadow-sm">
+                            Ingresar a mi Cuenta
+                        </a>
+                    </div>
+                </div>
+                <div class="relative flex justify-center">
+                    <div class="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-xl border border-slate-100 space-y-4">
+                        <div class="absolute -top-4 -right-4 bg-serena-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+                            Tarifa Única $80k
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl">
+                            <h4 class="font-bold text-slate-800">Modelo Multidisciplinario</h4>
+                            <p class="text-xs text-slate-500">Enfoques clínicos, jurídicos y organizacionales</p>
+                        </div>
+                        <div class="p-4 bg-sky-50 rounded-2xl border border-sky-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-sky-800 uppercase">Consulta Individual</span>
+                                <span class="text-sm font-extrabold text-sky-900">$80.000 COP</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Incluye sesión virtual de 50 minutos por Google Meet + seguimiento continuo.</p>
+                        </div>
+                        <a href="conoce-nuestro-equipo.html" class="block w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 rounded-xl text-center text-sm transition">
+                            Agendar Consulta
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portal de Acceso -->
+    <section id="portal-acceso" class="py-16 bg-white border-y border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="text-serena-600 font-semibold text-sm uppercase tracking-wider">Plataforma Interactiva</span>
+                <h2 class="text-3xl font-bold text-slate-900 mt-2">Portal de Acceso</h2>
+                <p class="text-slate-600 mt-2 text-sm">Selecciona tu rol para ingresar al sistema de gestión de consultas y salas virtuales.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Portal Consultantes -->
+                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 text-center">
+                    <h3 class="text-xl font-bold text-slate-900">Portal de Consultantes</h3>
+                    <p class="text-sm text-slate-600">Accede con tu correo para consultar tus citas y unirte a la videollamada de Google Meet.</p>
+                    <form onsubmit="loginConsultant(event)" class="space-y-3 pt-2">
+                        <input type="email" id="consultant-email" required placeholder="Tu correo electrónico registrado" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
+                        <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-3 rounded-xl text-sm transition shadow-md">
+                            Consultar Mis Citas
+                        </button>
+                    </form>
+                    <div id="consultant-dashboard" class="hidden text-left mt-4 p-4 bg-white rounded-2xl border border-sky-200 text-xs space-y-2">
+                        <p class="font-bold text-sky-900">Estado de tus citas:</p>
+                        <div id="consultant-appointments-list" class="space-y-2 text-slate-600">No hay citas activas registradas.</div>
+                    </div>
+                </div>
+
+                <!-- Portal Profesionales -->
+                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 text-center">
+                    <h3 class="text-xl font-bold text-slate-900">Portal de Profesionales</h3>
+                    <p class="text-sm text-slate-600">Inicia sesión con tu cuenta registrada para validar tu perfil y gestionar tus consultas.</p>
+                    <form onsubmit="loginTherapist(event)" class="space-y-3 pt-2">
+                        <input type="email" id="therapist-email" required value="psicoalexandersarmiento@gmail.com" placeholder="correo.profesional@gmail.com" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
+                        <input type="password" id="therapist-password" required placeholder="Tu contraseña de Supabase" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl text-sm transition shadow-md">
+                            Iniciar Sesión Profesional
+                        </button>
+                    </form>
+                    <div id="therapist-dashboard" class="hidden text-left mt-4 p-4 bg-white rounded-2xl border border-emerald-200 text-xs space-y-2 max-h-60 overflow-y-auto">
+                        <p class="font-bold text-emerald-900">Sesión y Perfil:</p>
+                        <div id="therapist-agenda-list" class="space-y-2 text-slate-600">Validando acceso...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="nosotros" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-serena-600 font-semibold text-sm uppercase tracking-wider">Proceso Transparente</span>
+                <h2 class="text-3xl font-bold text-slate-900 mt-2">¿Cómo funciona Serena Mente?</h2>
+                <p class="text-slate-600 mt-3">Un modelo ágil diseñado para garantizar comodidad, seguridad y acceso a una atención de calidad.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
+                    <div class="w-10 h-10 bg-serena-100 text-serena-700 font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">1</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Elige al Profesional</h3>
+                    <p class="text-sm text-slate-600">Revisa las áreas de trabajo e inclínate por el enfoque ideal.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
+                    <div class="w-10 h-10 bg-serena-100 text-serena-700 font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">2</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Sube tu Comprobante</h3>
+                    <p class="text-sm text-slate-600">Transfiere $80.000 COP y adjunta la captura del pago en el formulario.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
+                    <div class="w-10 h-10 bg-serena-100 text-serena-700 font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">3</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Validación y Meet</h3>
+                    <p class="text-sm text-slate-600">El profesional valida el pago y recibes tu acceso a Google Meet.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
+                    <div class="w-10 h-10 bg-serena-100 text-serena-700 font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">4</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Atención y Reseña</h3>
+                    <p class="text-sm text-slate-600">Asiste a tu consulta virtual y valora la atención recibida.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tarifas Banner -->
+    <section id="tarifas" class="py-16 bg-slate-50 border-y border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-r from-serena-900 to-serena-700 text-white rounded-3xl p-8 lg:p-12 shadow-xl flex flex-col lg:flex-row items-center justify-between">
+                <div class="space-y-4 mb-6 lg:mb-0 max-w-2xl">
+                    <span class="bg-white/20 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase">Inversión Clara</span>
+                    <h2 class="text-3xl font-bold">Tarifas y Opciones de Paquetes</h2>
+                    <p class="text-slate-200 text-sm leading-relaxed">
+                        Cada consulta individual tiene un costo estándar de <strong class="text-white">$80.000 COP</strong>. Disponemos también de opciones de acompañamiento continuo. El pago previo es obligatorio para asegurar tu espacio.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                    <a href="conoce-nuestro-equipo.html" class="bg-white text-serena-900 hover:bg-slate-100 font-bold px-6 py-3.5 rounded-xl text-center text-sm shadow-md transition">
+                        Agendar Sesión Ahora
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-center py-8 px-4 text-slate-400 space-y-3">
+        <p class="space-x-4">
+            <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes Somos</a>
+            <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce Nuestro Equipo</a>
+            <a href="faq.html" class="hover:text-white transition text-sm">Preguntas Frecuentes</a>
+            <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
+            <a href="legal.html" class="text-emerald-400 hover:underline text-sm font-medium">Términos y Condiciones</a>
+        </p>
+        <p class="text-xs text-slate-500 pt-2">
+            &copy; 2026 Serena Mente - Plataforma de Orientación Psicológica Virtual. Todos los derechos reservados.
+        </p>
+    </footer>
+
+    <!-- Supabase Connection & Portal Logic -->
+    <script>
+        const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function loginConsultant(e) {
+            e.preventDefault();
+            const email = document.getElementById('consultant-email').value.trim().toLowerCase();
+            const dash = document.getElementById('consultant-dashboard');
+            const list = document.getElementById('consultant-appointments-list');
+
+            dash.classList.remove('hidden');
+            list.innerHTML = `<p class="text-slate-500">Consultando registros...</p>`;
+
+            const { data, error } = await supabaseClient
+                .from('historias_clinicas')
+                .select('*')
+                .eq('client_email', email);
+
+            if (error) {
+                list.innerHTML = `<p class="text-amber-700">Sin acceso directo o sin registros visibles para <strong>${email}</strong> (${error.message}).</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                list.innerHTML = `<p class="text-amber-700">No hay registros asociados a <strong>${email}</strong>.</p>`;
+                return;
+            }
+
+            list.innerHTML = data.map(item => `
+                <div class="p-3 bg-sky-50 rounded-xl border border-sky-100 space-y-1">
+                    <p><strong>Registro:</strong> #${item.id}</p>
+                    <p><strong>Correo:</strong> ${item.client_email || email}</p>
+                </div>
+            `).join('');
+        }
+
+        async function loginTherapist(e) {
+            e.preventDefault();
+            const email = document.getElementById('therapist-email').value.trim().toLowerCase();
+            const password = document.getElementById('therapist-password').value;
+            const dash = document.getElementById('therapist-dashboard');
+            const list = document.getElementById('therapist-agenda-list');
+
+            dash.classList.remove('hidden');
+            list.innerHTML = `<p class="text-slate-500">Autenticando en Supabase...</p>`;
+
+            const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (authError) {
+                list.innerHTML = `<p class="text-red-600">Error de inicio de sesión: ${authError.message}</p>`;
+                return;
+            }
+
+            const user = authData.user;
+            const { data: perfilData, error: perfilError } = await supabaseClient
+                .from('perfiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (perfilError || !perfilData) {
+                list.innerHTML = `<p class="text-amber-700">Sesión iniciada (UID: <strong>${user.id}</strong>), pero no se encontró fila en <code>perfiles</code>.</p>`;
+                return;
+            }
+
+            list.innerHTML = `
+                <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100 space-y-1">
+                    <p><strong>Profesional:</strong> ${perfilData.nombre_completo || 'Registrado'}</p>
+                    <p><strong>Rol:</strong> <span class="font-bold text-emerald-700">${perfilData.rol}</span></p>
+                    <p><strong>UID:</strong> <span class="font-mono text-[11px]">${user.id}</span></p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

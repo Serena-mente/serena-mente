@@ -208,17 +208,6 @@
                 .slice(0, 80);
         }
 
-        function convert12hTo24h(timeStr) {
-            const match = String(timeStr || '').trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-            if (!match) return null;
-            let hours = parseInt(match[1], 10);
-            const minutes = match[2];
-            const period = match[3].toUpperCase();
-            if (period === 'PM' && hours !== 12) hours += 12;
-            if (period === 'AM' && hours === 12) hours = 0;
-            return `${String(hours).padStart(2, '0')}:${minutes}:00`;
-        }
-
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 if (!file) return resolve(null);
@@ -401,7 +390,6 @@
             const phone = document.getElementById('book-phone').value.trim();
             const date = document.getElementById('book-date').value;
             const timeLabel = document.getElementById('book-time').value;
-            const time24 = convert12hTo24h(timeLabel);
             const receiptFile = document.getElementById('book-receipt').files[0];
             const receiptName = receiptFile ? receiptFile.name : "Comprobante.jpg";
 
@@ -427,7 +415,7 @@
                 p_nombre_consultante: name,
                 p_tipo_caso: psi.area,
                 p_fecha_sesion: date || null,
-                p_hora_sesion: time24,
+                p_hora_sesion: timeLabel,
                 p_mensaje_consultante: mensajeInicial,
                 p_comprobante_url: uploadResult.path
             });

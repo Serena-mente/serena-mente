@@ -83,17 +83,6 @@
                 </div>
             </section>
 
-            <!-- Cipher Key Bar -->
-            <section class="bg-white rounded-2xl border border-slate-200 p-4 sm:px-6 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div class="text-xs text-slate-600">
-                    <p class="font-bold text-slate-800">Clave de Cifrado Clínico (AES-GCM)</p>
-                    <p>Cifra los datos clínicos sensibles antes de guardarlos en <code>datos_clinicos_cifrados</code> + <code>iv</code>.</p>
-                </div>
-                <div class="flex gap-2">
-                    <input type="password" id="cipher-passphrase" value="SerenaMente-ClaveClinica-2026" placeholder="Clave secreta de cifrado" class="border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-emerald-600">
-                </div>
-            </section>
-
             <!-- Feedback Banner -->
             <div id="workspace-alert" class="hidden rounded-2xl p-4 text-sm border"></div>
 
@@ -110,7 +99,6 @@
                 </div>
 
                 <form id="new-record-form" onsubmit="createClinicalRecord(event)" class="space-y-5 text-sm">
-                    <!-- Código y Identificación -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Código confidencial</label>
@@ -163,7 +151,6 @@
                         </div>
                     </div>
 
-                    <!-- Examen mental y funciones biológicas -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Orientación (Tiempo, Lugar y Persona)</label>
@@ -179,7 +166,6 @@
                         </div>
                     </div>
 
-                    <!-- Discurso y observación clínica -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Discurso / Relato del consultante</label>
@@ -191,7 +177,6 @@
                         </div>
                     </div>
 
-                    <!-- Agenda, Meet y Consentimiento -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Fecha de sesión</label>
@@ -213,7 +198,7 @@
                             Consentimiento informado verificado / aceptado para atención psicológica virtual
                         </label>
                         <button type="submit" id="btn-save-record" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-sm transition">
-                            Guardar historia clínica cifrada
+                            Guardar historia clínica
                         </button>
                     </div>
                 </form>
@@ -240,7 +225,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
                     <div>
                         <h2 class="text-lg font-bold text-slate-900">Historias Clínicas y Consultas</h2>
-                        <p class="text-xs text-slate-500">Visualiza fichas descifradas, mensajes del consultante, pagos y enlaces de Google Meet.</p>
+                        <p class="text-xs text-slate-500">Visualiza tus fichas clínicas, mensajes del consultante, pagos y enlaces de Google Meet.</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Buscar código, nombre o correo..." class="border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-emerald-600">
@@ -269,6 +254,24 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentTherapistId = null;
         let allRecords = [];
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function isSafeUrl(url) {
+            try {
+                const parsed = new URL(url);
+                return parsed.protocol === 'https:';
+            } catch {
+                return false;
+            }
+        }
 
         function generateCaseCode() {
             const year = new Date().getFullYear();
@@ -310,19 +313,18 @@
             statusEl.classList.remove('hidden');
             statusEl.className = 'bg-red-50 rounded-2xl border border-red-200 p-6 text-sm text-red-700 space-y-3';
             statusEl.innerHTML = `
-                <p class="font-semibold">${message}</p>
+                <p class="font-semibold">${escapeHtml(message)}</p>
                 <a href="index.html#portal-acceso" class="inline-block bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg">
                     Volver al acceso
                 </a>
             `;
         }
 
-        // AES-GCM helpers via Web Crypto API
-        async function deriveAesKey(passphrase) {
+        async function deriveAesKey(saltText) {
             const enc = new TextEncoder();
             const keyMaterial = await window.crypto.subtle.importKey(
                 'raw',
-                enc.encode(passphrase),
+                enc.encode(`${SUPABASE_URL}::${saltText}`),
                 { name: 'PBKDF2' },
                 false,
                 ['deriveKey']
@@ -330,7 +332,7 @@
             return window.crypto.subtle.deriveKey(
                 {
                     name: 'PBKDF2',
-                    salt: enc.encode('SerenaMenteSaltV1'),
+                    salt: enc.encode(`SerenaMente:${saltText}`),
                     iterations: 100000,
                     hash: 'SHA-256'
                 },
@@ -348,15 +350,8 @@
             return btoa(binary);
         }
 
-        function base64ToBytes(b64) {
-            const binary = atob(b64);
-            const bytes = new Uint8Array(binary.length);
-            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-            return bytes;
-        }
-
-        async function encryptClinicalPayload(obj, passphrase) {
-            const key = await deriveAesKey(passphrase);
+        async function encryptClinicalPayload(obj, therapistId) {
+            const key = await deriveAesKey(therapistId);
             const iv = window.crypto.getRandomValues(new Uint8Array(12));
             const encoded = new TextEncoder().encode(JSON.stringify(obj));
             const cipherBuffer = await window.crypto.subtle.encrypt(
@@ -368,23 +363,6 @@
                 cipherText: bytesToBase64(cipherBuffer),
                 ivText: bytesToBase64(iv)
             };
-        }
-
-        async function decryptClinicalPayload(cipherText, ivText, passphrase) {
-            if (!cipherText || !ivText) return null;
-            try {
-                const key = await deriveAesKey(passphrase);
-                const iv = base64ToBytes(ivText);
-                const data = base64ToBytes(cipherText);
-                const plainBuffer = await window.crypto.subtle.decrypt(
-                    { name: 'AES-GCM', iv },
-                    key,
-                    data
-                );
-                return JSON.parse(new TextDecoder().decode(plainBuffer));
-            } catch {
-                return null;
-            }
         }
 
         function isPaidStatus(status) {
@@ -406,76 +384,72 @@
 
             listEl.innerHTML = rows.map(row => {
                 const paid = isPaidStatus(row.estado_pago);
-                const d = row._decrypted || {};
-                const nombre = row.nombre_consultante || d.nombre_consultante || 'Consultante sin nombre';
-                const edad = row.edad_o_cargo || d.edad_o_cargo || 'No registrada';
-                const genero = row.genero || d.genero || 'No especificado';
-                const doc = row.documento_o_nit || d.documento_o_nit || 'No registrado';
-                const orientacion = row.orientacion_tlp || d.orientacion_tlp || 'Sin registrar';
-                const sueno = row.sueno_vigilia || d.sueno_vigilia || 'Sin registrar';
-                const alimentacion = row.alimentacion || d.alimentacion || 'Sin registrar';
-                const discurso = row.discurso_relato || d.discurso_relato || 'Sin relato registrado';
-                const observacion = row.observacion_clinica || d.observacion_clinica || 'Sin observación registrada';
+                const nombre = row.nombre_consultante || 'Consultante sin nombre';
+                const edad = row.edad_o_cargo || 'No registrada';
+                const genero = row.genero || 'No especificado';
+                const doc = row.documento_o_nit || 'No registrado';
+                const orientacion = row.orientacion_tlp || 'Sin registrar';
+                const sueno = row.sueno_vigilia || 'Sin registrar';
+                const alimentacion = row.alimentacion || 'Sin registrar';
+                const discurso = row.discurso_relato || 'Sin relato registrado';
+                const observacion = row.observacion_clinica || 'Sin observación registrada';
+
+                const meetLinkHtml = (row.enlace_meet && isSafeUrl(row.enlace_meet))
+                    ? `<a href="${escapeHtml(row.enlace_meet)}" target="_blank" rel="noopener noreferrer" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition">Abrir Meet</a>`
+                    : '';
 
                 return `
                     <div class="p-4 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
                         <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                             <div class="space-y-1 text-xs sm:text-sm">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span class="px-2.5 py-0.5 rounded-lg bg-slate-900 text-white font-mono text-xs font-bold">${row.codigo_caso || 'SIN-COD'}</span>
-                                    <p class="font-bold text-slate-900 text-base">${nombre}</p>
+                                    <span class="px-2.5 py-0.5 rounded-lg bg-slate-900 text-white font-mono text-xs font-bold">${escapeHtml(row.codigo_caso || 'SIN-COD')}</span>
+                                    <p class="font-bold text-slate-900 text-base">${escapeHtml(nombre)}</p>
                                     <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${paid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                                        ${row.estado_pago || 'Pendiente'}
+                                        ${escapeHtml(row.estado_pago || 'Pendiente')}
                                     </span>
                                     <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${row.consentimiento_aceptado ? 'bg-sky-100 text-sky-800' : 'bg-red-100 text-red-800'}">
                                         ${row.consentimiento_aceptado ? 'Consentimiento aceptado' : 'Consentimiento pendiente'}
                                     </span>
                                 </div>
-                                <p class="text-slate-600"><strong>Edad:</strong> ${edad} · <strong>Género:</strong> ${genero} · <strong>Doc:</strong> ${doc}</p>
-                                <p class="text-slate-600"><strong>Correo:</strong> ${row.cliente_email || 'No registrado'} · <strong>Tipo:</strong> ${row.tipo_caso || 'Consulta'}</p>
-                                <p class="text-slate-600"><strong>Fecha / Hora:</strong> ${row.fecha_sesion || 'Por definir'} ${row.hora_sesion ? '· ' + row.hora_sesion : ''}</p>
+                                <p class="text-slate-600"><strong>Edad:</strong> ${escapeHtml(edad)} · <strong>Género:</strong> ${escapeHtml(genero)} · <strong>Doc:</strong> ${escapeHtml(doc)}</p>
+                                <p class="text-slate-600"><strong>Correo:</strong> ${escapeHtml(row.cliente_email || 'No registrado')} · <strong>Tipo:</strong> ${escapeHtml(row.tipo_caso || 'Consulta')}</p>
+                                <p class="text-slate-600"><strong>Fecha / Hora:</strong> ${escapeHtml(row.fecha_sesion || 'Por definir')} ${row.hora_sesion ? '· ' + escapeHtml(row.hora_sesion) : ''}</p>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
-                                <button type="button" onclick="togglePaymentStatus('${row.id}', '${paid ? 'Pendiente' : 'Pagado'}')" class="text-xs font-semibold px-3 py-2 rounded-xl border transition ${paid ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100' : 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700'}">
+                                <button type="button" onclick="togglePaymentStatus('${escapeHtml(row.id)}', '${paid ? 'Pendiente' : 'Pagado'}')" class="text-xs font-semibold px-3 py-2 rounded-xl border transition ${paid ? 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100' : 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700'}">
                                     ${paid ? 'Marcar Pendiente' : 'Confirmar Pago'}
                                 </button>
-                                ${row.enlace_meet ? `
-                                    <a href="${row.enlace_meet}" target="_blank" rel="noopener noreferrer" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition">
-                                        Abrir Meet
-                                    </a>
-                                ` : ''}
+                                ${meetLinkHtml}
                             </div>
                         </div>
 
-                        <!-- Examen mental y funciones -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs bg-white p-3.5 rounded-xl border border-slate-200/80">
-                            <p><strong>Orientación T/L/P:</strong> ${orientacion}</p>
-                            <p><strong>Sueño y vigilia:</strong> ${sueno}</p>
-                            <p><strong>Alimentación:</strong> ${alimentacion}</p>
+                            <p><strong>Orientación T/L/P:</strong> ${escapeHtml(orientacion)}</p>
+                            <p><strong>Sueño y vigilia:</strong> ${escapeHtml(sueno)}</p>
+                            <p><strong>Alimentación:</strong> ${escapeHtml(alimentacion)}</p>
                         </div>
 
-                        <!-- Discurso y observación clínica -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-white p-3.5 rounded-xl border border-slate-200/80">
                             <div>
                                 <p class="font-bold text-slate-800 mb-1">Discurso / Relato:</p>
-                                <p class="text-slate-600 whitespace-pre-line">${discurso}</p>
+                                <p class="text-slate-600 whitespace-pre-line">${escapeHtml(discurso)}</p>
                             </div>
                             <div>
                                 <p class="font-bold text-slate-800 mb-1">Observación clínica:</p>
-                                <p class="text-slate-600 whitespace-pre-line">${observacion}</p>
+                                <p class="text-slate-600 whitespace-pre-line">${escapeHtml(observacion)}</p>
                             </div>
                         </div>
 
                         ${row.mensaje_consultante ? `
                             <div class="text-xs bg-sky-50 p-3 rounded-xl border border-sky-200 text-sky-950">
-                                <strong>Mensaje del consultante:</strong> ${row.mensaje_consultante}
+                                <strong>Mensaje del consultante:</strong> ${escapeHtml(row.mensaje_consultante)}
                             </div>
                         ` : ''}
 
-                        <!-- Inline Meet Link Editor -->
                         <div class="pt-2 border-t border-slate-200/80 flex flex-col sm:flex-row gap-2">
-                            <input type="url" id="meet-input-${row.id}" value="${row.enlace_meet || ''}" placeholder="Pegar enlace de Google Meet (https://meet.google.com/...)" class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-sky-600">
-                            <button type="button" onclick="saveMeetLink('${row.id}')" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl transition">
+                            <input type="url" id="meet-input-${escapeHtml(row.id)}" value="${escapeHtml(row.enlace_meet || '')}" placeholder="Pegar enlace de Google Meet (https://meet.google.com/...)" class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-sky-600">
+                            <button type="button" onclick="saveMeetLink('${escapeHtml(row.id)}')" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl transition">
                                 Guardar enlace Meet
                             </button>
                         </div>
@@ -489,8 +463,7 @@
             const payFilter = document.getElementById('filter-payment').value;
 
             const filtered = allRecords.filter(row => {
-                const d = row._decrypted || {};
-                const nombre = (row.nombre_consultante || d.nombre_consultante || '').toLowerCase();
+                const nombre = (row.nombre_consultante || '').toLowerCase();
                 const codigo = (row.codigo_caso || '').toLowerCase();
                 const correo = (row.cliente_email || '').toLowerCase();
                 const tipo = (row.tipo_caso || '').toLowerCase();
@@ -510,9 +483,8 @@
             const totalEl = document.getElementById('stat-total');
             const paidEl = document.getElementById('stat-paid');
             const meetEl = document.getElementById('stat-meet');
-            const passphrase = document.getElementById('cipher-passphrase').value || 'SerenaMente-ClaveClinica-2026';
 
-            listEl.innerHTML = `<p class="text-slate-500">Consultando y descifrando registros...</p>`;
+            listEl.innerHTML = `<p class="text-slate-500">Consultando registros...</p>`;
 
             const { data, error } = await supabaseClient
                 .from('historias_clinicas')
@@ -521,16 +493,11 @@
                 .order('fecha_sesion', { ascending: true });
 
             if (error) {
-                listEl.innerHTML = `<p class="text-amber-700">No se pudieron cargar registros: ${error.message}</p>`;
+                listEl.innerHTML = `<p class="text-amber-700">No se pudieron cargar registros: ${escapeHtml(error.message)}</p>`;
                 return;
             }
 
-            const rawRows = data || [];
-            allRecords = await Promise.all(rawRows.map(async row => {
-                const decrypted = await decryptClinicalPayload(row.datos_clinicos_cifrados, row.iv, passphrase);
-                return { ...row, _decrypted: decrypted };
-            }));
-
+            allRecords = data || [];
             totalEl.textContent = allRecords.length;
             paidEl.textContent = allRecords.filter(r => isPaidStatus(r.estado_pago)).length;
             meetEl.textContent = allRecords.filter(r => Boolean(r.enlace_meet)).length;
@@ -542,11 +509,16 @@
             e.preventDefault();
             if (!currentTherapistId) return;
 
+            const meetRaw = document.getElementById('rec-meet').value.trim();
+            if (meetRaw && !isSafeUrl(meetRaw)) {
+                showWorkspaceAlert('El enlace de Google Meet debe comenzar con https://', 'error');
+                return;
+            }
+
             const btn = document.getElementById('btn-save-record');
             btn.disabled = true;
-            btn.textContent = 'Cifrando y guardando...';
+            btn.textContent = 'Guardando...';
 
-            const passphrase = document.getElementById('cipher-passphrase').value || 'SerenaMente-ClaveClinica-2026';
             const consentimiento = document.getElementById('rec-consentimiento').checked;
 
             const sensitiveData = {
@@ -561,7 +533,7 @@
                 observacion_clinica: document.getElementById('rec-observacion').value.trim() || null
             };
 
-            const { cipherText, ivText } = await encryptClinicalPayload(sensitiveData, passphrase);
+            const { cipherText, ivText } = await encryptClinicalPayload(sensitiveData, currentTherapistId);
 
             const payload = {
                 psicologo_id: currentTherapistId,
@@ -580,7 +552,7 @@
                 fecha_sesion: document.getElementById('rec-fecha').value || null,
                 hora_sesion: document.getElementById('rec-hora').value || null,
                 estado_pago: document.getElementById('rec-pago').value,
-                enlace_meet: document.getElementById('rec-meet').value.trim() || null,
+                enlace_meet: meetRaw || null,
                 consentimiento_aceptado: consentimiento,
                 consentimiento_fecha: consentimiento ? new Date().toISOString() : null,
                 datos_clinicos_cifrados: cipherText,
@@ -593,7 +565,7 @@
                 .insert([payload]);
 
             btn.disabled = false;
-            btn.textContent = 'Guardar historia clínica cifrada';
+            btn.textContent = 'Guardar historia clínica';
 
             if (error) {
                 showWorkspaceAlert(`Error al guardar la historia clínica: ${error.message}`, 'error');
@@ -603,7 +575,7 @@
             document.getElementById('new-record-form').reset();
             document.getElementById('rec-consentimiento').checked = true;
             toggleNewRecordForm(false);
-            showWorkspaceAlert('Historia clínica guardada y cifrada con AES-GCM.');
+            showWorkspaceAlert('Historia clínica guardada correctamente.');
             await loadClinicalRecords(currentTherapistId);
         }
 
@@ -625,11 +597,16 @@
 
         async function saveMeetLink(recordId) {
             const input = document.getElementById(`meet-input-${recordId}`);
-            const link = (input?.value || '').trim() || null;
+            const link = (input?.value || '').trim();
+
+            if (link && !isSafeUrl(link)) {
+                showWorkspaceAlert('El enlace de Google Meet debe comenzar con https://', 'error');
+                return;
+            }
 
             const { error } = await supabaseClient
                 .from('historias_clinicas')
-                .update({ enlace_meet: link, actualizado_en: new Date().toISOString() })
+                .update({ enlace_meet: link || null, actualizado_en: new Date().toISOString() })
                 .eq('id', recordId)
                 .eq('psicologo_id', currentTherapistId);
 

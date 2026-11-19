@@ -255,13 +255,14 @@
             banner.textContent = text;
         }
 
-        async function loadTherapistRecords(listEl) {
-            listEl.innerHTML = `<p class="text-slate-500">Consultando registros en <code>historias_clinicas</code>...</p>`;
+        async function loadTherapistRecords(listEl, therapistId) {
+            listEl.innerHTML = `<p class="text-slate-500">Consultando registros asignados...</p>`;
 
             const { data, error } = await supabaseClient
                 .from('historias_clinicas')
-                .select('*')
-                .limit(20);
+                .select('id, psicologo_id, cliente_email, tipo_caso, nombre_consultante, fecha_sesion, hora_sesion, estado_pago, enlace_meet')
+                .eq('psicologo_id', therapistId)
+                .order('fecha_sesion', { ascending: true });
 
             if (error) {
                 listEl.innerHTML = `<p class="text-amber-700">No se pudieron cargar registros de <code>historias_clinicas</code>: ${error.message}</p>`;
@@ -269,14 +270,17 @@
             }
 
             if (!data || data.length === 0) {
-                listEl.innerHTML = `<p class="text-slate-500">Conexión activa con <code>historias_clinicas</code>: no hay registros visibles por ahora.</p>`;
+                listEl.innerHTML = `<p class="text-slate-500">Conexión activa con <code>historias_clinicas</code>: no tienes registros asignados por ahora.</p>`;
                 return;
             }
 
             listEl.innerHTML = data.map(row => `
                 <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                    <p><strong>ID:</strong> ${row.id ?? 'Sin ID'}</p>
-                    <p><strong>Consultante:</strong> ${row.client_email || row.nombre_consultante || row.paciente || 'Registro #' + (row.id ?? '')}</p>
+                    <p><strong>Consultante:</strong> ${row.nombre_consultante || 'Sin nombre'}</p>
+                    <p><strong>Correo:</strong> ${row.cliente_email || 'No registrado'}</p>
+                    <p><strong>Fecha / Hora:</strong> ${row.fecha_sesion || 'Por definir'} · ${row.hora_sesion || ''}</p>
+                    <p><strong>Estado de pago:</strong> ${row.estado_pago || 'Pendiente'}</p>
+                    ${row.enlace_meet ? `<p><a href="${row.enlace_meet}" target="_blank" rel="noopener noreferrer" class="text-sky-600 underline font-medium">Abrir sala Google Meet</a></p>` : ''}
                 </div>
             `).join('');
         }
@@ -314,7 +318,7 @@
             nameDisplay.textContent = `${perfilData.nombre_completo || 'Profesional'} · ${perfilData.rol || 'psicologo'}`;
             metaDisplay.textContent = `${perfilData.email || user.email || emailFallback} · UID: ${user.id}`;
 
-            await loadTherapistRecords(agendaList);
+            await loadTherapistRecords(agendaList, user.id);
         }
 
         async function logoutTherapist() {
@@ -338,7 +342,7 @@
             const { data, error } = await supabaseClient
                 .from('historias_clinicas')
                 .select('*')
-                .eq('client_email', email);
+                .eq('cliente_email', email);
 
             if (error) {
                 list.innerHTML = `<p class="text-amber-700">Sin acceso directo o sin registros visibles para <strong>${email}</strong> (${error.message}).</p>`;
@@ -353,7 +357,7 @@
             list.innerHTML = data.map(item => `
                 <div class="p-3 bg-sky-50 rounded-xl border border-sky-100 space-y-1">
                     <p><strong>Registro:</strong> #${item.id}</p>
-                    <p><strong>Correo:</strong> ${item.client_email || email}</p>
+                    <p><strong>Correo:</strong> ${item.cliente_email || email}</p>
                 </div>
             `).join('');
         }

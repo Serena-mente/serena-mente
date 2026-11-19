@@ -27,6 +27,8 @@
             }
         }
     </script>
+    <!-- Supabase JS v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -116,6 +118,7 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Portal Consultantes -->
                 <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 text-center">
                     <h3 class="text-xl font-bold text-slate-900">Portal de Consultantes</h3>
                     <p class="text-sm text-slate-600">Accede con tu correo para consultar tus citas y unirte a la videollamada de Google Meet.</p>
@@ -131,18 +134,20 @@
                     </div>
                 </div>
 
+                <!-- Portal Profesionales -->
                 <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 text-center">
                     <h3 class="text-xl font-bold text-slate-900">Portal de Profesionales</h3>
-                    <p class="text-sm text-slate-600">Revisa tu agenda, valida los comprobantes de pago subidos por los pacientes y gestiona tus salas.</p>
+                    <p class="text-sm text-slate-600">Inicia sesión con tu cuenta registrada para validar tu perfil y gestionar tus consultas.</p>
                     <form onsubmit="loginTherapist(event)" class="space-y-3 pt-2">
-                        <input type="email" id="therapist-email" required placeholder="correo.profesional@serenamente.co" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
+                        <input type="email" id="therapist-email" required value="psicoalexandersarmiento@gmail.com" placeholder="correo.profesional@gmail.com" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
+                        <input type="password" id="therapist-password" required placeholder="Tu contraseña de Supabase" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
                         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl text-sm transition shadow-md">
-                            Ver Mi Agenda y Comprobantes
+                            Iniciar Sesión Profesional
                         </button>
                     </form>
                     <div id="therapist-dashboard" class="hidden text-left mt-4 p-4 bg-white rounded-2xl border border-emerald-200 text-xs space-y-2 max-h-60 overflow-y-auto">
-                        <p class="font-bold text-emerald-900">Agenda y Validación de Pagos:</p>
-                        <div id="therapist-agenda-list" class="space-y-2 text-slate-600">No hay citas registradas.</div>
+                        <p class="font-bold text-emerald-900">Sesión y Perfil:</p>
+                        <div id="therapist-agenda-list" class="space-y-2 text-slate-600">Validando acceso...</div>
                     </div>
                 </div>
             </div>
@@ -216,79 +221,86 @@
         </p>
     </footer>
 
-    <!-- JavaScript Logic -->
+    <!-- Supabase Connection & Portal Logic -->
     <script>
-        const psychologists = [
-            { id: 1, name: "Psi. María Camila Jarma", email: "maricamilajarma@serenamente.co" },
-            { id: 2, name: "Psi. Alexander Sarmiento", email: "alexandersarmiento@serenamente.co" },
-            { id: 3, name: "Psi. Jesús Cervera", email: "jesuscervera@serenamente.co" },
-            { id: 4, name: "Psi. Kenny Ariza", email: "kennyariza@serenamente.co" },
-            { id: 5, name: "Psi. María Fernanda Quintero", email: "mariafernanda@serenamente.co" },
-            { id: 6, name: "Psi. Angely Surmay", email: "angelysurmay@serenamente.co" }
-        ];
+        const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
+        const SUPABASE_ANON_KEY = 'Sb_publishable_F8ymFs8vxUksIWl2wRsirg_DDtMu9SP';
 
-        let appointments = JSON.parse(localStorage.getItem('serena_appointments')) || [];
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function loginConsultant(e) {
+        async function loginConsultant(e) {
             e.preventDefault();
             const email = document.getElementById('consultant-email').value.trim().toLowerCase();
-            const userApps = appointments.filter(a => a.clientEmail === email);
             const dash = document.getElementById('consultant-dashboard');
             const list = document.getElementById('consultant-appointments-list');
 
             dash.classList.remove('hidden');
-            if (userApps.length === 0) {
-                list.innerHTML = `<p class="text-amber-700">No hay citas registradas para <strong>${email}</strong>.</p>`;
-            } else {
-                list.innerHTML = userApps.map(a => `
-                    <div class="p-3 bg-sky-50 rounded-xl border border-sky-100 space-y-1">
-                        <p><strong>Profesional:</strong> ${a.psiName}</p>
-                        <p><strong>Fecha:</strong> ${a.date} (${a.time})</p>
-                        <p><strong>Estado del Pago:</strong> <span class="font-bold ${a.status === 'Validado' ? 'text-emerald-600' : 'text-amber-600'}">${a.status}</span></p>
-                        ${a.status === 'Validado' ? `<a href="${a.meetLink}" target="_blank" class="inline-block bg-sky-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs mt-1">Entrar a Google Meet ↗</a>` : '<p class="text-xs text-slate-500">El enlace Meet se habilitará cuando el profesional valide tu pago.</p>'}
-                    </div>
-                `).join('');
+            list.innerHTML = `<p class="text-slate-500">Consultando registros...</p>`;
+
+            const { data, error } = await supabaseClient
+                .from('historias_clinicas')
+                .select('*')
+                .eq('client_email', email);
+
+            if (error) {
+                list.innerHTML = `<p class="text-amber-700">Sin acceso directo o sin registros visibles para <strong>${email}</strong> (${error.message}).</p>`;
+                return;
             }
+
+            if (!data || data.length === 0) {
+                list.innerHTML = `<p class="text-amber-700">No hay registros asociados a <strong>${email}</strong>.</p>`;
+                return;
+            }
+
+            list.innerHTML = data.map(item => `
+                <div class="p-3 bg-sky-50 rounded-xl border border-sky-100 space-y-1">
+                    <p><strong>Registro:</strong> #${item.id}</p>
+                    <p><strong>Correo:</strong> ${item.client_email || email}</p>
+                </div>
+            `).join('');
         }
 
-        function loginTherapist(e) {
+        async function loginTherapist(e) {
             e.preventDefault();
             const email = document.getElementById('therapist-email').value.trim().toLowerCase();
-            const therapist = psychologists.find(p => p.email.toLowerCase() === email);
+            const password = document.getElementById('therapist-password').value;
             const dash = document.getElementById('therapist-dashboard');
             const list = document.getElementById('therapist-agenda-list');
 
             dash.classList.remove('hidden');
-            if (!therapist) {
-                list.innerHTML = `<p class="text-red-600">Correo institucional no reconocido. (Prueba: alexandersarmiento@serenamente.co)</p>`;
+            list.innerHTML = `<p class="text-slate-500">Autenticando en Supabase...</p>`;
+
+            const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (authError) {
+                list.innerHTML = `<p class="text-red-600">Error de inicio de sesión: ${authError.message}</p>`;
                 return;
             }
 
-            const thApps = appointments.filter(a => a.psiEmail.toLowerCase() === email);
-            if (thApps.length === 0) {
-                list.innerHTML = `<p class="text-slate-500">Hola <strong>${therapist.name}</strong>. No hay consultas pendientes.</p>`;
-            } else {
-                list.innerHTML = thApps.map(a => `
-                    <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100 space-y-2">
-                        <p><strong>Paciente:</strong> ${a.clientName} (${a.clientPhone})</p>
-                        <p><strong>Fecha:</strong> ${a.date} - ${a.time}</p>
-                        <p><strong>Comprobante:</strong> <span class="text-blue-600 font-medium">${a.receiptName}</span></p>
-                        <p><strong>Estado:</strong> <span class="font-bold">${a.status}</span></p>
-                        ${a.status !== 'Validado' ? `<button onclick="approvePayment(${a.id})" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-emerald-700 transition">Aprobar Pago y Activar Meet ✓</button>` : `<a href="${a.meetLink}" target="_blank" class="inline-block bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold text-xs">Iniciar Meet ↗</a>`}
-                    </div>
-                `).join('');
-            }
-        }
+            const user = authData.user;
+            const { data: perfilData, error: perfilError } = await supabaseClient
+                .from('perfiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
 
-        function approvePayment(apptId) {
-            const appt = appointments.find(a => a.id === apptId);
-            if (appt) {
-                appt.status = "Validado";
-                localStorage.setItem('serena_appointments', JSON.stringify(appointments));
-                alert("¡Pago validado con éxito!");
-                document.getElementById('therapist-email').dispatchEvent(new Event('submit'));
+            if (perfilError || !perfilData) {
+                list.innerHTML = `<p class="text-amber-700">Sesión iniciada (UID: <strong>${user.id}</strong>), pero no se encontró fila en <code>perfiles</code>.</p>`;
+                return;
             }
+
+            list.innerHTML = `
+                <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100 space-y-1">
+                    <p><strong>Profesional:</strong> ${perfilData.nombre_completo || 'Registrado'}</p>
+                    <p><strong>Rol:</strong> <span class="font-bold text-emerald-700">${perfilData.rol}</span></p>
+                    <p><strong>UID:</strong> <span class="font-mono text-[11px]">${user.id}</span></p>
+                </div>
+            `;
         }
     </script>
 </body>
-</html>
+    </html>
+

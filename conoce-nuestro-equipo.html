@@ -82,9 +82,6 @@
     <!-- Main Content: Equipo y Modelos de Trabajo -->
     <main class="py-16 md:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm text-center max-w-4xl mx-auto space-y-6">
-            <p class="text-xs font-bold uppercase tracking-widest text-[#078E99]">
-                Excelencia · Rigor · Calma
-            </p>
             <h1 class="text-3xl sm:text-4xl font-extrabold text-[#10263D]">
                 Conoce Nuestro Equipo Y Modelos De Trabajo
             </h1>
@@ -117,7 +114,7 @@
         <div id="psychologists-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
     </main>
 
-    <!-- Booking Modal -->
+    <!-- Booking & Review Modal -->
     <div id="booking-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#10263D]/60 backdrop-blur-sm hidden">
         <div class="bg-white w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl border border-[#D9F5E8] relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeModal()" class="absolute top-5 right-5 text-[#10263D]/60 hover:text-[#10263D] text-xl font-bold">✕</button>
@@ -182,64 +179,47 @@
                 name: "Psi. María Camila Jarma",
                 area: "Área Jurídica y Forense",
                 email: "psicomariacjarma@gmail.com",
-                modelDescription: "Su modelo de trabajo se centra en la evaluación, asesoría y orientación especializada en contextos legales y forenses. Aplica metodologías de análisis de perfil y valoración de testimonio bajo rigor técnico, apoyando procesos jurídicos con imparcialidad y fundamentación científica.",
-                badge: "Área Jurídica",
-                rating: 4.9,
-                reviewsCount: 18
+                modelDescription: "Su modelo de trabajo se centra en la evaluación, asesoría y orientación especializada en contextos legales y forenses. Aplica metodologías de análisis de perfil y valoración de testimonio bajo rigor técnico, apoyando procesos jurídicos con imparcialidad y fundamentación científica."
             },
             {
                 id: 2,
                 name: "Psi. Alexander Sarmiento",
                 area: "Área Clínica - Terapia Cognitivo-Conductual (TCC)",
                 email: "alexandersarmiento@serenamente.co",
-                modelDescription: "Su modelo de trabajo se basa en la Terapia Cognitivo-Conductual (TCC) aplicada a la infancia y adolescencia. Utiliza herramientas psicoeducativas estructuradas y técnicas orientadas a la modificación de conductas disfuncionales y gestión emocional temprana.",
-                badge: "Área Infantil y TCC",
-                rating: 5.0,
-                reviewsCount: 24
+                modelDescription: "Su modelo de trabajo se basa en la Terapia Cognitivo-Conductual (TCC) aplicada a la infancia y adolescencia. Utiliza herramientas psicoeducativas estructuradas y técnicas orientadas a la modificación de conductas disfuncionales y gestión emocional temprana."
             },
             {
                 id: 3,
                 name: "Psi. Jesús Cervera",
                 area: "Área Clínica - Enfoque Conductual",
                 email: "jesuscervera@serenamente.co",
-                modelDescription: "Su modelo de trabajo prioriza el análisis funcional de la conducta y la intervención breve enfocada en la resolución de problemas. Trabaja activamente en la gestión de la ansiedad, la regulación emocional y la adquisición de hábitos adaptativos para adultos.",
-                badge: "Área Clínica General",
-                rating: 4.8,
-                reviewsCount: 15
+                modelDescription: "Su modelo de trabajo prioriza el análisis funcional de la conducta y la intervención breve enfocada en la resolución de problemas. Trabaja activamente en la gestión de la ansiedad, la regulación emocional y la adquisición de hábitos adaptativos para adultos."
             },
             {
                 id: 4,
                 name: "Psi. Kenny Ariza",
                 area: "Área Clínica y Bienestar Emocional",
                 email: "psikennyariza@gmail.com",
-                modelDescription: "Su modelo de trabajo integra la orientación psicológica basada en evidencia y el acompañamiento humanista. Su enfoque acompaña al consultante en la superación de crisis vitales, fortalecimiento de recursos personales y búsqueda de estabilidad emocional.",
-                badge: "Área Bienestar",
-                rating: 4.9,
-                reviewsCount: 21
+                modelDescription: "Su modelo de trabajo integra la orientación psicológica basada en evidencia y el acompañamiento humanista. Su enfoque acompaña al consultante en la superación de crisis vitales, fortalecimiento de recursos personales y búsqueda de estabilidad emocional."
             },
             {
                 id: 5,
                 name: "Psi. María Fernanda Quintero",
                 area: "Área Organizacional y Laboral",
                 email: "mariafernanda@serenamente.co",
-                modelDescription: "Su modelo de trabajo se orienta al desarrollo profesional, optimización del clima laboral, prevención del burnout y manejo del estrés ocupacional. Ofrece herramientas prácticas de liderazgo, comunicación asertiva y gestión del desempeño.",
-                badge: "Área Organizacional",
-                rating: 4.8,
-                reviewsCount: 12
+                modelDescription: "Su modelo de trabajo se orienta al desarrollo profesional, optimización del clima laboral, prevención del burnout y manejo del estrés ocupacional. Ofrece herramientas prácticas de liderazgo, comunicación asertiva y gestión del desempeño."
             },
             {
                 id: 6,
                 name: "Psi. Angely Surmay",
                 area: "Área Organizacional y Gestión de Equipos",
                 email: "angelysurmay@serenamente.co",
-                modelDescription: "Su modelo de trabajo enfoca la salud mental en el entorno laboral y corporativo. Diseña estrategias para la armonización de equipos de trabajo, mitigación de riesgos psicosociales y fomento de entornos de productividad saludable.",
-                badge: "Área Organizacional",
-                rating: 4.9,
-                reviewsCount: 16
+                modelDescription: "Su modelo de trabajo enfoca la salud mental en el entorno laboral y corporativo. Diseña estrategias para la armonización de equipos de trabajo, mitigación de riesgos psicosociales y fomento de entornos de productividad saludable."
             }
         ];
 
         let appointments = JSON.parse(localStorage.getItem('serena_appointments')) || [];
+        let reviewsByPsychologist = JSON.parse(localStorage.getItem('serena_psychologist_reviews')) || {};
         let bookedSlotsForModal = new Set();
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -253,6 +233,27 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        }
+
+        function getPsychologistReviews(psiId) {
+            const list = reviewsByPsychologist[String(psiId)];
+            return Array.isArray(list) ? list : [];
+        }
+
+        function getRatingSummary(psiId) {
+            const list = getPsychologistReviews(psiId);
+            if (!list.length) {
+                return { count: 0, average: null, starsText: '' };
+            }
+            const sum = list.reduce((acc, item) => acc + Number(item.rating || 0), 0);
+            const avg = sum / list.length;
+            const rounded = Math.round(avg);
+            const starsText = '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
+            return {
+                count: list.length,
+                average: avg.toFixed(1),
+                starsText
+            };
         }
 
         function getTodayIsoDate() {
@@ -335,37 +336,127 @@
         function renderPsychologists() {
             const grid = document.getElementById('psychologists-grid');
             if (!grid) return;
-            grid.innerHTML = psychologists.map(p => `
-                <div class="bg-white rounded-3xl p-8 shadow-sm border border-[#D9F5E8] flex flex-col justify-between hover:shadow-md hover:border-[#078E99]/40 transition">
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold text-[#07976B]">${escapeHtml(p.badge)}</span>
-                            <div class="flex items-center space-x-1 text-[#07976B] text-sm font-semibold">
-                                <span>★</span>
-                                <span class="text-[#10263D]">${escapeHtml(p.rating)}</span>
-                                <span class="text-[#10263D]/50 text-xs">(${escapeHtml(p.reviewsCount)})</span>
+            grid.innerHTML = psychologists.map(p => {
+                const summary = getRatingSummary(p.id);
+                const ratingBadgeHtml = summary.count > 0
+                    ? `<button type="button" onclick="openReviewModal(${p.id})" class="flex items-center space-x-1 text-[#07976B] hover:text-[#10263D] text-xs font-semibold transition" title="Ver o dejar comentario">
+                           <span>${summary.starsText}</span>
+                           <span class="text-[#10263D]">${escapeHtml(summary.average)}</span>
+                           <span class="text-[#10263D]/50">(${summary.count})</span>
+                       </button>`
+                    : `<button type="button" onclick="openReviewModal(${p.id})" class="text-[11px] font-medium text-[#10263D]/55 hover:text-[#078E99] transition">
+                           Dejar comentario
+                       </button>`;
+
+                return `
+                    <div class="bg-white rounded-3xl p-8 shadow-sm border border-[#D9F5E8] flex flex-col justify-between hover:shadow-md hover:border-[#078E99]/40 transition">
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-[#10263D]">${escapeHtml(p.name)}</h3>
+                                <p class="text-xs font-semibold text-[#078E99] mt-1">${escapeHtml(p.area)}</p>
+                            </div>
+                            <div class="bg-[#F5FAF8] p-4 rounded-2xl border border-[#D9F5E8]">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-[#10263D] mb-1">Modelo de Trabajo:</h4>
+                                <p class="text-[#10263D]/75 text-xs leading-relaxed">${escapeHtml(p.modelDescription)}</p>
                             </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-[#10263D]">${escapeHtml(p.name)}</h3>
-                            <p class="text-xs font-semibold text-[#078E99] mt-0.5">${escapeHtml(p.area)}</p>
-                        </div>
-                        <div class="bg-[#F5FAF8] p-4 rounded-2xl border border-[#D9F5E8]">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-[#10263D] mb-1">Modelo de Trabajo:</h4>
-                            <p class="text-[#10263D]/75 text-xs leading-relaxed">${escapeHtml(p.modelDescription)}</p>
+                        <div class="pt-6 mt-6 border-t border-[#D9F5E8] space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-[#10263D]/60 block">8:00 AM - 6:00 PM</span>
+                                    <span class="text-base font-extrabold text-[#10263D]">$80.000 COP</span>
+                                </div>
+                                ${ratingBadgeHtml}
+                            </div>
+                            <button onclick="openBookingModal(${p.id})" class="w-full brand-btn-primary font-medium px-5 py-2.5 rounded-xl text-sm transition shadow-sm">
+                                Agendar Cita
+                            </button>
                         </div>
                     </div>
-                    <div class="pt-6 mt-6 border-t border-[#D9F5E8] flex items-center justify-between">
-                        <div>
-                            <span class="text-xs text-[#10263D]/60 block">8:00 AM - 6:00 PM</span>
-                            <span class="text-base font-extrabold text-[#10263D]">$80.000 COP</span>
+                `;
+            }).join('');
+        }
+
+        function openReviewModal(psiId) {
+            const psi = psychologists.find(p => p.id === psiId);
+            if (!psi) return;
+            const modal = document.getElementById('booking-modal');
+            const content = document.getElementById('modal-content');
+            const reviews = getPsychologistReviews(psiId);
+
+            const reviewsListHtml = reviews.length
+                ? reviews.map(r => `
+                    <div class="bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl p-3.5 space-y-1">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-bold text-[#10263D]">${escapeHtml(r.author || 'Consultante')}</span>
+                            <span class="text-[#07976B] font-semibold">${'★'.repeat(Number(r.rating || 0))}${'☆'.repeat(5 - Number(r.rating || 0))}</span>
                         </div>
-                        <button onclick="openBookingModal(${p.id})" class="brand-btn-primary font-medium px-5 py-2.5 rounded-xl text-sm transition shadow-sm">
-                            Agendar Cita
-                        </button>
+                        ${r.comment ? `<p class="text-xs text-[#10263D]/75 leading-relaxed">${escapeHtml(r.comment)}</p>` : ''}
                     </div>
+                `).join('')
+                : `<p class="text-xs text-[#10263D]/60">Aún no hay comentarios ni reacciones registradas para este profesional.</p>`;
+
+            content.innerHTML = `
+                <div class="mb-5">
+                    <h3 class="text-xl font-bold text-[#10263D]">Comentarios y Reacciones</h3>
+                    <p class="text-xs font-semibold text-[#078E99] mt-0.5">${escapeHtml(psi.name)} · ${escapeHtml(psi.area)}</p>
                 </div>
-            `).join('');
+
+                <div class="space-y-2.5 max-h-48 overflow-y-auto mb-5">
+                    ${reviewsListHtml}
+                </div>
+
+                <form onsubmit="submitReview(event, ${psi.id})" class="space-y-3 border-t border-[#D9F5E8] pt-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-[#10263D] uppercase mb-1">Tu Nombre</label>
+                            <input type="text" id="rev-author" required placeholder="Nombre o inicial" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-[#078E99]">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-[#10263D] uppercase mb-1">Estrellas</label>
+                            <select id="rev-rating" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-[#078E99]">
+                                <option value="5">★★★★★ (5)</option>
+                                <option value="4">★★★★☆ (4)</option>
+                                <option value="3">★★★☆☆ (3)</option>
+                                <option value="2">★★☆☆☆ (2)</option>
+                                <option value="1">★☆☆☆☆ (1)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-[#10263D] uppercase mb-1">Comentario</label>
+                        <textarea id="rev-comment" rows="2" required placeholder="Escribe tu comentario sobre la atención..." class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-[#078E99]"></textarea>
+                    </div>
+                    <button type="submit" class="w-full brand-btn-primary font-medium py-3 rounded-xl text-sm transition shadow-sm">
+                        Publicar Comentario y Reacción
+                    </button>
+                </form>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function submitReview(event, psiId) {
+            event.preventDefault();
+            const author = document.getElementById('rev-author').value.trim();
+            const rating = Number(document.getElementById('rev-rating').value);
+            const comment = document.getElementById('rev-comment').value.trim();
+
+            if (!author || !rating || (!comment && rating < 1)) return;
+
+            const key = String(psiId);
+            const current = getPsychologistReviews(psiId);
+            current.unshift({
+                author,
+                rating,
+                comment,
+                createdAt: new Date().toISOString()
+            });
+            reviewsByPsychologist[key] = current;
+            localStorage.setItem('serena_psychologist_reviews', JSON.stringify(reviewsByPsychologist));
+
+            renderPsychologists();
+            openReviewModal(psiId);
+            showToast("¡Comentario y reacción guardados!");
         }
 
         async function openBookingModal(psiId) {
@@ -376,8 +467,7 @@
 
             content.innerHTML = `
                 <div class="mb-6">
-                    <span class="text-xs font-semibold text-[#07976B]">Agenda 8:00 AM – 6:00 PM</span>
-                    <h3 class="text-2xl font-bold text-[#10263D] mt-2">Agendar con ${escapeHtml(psi.name)}</h3>
+                    <h3 class="text-2xl font-bold text-[#10263D]">Agendar con ${escapeHtml(psi.name)}</h3>
                     <p class="text-xs text-[#078E99] font-medium mt-1">${escapeHtml(psi.area)}</p>
                 </div>
                 <form id="booking-form" onsubmit="submitBooking(event, ${psi.id})" class="space-y-4">

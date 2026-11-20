@@ -54,7 +54,7 @@
                     </span>
                 </a>
                 <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
-                    Portal Profesional · v2.8
+                    Portal Profesional · v4
                 </span>
             </div>
 
@@ -109,9 +109,17 @@
         <!-- Dashboard View -->
         <section id="dashboard-section" class="hidden space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 class="text-2xl font-extrabold text-slate-900">Agenda, Pagos e Historias Clínicas</h1>
-                    <p class="text-sm text-slate-500">Consulta tu agenda de 8:00 AM a 6:00 PM, crea historias clínicas independientes, gestiona contacto del consultante, envía notificaciones y descarga expedientes.</p>
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-serena-600 to-serena-blue p-2.5 shadow-sm flex items-center justify-center shrink-0" title="Isotipo Serena Mente">
+                        <svg class="w-full h-full" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Isotipo Serena Mente">
+                            <path d="M11 23C11 16.5 15.8 11.5 21.8 11.5C26.2 11.5 29.6 14.4 30.6 18.4L27.8 19.7C27.8 21.6 26.7 22.9 24.8 23.2V27.2C24.8 28.4 23.8 29.4 22.6 29.4H17.2C13.8 29.4 11 26.5 11 23Z" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round"/>
+                            <circle cx="21.5" cy="17.5" r="2.6" fill="#ffffff"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-extrabold text-slate-900">Agenda, Pagos e Historias Clínicas</h1>
+                        <p class="text-sm text-slate-500">Consulta tu agenda de 8:00 AM a 6:00 PM, crea historias clínicas independientes, gestiona contacto del consultante, envía notificaciones y descarga expedientes.</p>
+                    </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <button type="button" onclick="openNuevaHistoriaModal()"
@@ -626,11 +634,13 @@
                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo de caso *</label>
                         <select id="new-hc-tipo-caso" required
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                            <option value="Consulta clínica directa">Consulta clínica directa</option>
-                            <option value="Evaluación y diagnóstico">Evaluación y diagnóstico</option>
-                            <option value="Psicoterapia individual">Psicoterapia individual</option>
-                            <option value="Orientación / psicoeducación">Orientación / psicoeducación</option>
-                            <option value="Intervención en crisis">Intervención en crisis</option>
+                            <option value="directa">Consulta clínica directa</option>
+                            <option value="cita">Cita agendada</option>
+                            <option value="evaluacion">Evaluación y diagnóstico</option>
+                            <option value="psicoterapia">Psicoterapia individual</option>
+                            <option value="orientacion">Orientación / psicoeducación</option>
+                            <option value="crisis">Intervención en crisis</option>
+                            <option value="general">General</option>
                         </select>
                     </div>
                     <div>
@@ -1427,6 +1437,22 @@
                     }
                     lastError = error;
 
+                    const checkMsg = (error?.message || '').toLowerCase();
+                    if (checkMsg.includes('tipo_caso_check') || (checkMsg.includes('check constraint') && checkMsg.includes('tipo_caso'))) {
+                        const fallbackCandidates = ['directa', 'cita', 'general', 'individual', 'consulta', 'clinica', 'normal', 'primera_vez', 'seguimiento'];
+                        for (const fb of fallbackCandidates) {
+                            if (fb === candidateBase.tipo_caso) continue;
+                            const retryRes = await supabaseClient
+                                .from('historias_clinicas')
+                                .insert({ ...candidateBase, tipo_caso: fb, [colName]: serialized })
+                                .select('*')
+                                .single();
+                            if (!retryRes.error && retryRes.data) {
+                                return { data: retryRes.data, error: null };
+                            }
+                        }
+                    }
+
                     const msg = (error?.message || '').toLowerCase();
                     const missingColMatch = msg.match(/column "([^"]+)"/) || msg.match(/'([^']+)' column/);
                     if (missingColMatch && missingColMatch[1]) {
@@ -1450,6 +1476,22 @@
                     return { data, error: null };
                 }
                 lastError = error;
+
+                const checkMsg2 = (error?.message || '').toLowerCase();
+                if (checkMsg2.includes('tipo_caso_check') || (checkMsg2.includes('check constraint') && checkMsg2.includes('tipo_caso'))) {
+                    const fallbackCandidates = ['directa', 'cita', 'general', 'individual', 'consulta', 'clinica', 'normal', 'primera_vez', 'seguimiento'];
+                    for (const fb of fallbackCandidates) {
+                        if (fb === candidateBase.tipo_caso) continue;
+                        const retryRes = await supabaseClient
+                            .from('historias_clinicas')
+                            .insert({ ...candidateBase, tipo_caso: fb })
+                            .select('*')
+                            .single();
+                        if (!retryRes.error && retryRes.data) {
+                            return { data: retryRes.data, error: null };
+                        }
+                    }
+                }
 
                 const msg = (error?.message || '').toLowerCase();
                 const missingColMatch = msg.match(/column "([^"]+)"/) || msg.match(/'([^']+)' column/);

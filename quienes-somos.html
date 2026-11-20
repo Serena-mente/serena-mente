@@ -3,58 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiénes Somos — Serena Mente</title>
+    <title>Quiénes somos — Serena Mente</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Inter', sans-serif; } </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        serena: {
+                            50: '#F5FAF8',
+                            100: '#D9F5E8',
+                            500: '#07976B',
+                            600: '#07976B',
+                            700: '#078E99',
+                            900: '#10263D',
+                            light: '#D9F5E8',
+                            blue: '#078E99',
+                            darkblue: '#10263D',
+                            navy: '#10263D',
+                            teal: '#078E99',
+                            mint: '#07976B',
+                            calm: '#D9F5E8',
+                            harmony: '#F5FAF8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5FAF8;
+            color: #10263D;
+        }
+        .brand-btn-primary {
+            background: linear-gradient(135deg, #078E99 0%, #07976B 100%);
+            color: #ffffff;
+        }
+        .brand-btn-primary:hover {
+            background: linear-gradient(135deg, #10263D 0%, #078E99 100%);
+        }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
-    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
+<body class="bg-[#F5FAF8] text-[#10263D] antialiased">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#D9F5E8] shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <a href="index.html" class="text-xl font-bold bg-gradient-to-r from-emerald-700 to-sky-600 bg-clip-text text-transparent">Serena Mente</a>
+                <a href="index.html" class="flex items-center space-x-3">
+                    <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-10 w-auto object-contain">
+                    <span class="text-xl font-extrabold tracking-tight text-[#10263D]">
+                        Serena <span class="text-[#07976B]">Mente</span>
+                    </span>
+                </a>
             </div>
-            <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-slate-600">
-                <a href="index.html" class="hover:text-emerald-600 transition">Inicio</a>
-                <a href="quienes-somos.html" class="text-emerald-600 font-bold">Quiénes Somos</a>
-                <a href="index.html#nosotros" class="hover:text-emerald-600 transition">¿Cómo Funciona?</a>
-                <a href="index.html#equipo" class="hover:text-emerald-600 transition">Nuestro Equipo</a>
-                <a href="faq.html" class="hover:text-emerald-600 transition">Preguntas Frecuentes</a>
-                <a href="contacto.html" class="hover:text-emerald-600 transition">Contacto</a>
+            <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-[#10263D]/80">
+                <a href="index.html" class="hover:text-[#07976B] transition">Inicio</a>
+                <a href="quienes-somos.html" class="text-[#07976B] font-bold">Quiénes somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-[#07976B] transition">Conoce nuestro equipo</a>
+                <a href="faq.html" class="hover:text-[#07976B] transition">Preguntas frecuentes</a>
+                <a href="contacto.html" class="hover:text-[#07976B] transition">Contacto</a>
             </nav>
+            <div>
+                <a href="index.html#portal-acceso" class="brand-btn-primary font-medium px-5 py-2.5 rounded-full shadow-md transition text-sm">
+                    Acceso plataforma
+                </a>
+            </div>
         </div>
     </header>
 
-    <main class="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div class="text-center space-y-4 max-w-3xl mx-auto">
-            <span class="text-emerald-600 font-semibold text-sm uppercase tracking-wider">Nuestra Identidad</span>
-            <h1 class="text-4xl font-extrabold text-slate-900">Quiénes Somos</h1>
-            <p class="text-slate-600 text-lg">Una plataforma corporativa comprometida con el desarrollo humano, la salud mental accesible y el rigor ético profesional.</p>
-        </div>
-        <div class="bg-white p-8 lg:p-12 rounded-3xl border border-slate-200 shadow-sm space-y-6 text-slate-700 leading-relaxed">
-            <p>
-                <strong>Serena Mente</strong> nace como un espacio virtual de orientación y acompañamiento psicológico que unifica la práctica ética de diversos profesionales especializados en distintas áreas del saber psicológico. Nuestro objetivo principal es democratizar el acceso a un bienestar emocional fundamentado, ofreciendo un entorno digital seguro, confidencial y ágil.
+    <!-- Main Content: Quiénes somos -->
+    <main class="py-14 md:py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+        <!-- Cabecera Institucional -->
+        <section class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4 pb-6 border-b border-[#D9F5E8]">
+                <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-14 sm:h-16 w-auto object-contain">
+                <div>
+                    <p class="text-xs font-semibold text-[#078E99]">Identidad y práctica profesional</p>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-[#10263D] mt-0.5">Quiénes somos</h1>
+                </div>
+            </div>
+
+            <div class="pt-6 space-y-4 text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                <p>
+                    Serena Mente es un grupo de psicólogos y profesionales de la salud mental que trabajamos de forma articulada para ofrecer orientación psicológica virtual ética, clara y accesible. Reunimos criterios clínicos, formativos y humanos en una plataforma pensada para acompañar a cada persona según su momento de vida, sus necesidades y su disponibilidad, sin perder el rigor profesional ni la calidez del vínculo terapéutico.
+                </p>
+            </div>
+        </section>
+
+        <!-- Por qué trabajamos en esta modalidad -->
+        <section class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm space-y-4">
+            <h2 class="text-xl sm:text-2xl font-bold text-[#10263D]">Por qué trabajamos en esta modalidad</h2>
+            <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                La atención psicológica en línea permite acercar el acompañamiento profesional a personas que enfrentan barreras de desplazamiento, horarios exigentes, distancias geográficas o rutinas cambiantes. Trabajar de manera virtual no significa improvisar ni deshumanizar la consulta; al contrario, exige protocolos claros, entornos digitales responsables y una comunicación directa desde el primer contacto. Esta modalidad facilita la continuidad de los procesos, la organización de los encuentros y la posibilidad de conectar con el profesional indicado desde un espacio cotidiano y seguro para el consultante.
             </p>
-            <p>
-                Trabajamos bajo los lineamientos normativos y profesionales vigentes en Colombia, promoviendo espacios donde cada consultante pueda encontrar un profesional alineado a sus necesidades particulares, abarcando desde la intervención clínica infantil y de adultos hasta el ámbito jurídico, forense y el desarrollo organizacional.
+            <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                Al funcionar como un equipo colegiado de psicólogos, cada proceso se aborda con seriedad y respaldo mutuo. Contamos con diversidad de miradas y áreas de trabajo dentro de la psicología, lo que permite orientar adecuadamente a quien consulta, respetar los límites de competencia de cada profesional y derivar o coordinar cuando el caso lo requiera.
             </p>
-            <h3 class="text-xl font-bold text-slate-900 pt-4">Nuestros Pilares Fundamentales</h3>
-            <ul class="space-y-3">
-                <li>• <strong>Confidencialidad absoluta:</strong> Resguardo estricto de la información bajo los más altos estándares éticos y profesionales.</li>
-                <li>• <strong>Práctica basada en evidencia:</strong> Estrategias de intervención rigurosas, actualizadas y orientadas a resultados sostenibles.</li>
-                <li>• <strong>Accesibilidad y transparencia:</strong> Tarifas justas, procesos claros y gestión virtual sin barreras geográficas.</li>
-            </ul>
-        </div>
+        </section>
+
+        <!-- Marco ético y legal -->
+        <section class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm space-y-4">
+            <h2 class="text-xl sm:text-2xl font-bold text-[#10263D]">Marco ético y legal</h2>
+            <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                Nuestro ejercicio profesional se rige por los principios deontológicos y bioéticos establecidos en la Ley 1090 de 2006, por la cual se reglamenta la profesión de psicología en Colombia, así como por los lineamientos de promoción, prevención y atención en salud mental contemplados en la Ley 1616 de 2013 y sus disposiciones complementarias, incluyendo la Ley 2460 de 2025. Asimismo, asumimos el tratamiento de datos personales bajo los criterios de responsabilidad, reserva y respeto por la dignidad humana previstos en la normativa vigente.
+            </p>
+            <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                La confidencialidad y el secreto profesional constituyen un pilar central de nuestra práctica: la información compartida en el marco de la orientación se protege con reserva, conforme a la ley y a los límites legales aplicables (como el consentimiento informado, las situaciones de riesgo inminente para la integridad del consultante o de terceros, o los requerimientos ordenados por autoridad competente). Actuamos con honestidad sobre el alcance de nuestros servicios, informando con claridad cuándo corresponde una orientación psicológica virtual y cuándo una situación requiere atención presencial, de urgencia o interdisciplinaria.
+            </p>
+        </section>
+
+        <!-- Misión y Visión -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-3xl p-8 border border-[#D9F5E8] shadow-sm space-y-3">
+                <h2 class="text-xl font-bold text-[#10263D]">Misión</h2>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    Brindar orientación psicológica virtual ética, humana y rigurosa a través de un equipo de psicólogos comprometidos con el bienestar emocional de las personas, facilitando procesos de acompañamiento claros, respetuosos y accesibles mediante herramientas digitales confiables.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-3xl p-8 border border-[#D9F5E8] shadow-sm space-y-3">
+                <h2 class="text-xl font-bold text-[#10263D]">Visión</h2>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    Consolidarnos como una red de referencia en orientación psicológica en línea reconocida por su calidad humana, su apego estricto a la ética profesional y su capacidad de acercar el cuidado de la salud mental a más personas con cercanía, claridad y confianza.
+                </p>
+            </div>
+        </section>
+
+        <!-- Objetivos -->
+        <section class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm space-y-6">
+            <h2 class="text-xl sm:text-2xl font-bold text-[#10263D]">Objetivos</h2>
+
+            <div class="bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl p-5 space-y-1.5">
+                <h3 class="text-sm font-bold text-[#078E99]">Objetivo general</h3>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    Ofrecer un espacio de orientación psicológica virtual estructurado, ético y centrado en la persona, articulado por profesionales de la psicología que acompañan procesos de bienestar emocional y toma de decisiones.
+                </p>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold text-[#10263D]">Objetivos específicos</h3>
+                <ul class="space-y-2.5 text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    <li class="flex items-start gap-2.5">
+                        <span class="mt-2 w-1.5 h-1.5 rounded-full bg-[#07976B] shrink-0"></span>
+                        <span>Garantizar una atención guiada por los principios éticos, deontológicos y de confidencialidad propios de la psicología.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <span class="mt-2 w-1.5 h-1.5 rounded-full bg-[#07976B] shrink-0"></span>
+                        <span>Facilitar el acceso a orientación profesional en línea mediante procesos de reserva transparentes y canales de comunicación claros.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <span class="mt-2 w-1.5 h-1.5 rounded-full bg-[#07976B] shrink-0"></span>
+                        <span>Promover el bienestar emocional, el autoconocimiento y la prevención a través de un acompañamiento acorde a las particularidades de cada consultante.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <span class="mt-2 w-1.5 h-1.5 rounded-full bg-[#07976B] shrink-0"></span>
+                        <span>Sostener un trabajo colaborativo entre colegas psicólogos que fortalezca la calidad del servicio, el criterio profesional y la claridad en la orientación brindada.</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Canales de coordinación y contacto -->
+        <section class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div class="space-y-2 max-w-2xl">
+                    <h2 class="text-xl sm:text-2xl font-bold text-[#10263D]">Canales de coordinación y contacto</h2>
+                    <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                        Para resolver inquietudes sobre el funcionamiento de la plataforma, los horarios disponibles o el proceso de orientación, puedes comunicarte a través de este botón.
+                    </p>
+                </div>
+                <div class="shrink-0">
+                    <a href="contacto.html" class="brand-btn-primary inline-block font-medium px-6 py-3 rounded-xl text-sm transition shadow-sm">
+                        Contacto
+                    </a>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <footer class="bg-slate-900 border-t border-slate-800 text-center py-8 px-4 text-slate-400 space-y-3">
-        <p class="space-x-4">
-            <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes Somos</a>
-            <a href="faq.html" class="hover:text-white transition text-sm">Preguntas Frecuentes</a>
-            <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
-            <a href="legal.html" class="text-emerald-400 hover:underline text-sm font-medium">Términos y Condiciones</a>
-        </p>
-        <p class="text-xs text-slate-500 pt-2">&copy; 2026 Serena Mente. Todos los derechos reservados.</p>
+    <!-- Footer Institucional -->
+    <footer class="bg-[#10263D] border-t border-[#078E99]/30 text-center py-10 px-4 text-[#D9F5E8]/80">
+        <div class="max-w-5xl mx-auto flex flex-col items-center space-y-4">
+            <img src="assets/imagotipo.png" alt="Imagotipo Serena Mente" class="h-11 w-auto object-contain brightness-0 invert opacity-90">
+            <p class="flex flex-wrap justify-center gap-x-5 gap-y-2">
+                <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce nuestro equipo</a>
+                <a href="faq.html" class="hover:text-white transition text-sm">Preguntas frecuentes</a>
+                <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
+                <a href="legal.html" class="text-[#07976B] hover:underline text-sm font-medium">Términos y condiciones</a>
+            </p>
+            <p class="text-xs text-[#D9F5E8]/60 pt-1">
+                &copy; 2026 Serena Mente - Plataforma de orientación psicológica virtual. Todos los derechos reservados.
+            </p>
+        </div>
     </footer>
+
 </body>
 </html>

@@ -3,61 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preguntas Frecuentes — Serena Mente</title>
+    <title>Preguntas frecuentes — Serena Mente</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Inter', sans-serif; } </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        serena: {
+                            50: '#F5FAF8',
+                            100: '#D9F5E8',
+                            500: '#07976B',
+                            600: '#07976B',
+                            700: '#078E99',
+                            900: '#10263D',
+                            light: '#D9F5E8',
+                            blue: '#078E99',
+                            darkblue: '#10263D',
+                            navy: '#10263D',
+                            teal: '#078E99',
+                            mint: '#07976B',
+                            calm: '#D9F5E8',
+                            harmony: '#F5FAF8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5FAF8;
+            color: #10263D;
+        }
+        .brand-btn-primary {
+            background: linear-gradient(135deg, #078E99 0%, #07976B 100%);
+            color: #ffffff;
+        }
+        .brand-btn-primary:hover {
+            background: linear-gradient(135deg, #10263D 0%, #078E99 100%);
+        }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
-    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
+<body class="bg-[#F5FAF8] text-[#10263D] antialiased">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#D9F5E8] shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <a href="index.html" class="text-xl font-bold bg-gradient-to-r from-emerald-700 to-sky-600 bg-clip-text text-transparent">Serena Mente</a>
+                <a href="index.html" class="flex items-center space-x-3">
+                    <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-10 w-auto object-contain">
+                    <span class="text-xl font-extrabold tracking-tight text-[#10263D]">
+                        Serena <span class="text-[#07976B]">Mente</span>
+                    </span>
+                </a>
             </div>
-            <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-slate-600">
-                <a href="index.html" class="hover:text-emerald-600 transition">Inicio</a>
-                <a href="quienes-somos.html" class="hover:text-emerald-600 transition">Quiénes Somos</a>
-                <a href="faq.html" class="text-emerald-600 font-bold">Preguntas Frecuentes</a>
-                <a href="contacto.html" class="hover:text-emerald-600 transition">Contacto</a>
+            <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-[#10263D]/80">
+                <a href="index.html" class="hover:text-[#07976B] transition">Inicio</a>
+                <a href="quienes-somos.html" class="hover:text-[#07976B] transition">Quiénes somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-[#07976B] transition">Conoce nuestro equipo</a>
+                <a href="faq.html" class="text-[#07976B] font-bold">Preguntas frecuentes</a>
+                <a href="contacto.html" class="hover:text-[#07976B] transition">Contacto</a>
             </nav>
+            <div>
+                <a href="index.html#portal-acceso" class="brand-btn-primary font-medium px-5 py-2.5 rounded-full shadow-md transition text-sm">
+                    Acceso plataforma
+                </a>
+            </div>
         </div>
     </header>
 
-    <main class="py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div class="text-center space-y-4">
-            <span class="text-emerald-600 font-semibold text-sm uppercase tracking-wider">Resolución de Dudas</span>
-            <h1 class="text-4xl font-extrabold text-slate-900">Preguntas Frecuentes</h1>
-            <p class="text-slate-600 text-lg">Todo lo que necesitas saber sobre nuestras consultas virtuales y procesos de agendamiento.</p>
-        </div>
-        
-        <div class="space-y-6">
-            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 class="font-bold text-slate-900 text-lg mb-2">¿Cómo se realizan las sesiones virtuales?</h3>
-                <p class="text-sm text-slate-600 leading-relaxed">Las consultas se llevan a cabo a través de videollamada mediante Google Meet. Una vez que el profesional valida tu comprobante de pago, el enlace de acceso se activa automáticamente en tu portal de consultante.</p>
+    <!-- Main Content: Preguntas frecuentes -->
+    <main class="py-14 md:py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+        <!-- Cabecera Institucional -->
+        <section class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4 pb-6 border-b border-[#D9F5E8]">
+                <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-14 sm:h-16 w-auto object-contain">
+                <div>
+                    <p class="text-xs font-semibold text-[#078E99]">Orientación al usuario</p>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-[#10263D] mt-0.5">Preguntas frecuentes</h1>
+                </div>
             </div>
-            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 class="font-bold text-slate-900 text-lg mb-2">¿Cómo se efectúa y verifica el pago?</h3>
-                <p class="text-sm text-slate-600 leading-relaxed">Debes realizar una transferencia por valor de $80.000 COP a Nequi o Daviplata al número indicado en la plataforma, y posteriormente adjuntar la captura del comprobante al momento de completar tu reserva.</p>
+
+            <div class="pt-6">
+                <p class="text-[#10263D]/75 text-sm sm:text-base leading-relaxed">
+                    Encuentra respuestas claras sobre el funcionamiento de nuestra plataforma, la modalidad de orientación psicológica virtual, el proceso de agendamiento y el resguardo ético de tu información.
+                </p>
             </div>
-            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 class="font-bold text-slate-900 text-lg mb-2">¿Cuál es el perfil de los profesionales?</h3>
-                <p class="text-sm text-slate-600 leading-relaxed">Nuestros profesionales son psicólogos titulados con pregrado y sólida formación, organizados por áreas de trabajo e interés particular (clínica, jurídica, organizacional), comprometidos con la ética y el rigor científico.</p>
+        </section>
+
+        <!-- Lista de Preguntas Frecuentes -->
+        <section class="space-y-4">
+            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
+                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿En qué consiste el servicio de Serena Mente?</h2>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    Serena Mente es una plataforma de orientación psicológica virtual articulada por un grupo de psicólogos y profesionales de la salud mental. Ofrecemos espacios estructurados, éticos y accesibles para acompañar procesos de bienestar emocional, autoconocimiento, regulación y toma de decisiones a través de modalidad en línea.
+                </p>
+            </article>
+
+            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
+                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Cómo funciona el proceso para agendar una orientación y verificar el pago?</h2>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    Puedes explorar el perfil y disponibilidad de los profesionales en la sección del equipo, seleccionar el espacio correspondiente y completar los datos de reserva. Para confirmar la cita, realizas la transferencia por valor de $80.000 COP a Nequi o Daviplata al número indicado en la plataforma y adjuntas la captura del comprobante; una vez validado por el profesional, el enlace de acceso por Google Meet se activa automáticamente en tu portal de consultante.
+                </p>
+            </article>
+
+            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
+                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Qué diferencia hay entre orientación psicológica virtual y atención clínica presencial o de urgencia?</h2>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    La orientación psicológica virtual es una modalidad en línea pensada para brindar escucha profesional, análisis, herramientas de afrontamiento y acompañamiento estructurado a distancia. Sin embargo, cuando una situación requiere evaluación clínica presencial, intervención psiquiátrica, seguimiento especializado continuo o atención inmediata ante una crisis o riesgo vital, el consultante debe acudir a los servicios de urgencias, redes de salud habilitadas o atención presencial correspondiente.
+                </p>
+            </article>
+
+            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
+                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Cuál es el perfil de los profesionales que atienden?</h2>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    Nuestros profesionales son psicólogos titulados con registro profesional vigente en Colombia, organizados por áreas de trabajo y enfoque (clínica, jurídica, organizacional y acompañamiento según etapa de vida), comprometidos con el rigor ético, el criterio científico y el trabajo colegiado.
+                </p>
+            </article>
+
+            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
+                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Cómo se protege la confidencialidad de mis datos y de lo que comparto?</h2>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    El manejo de la información se rige por los principios deontológicos, bioéticos y de secreto profesional aplicables al ejercicio de la psicología en Colombia (incluyendo la Ley 1090 de 2006 y la Ley 1616 de 2013), así como por la normativa vigente sobre tratamiento de datos personales. La información se trata con reserva y únicamente con fines propios del servicio o coordinación, salvo las excepciones previstas por la ley, como el consentimiento informado, el riesgo inminente para la integridad del consultante o de terceros, o el requerimiento de autoridad competente.
+                </p>
+            </article>
+
+            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
+                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Qué necesito para participar en una sesión virtual?</h2>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    Solo necesitas contar con una conexión a internet estable, un dispositivo con cámara y micrófono en buen estado (computador, tableta o teléfono inteligente) para conectarte a Google Meet y un espacio privado, tranquilo y cómodo donde puedas conversar sin interrupciones.
+                </p>
+            </article>
+
+            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
+                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Qué pasa si necesito reprogramar o cancelar una cita?</h2>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    Las solicitudes de reprogramación o cancelación deben gestionarse con antelación a través de los canales dispuestos por la coordinación o directamente con el profesional correspondiente, de acuerdo con las condiciones informadas al momento de reservar. Te recomendamos avisar lo antes posible para reorganizar la agenda de manera oportuna.
+                </p>
+            </article>
+
+            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
+                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Cómo elijo al profesional adecuado para lo que necesito?</h2>
+                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                    Puedes revisar la información de los profesionales disponibles en la sección de nuestro equipo para conocer su enfoque, área de trabajo y disponibilidad. Si no estás seguro de qué perfil se ajusta mejor a tu motivo de consulta, puedes escribirnos a través de la página de contacto para recibir orientación sobre cómo avanzar.
+                </p>
+            </article>
+        </section>
+
+        <!-- Cierre con botón a Contacto -->
+        <section class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div class="space-y-2 max-w-2xl">
+                    <h2 class="text-xl sm:text-2xl font-bold text-[#10263D]">¿Tienes otra inquietud?</h2>
+                    <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+                        Si necesitas resolver dudas puntuales sobre horarios, validación de comprobantes o el funcionamiento de la plataforma, puedes comunicarte a través de este botón.
+                    </p>
+                </div>
+                <div class="shrink-0">
+                    <a href="contacto.html" class="brand-btn-primary inline-block font-medium px-6 py-3 rounded-xl text-sm transition shadow-sm">
+                        Contacto
+                    </a>
+                </div>
             </div>
-            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 class="font-bold text-slate-900 text-lg mb-2">¿Qué sucede si necesito reprogramar mi cita?</h3>
-                <p class="text-sm text-slate-600 leading-relaxed">Puedes comunicarte con anticipación a través de nuestros canales de contacto o directamente con tu profesional asignado para coordinar un nuevo horario sin inconvenientes.</p>
-            </div>
-        </div>
+        </section>
+
     </main>
 
-    <footer class="bg-slate-900 border-t border-slate-800 text-center py-8 px-4 text-slate-400 space-y-3">
-        <p class="space-x-4">
-            <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes Somos</a>
-            <a href="faq.html" class="hover:text-white transition text-sm">Preguntas Frecuentes</a>
-            <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
-            <a href="legal.html" class="text-emerald-400 hover:underline text-sm font-medium">Términos y Condiciones</a>
-        </p>
-        <p class="text-xs text-slate-500 pt-2">&copy; 2026 Serena Mente. Todos los derechos reservados.</p>
+    <!-- Footer Institucional -->
+    <footer class="bg-[#10263D] border-t border-[#078E99]/30 text-center py-10 px-4 text-[#D9F5E8]/80">
+        <div class="max-w-5xl mx-auto flex flex-col items-center space-y-4">
+            <img src="assets/imagotipo.png" alt="Imagotipo Serena Mente" class="h-11 w-auto object-contain brightness-0 invert opacity-90">
+            <p class="flex flex-wrap justify-center gap-x-5 gap-y-2">
+                <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce nuestro equipo</a>
+                <a href="faq.html" class="hover:text-white transition text-sm">Preguntas frecuentes</a>
+                <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
+                <a href="legal.html" class="text-[#07976B] hover:underline text-sm font-medium">Términos y condiciones</a>
+            </p>
+            <p class="text-xs text-[#D9F5E8]/60 pt-1">
+                &copy; 2026 Serena Mente - Plataforma de orientación psicológica virtual. Todos los derechos reservados.
+            </p>
+        </div>
     </footer>
+
 </body>
 </html>

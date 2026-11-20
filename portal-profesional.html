@@ -25,24 +25,41 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- Header -->
+    <!-- Header Armónico con Isotipo + Imagotipo -->
     <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+            <!-- Imagotipo: Isotipo geométrico armónico + logotipo tipográfico -->
             <div class="flex items-center space-x-3">
-                <a href="index.html" class="text-lg font-bold bg-gradient-to-r from-serena-700 to-serena-blue bg-clip-text text-transparent">
-                    Serena Mente
+                <a href="index.html" class="flex items-center space-x-2.5 group focus:outline-none">
+                    <!-- Isotipo Serena Mente (mente serena + brote/equilibrio) -->
+                    <svg class="w-9 h-9 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="serenaLogoGrad" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#059669"/>
+                                <stop offset="100%" stop-color="#0284c7"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="2" y="2" width="36" height="36" rx="11" fill="url(#serenaLogoGrad)"/>
+                        <path d="M12 22.5C12 16.7 16.2 12 21.5 12C25.6 12 28.8 14.7 29.8 18.4L27.2 19.6C27.2 21.3 26.2 22.5 24.5 22.8V26.5C24.5 27.6 23.6 28.5 22.5 28.5H17.5C14.5 28.5 12 25.8 12 22.5Z" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M21.5 15.5C19.2 15.5 17.5 17.2 17.5 19.5C19.8 19.5 21.5 17.8 21.5 15.5Z" fill="#ffffff" fill-opacity="0.9"/>
+                    </svg>
+                    <span class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-serena-700 to-serena-blue bg-clip-text text-transparent">
+                        Serena Mente
+                    </span>
                 </a>
                 <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
-                    Portal Profesional · v2.7
+                    Portal Profesional · v2.8
                 </span>
             </div>
-            <div id="session-bar" class="hidden items-center space-x-3 text-sm">
-                <span id="pro-email-label" class="text-slate-600 font-medium hidden sm:inline"></span>
+
+            <div id="session-bar" class="hidden items-center space-x-2.5 text-sm">
+                <span id="pro-email-label" class="text-slate-600 font-medium hidden md:inline"></span>
                 <button type="button" onclick="openNuevaHistoriaModal()"
                     class="bg-serena-600 hover:bg-serena-700 text-white px-3.5 py-1.5 rounded-xl font-semibold transition shadow-sm">
                     + Nueva historia clínica
@@ -59,7 +76,15 @@
 
         <!-- Login View -->
         <section id="login-section" class="max-w-md mx-auto bg-white rounded-3xl p-8 shadow-md border border-slate-200 mt-8">
-            <h1 class="text-2xl font-extrabold text-slate-900">Acceso Profesional</h1>
+            <div class="flex items-center space-x-3 mb-4">
+                <svg class="w-8 h-8 shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="2" y="2" width="36" height="36" rx="11" fill="#ecfdf5" stroke="#a7f3d0"/>
+                    <path d="M12 22.5C12 16.7 16.2 12 21.5 12C25.6 12 28.8 14.7 29.8 18.4L27.2 19.6C27.2 21.3 26.2 22.5 24.5 22.8V26.5C24.5 27.6 23.6 28.5 22.5 28.5H17.5C14.5 28.5 12 25.8 12 22.5Z" stroke="#059669" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-900">Acceso Profesional</h1>
+                </div>
+            </div>
             <p class="text-sm text-slate-500 mt-1">Inicia sesión con tu cuenta registrada en Serena Mente para gestionar agenda, pagos e historias clínicas.</p>
 
             <form id="pro-login-form" onsubmit="loginPro(event)" class="space-y-4 mt-6">
@@ -86,7 +111,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-900">Agenda, Pagos e Historias Clínicas</h1>
-                    <p class="text-sm text-slate-500">Consulta tu agenda de 8:00 AM a 6:00 PM, crea historias clínicas independientes, revisa comprobantes, asigna Meet y descarga expedientes.</p>
+                    <p class="text-sm text-slate-500">Consulta tu agenda de 8:00 AM a 6:00 PM, crea historias clínicas independientes, gestiona contacto del consultante, envía notificaciones y descarga expedientes.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <button type="button" onclick="openNuevaHistoriaModal()"
@@ -147,6 +172,7 @@
                             <div>
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span id="hc-codigo" class="font-mono text-sm font-extrabold bg-sky-50 text-sky-900 border border-sky-200 px-3 py-1 rounded-lg"></span>
+                                    <span id="hc-tipo-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-800"></span>
                                     <span id="hc-pago-badge" class="text-xs font-bold px-3 py-1 rounded-full"></span>
                                     <span id="hc-riesgo-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700"></span>
                                 </div>
@@ -154,6 +180,10 @@
                                 <p id="hc-meta" class="text-xs text-slate-500 mt-0.5"></p>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
+                                <button type="button" onclick="enviarCorreoConsultanteActual()"
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
+                                    ✉ Enviar correo
+                                </button>
                                 <button type="button" onclick="descargarHistoriaHtml()"
                                     class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
                                     Descargar HTML
@@ -210,10 +240,25 @@
 
                         <!-- Formulario Robusto de Historia Clínica Inicial -->
                         <form id="hc-form" onsubmit="guardarHistoriaClinica(event)" class="space-y-6">
-                            <!-- 01. Identificación -->
+                            <!-- 01. Identificación y Datos de Contacto del Consultante -->
                             <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
-                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">01. Identificación</h3>
+                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">01. Identificación y contacto del consultante</h3>
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Correo electrónico</label>
+                                        <input type="email" id="hc-cliente-email" placeholder="consultante@correo.com"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Teléfono / WhatsApp</label>
+                                        <input type="text" id="hc-telefono" placeholder="+57 300 000 0000"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Ciudad / Residencia</label>
+                                        <input type="text" id="hc-ciudad" placeholder="Ej. Santa Marta"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Edad</label>
                                         <input type="text" id="hc-edad" placeholder="Ej. 26 años"
@@ -237,6 +282,11 @@
                                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                                     </div>
                                     <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo de caso</label>
+                                        <input type="text" id="hc-tipo-caso" placeholder="Ej. Consulta clínica directa"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div>
                                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Derivado por</label>
                                         <input type="text" id="hc-derivado" placeholder="Iniciativa propia, médico, institución..."
                                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
@@ -246,8 +296,8 @@
                                         <input type="text" id="hc-expediente" placeholder="Ej. EXP-2026-001"
                                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                                     </div>
-                                    <div class="flex items-end pb-1">
-                                        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 w-full">
+                                    <div class="sm:col-span-3 flex items-center">
+                                        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2">
                                             <input type="checkbox" id="hc-consentimiento" class="w-4 h-4 accent-serena-600 rounded">
                                             <span class="text-xs font-semibold text-slate-700">Consentimiento informado</span>
                                         </label>
@@ -488,12 +538,12 @@
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Frecuencia acordada</label>
                                         <input type="text" id="hc-frecuencia" placeholder="Ej. Semanal, quincenal..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Próxima cita / tareas</label>
                                         <input type="text" id="hc-proxima-cita" placeholder="Fecha/hora o acuerdo previo"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -513,6 +563,10 @@
                             </div>
 
                             <div class="flex flex-wrap justify-end gap-3 pt-2">
+                                <button type="button" onclick="enviarCorreoConsultanteActual()"
+                                    class="bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-semibold px-4 py-3 rounded-xl text-sm transition">
+                                    Enviar correo al consultante
+                                </button>
                                 <button type="button" onclick="descargarHistoriaHtml()"
                                     class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-4 py-3 rounded-xl text-sm transition">
                                     Descargar expediente (.html)
@@ -529,13 +583,31 @@
         </section>
     </main>
 
-    <!-- Modal: Crear Nueva Historia Clínica Directa (sin requerir agendamiento previo) -->
+    <!-- Footer Armónico con Isotipo + Imagotipo -->
+    <footer class="bg-white border-t border-slate-200 py-5 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="2" y="2" width="36" height="36" rx="11" fill="#059669"/>
+                    <path d="M12 22.5C12 16.7 16.2 12 21.5 12C25.6 12 28.8 14.7 29.8 18.4L27.2 19.6C27.2 21.3 26.2 22.5 24.5 22.8V26.5C24.5 27.6 23.6 28.5 22.5 28.5H17.5C14.5 28.5 12 25.8 12 22.5Z" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="font-bold text-slate-700">Serena Mente</span>
+                <span>· Práctica psicológica y psicoeducación</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="legal.html" class="hover:text-serena-700 transition">Aspectos Legales</a>
+                <a href="faq.html" class="hover:text-serena-700 transition">Preguntas Frecuentes</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal: Crear Nueva Historia Clínica Directa (con tipo_caso, contacto del consultante y correo opcional) -->
     <div id="nueva-hc-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-slate-200 shadow-xl space-y-5 my-8 max-h-[90vh] overflow-y-auto">
             <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
                 <div>
                     <h2 class="text-xl font-extrabold text-slate-900">Nueva historia clínica directa</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Crea una historia clínica inicial directamente desde el portal sin depender de una reserva previa.</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Crea una historia clínica inicial con tipo de caso, datos de contacto y correo opcional para el consultante.</p>
                 </div>
                 <button type="button" onclick="closeNuevaHistoriaModal()"
                     class="text-slate-400 hover:text-slate-700 text-lg font-bold px-2 py-1">
@@ -551,18 +623,34 @@
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                     </div>
                     <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo de caso *</label>
+                        <select id="new-hc-tipo-caso" required
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                            <option value="Consulta clínica directa">Consulta clínica directa</option>
+                            <option value="Evaluación y diagnóstico">Evaluación y diagnóstico</option>
+                            <option value="Psicoterapia individual">Psicoterapia individual</option>
+                            <option value="Orientación / psicoeducación">Orientación / psicoeducación</option>
+                            <option value="Intervención en crisis">Intervención en crisis</option>
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Código de caso (opcional)</label>
                         <input type="text" id="new-hc-codigo" placeholder="Ej. HC-2026-101 (auto si vacío)"
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Correo electrónico (opcional)</label>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Correo electrónico del consultante</label>
                         <input type="email" id="new-hc-email" placeholder="consultante@correo.com"
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">N.º de expediente</label>
-                        <input type="text" id="new-hc-expediente" placeholder="Ej. EXP-001"
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Teléfono / WhatsApp del consultante</label>
+                        <input type="text" id="new-hc-telefono" placeholder="+57 300 000 0000"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Ciudad / Residencia</label>
+                        <input type="text" id="new-hc-ciudad" placeholder="Ej. Santa Marta"
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                     </div>
                     <div>
@@ -612,6 +700,13 @@
                     </div>
                 </div>
 
+                <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-indigo-50/70 border border-indigo-200 rounded-xl px-3.5 py-2.5 w-full">
+                    <input type="checkbox" id="new-hc-enviar-correo" checked class="w-4 h-4 accent-indigo-600 rounded">
+                    <span class="text-xs font-semibold text-indigo-950">
+                        Enviar correo automático al consultante si se registró su correo electrónico
+                    </span>
+                </label>
+
                 <div id="nueva-hc-error" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3"></div>
 
                 <div class="flex justify-end gap-2.5 pt-2">
@@ -633,6 +728,18 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const RECEIPTS_BUCKET = 'comprobantes';
+
+        // Configuración opcional de EmailJS si usas envío automático desde frontend.
+        // Si no configuras publicKey/serviceId/templateId, se prepara el correo y ofrece abrir cliente de correo.
+        const EMAILJS_CONFIG = {
+            publicKey: '',
+            serviceId: '',
+            templateId: ''
+        };
+
+        if (window.emailjs && EMAILJS_CONFIG.publicKey) {
+            window.emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
+        }
 
         const AGENDA_SLOTS = [
             '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -920,23 +1027,31 @@
             document.getElementById('active-editor').classList.remove('hidden');
             document.getElementById('editor-feedback').classList.add('hidden');
 
+            const extra = parseExtraClinical(item.detalle_clinico_json || item.datos_clinicos_json || item.notas_clinicas_json);
+            const contacto = extra.contacto_consultante || {};
+            const telefonoMostrado = item.telefono_consultante || item.telefono || contacto.telefono || '—';
             const horaMostrada = normalizeTimeSlot(item.hora_sesion) || item.hora_sesion || '—';
+            const tipoCasoMostrado = item.tipo_caso || extra.tipo_caso || 'Consulta clínica';
+
             document.getElementById('hc-codigo').textContent = item.codigo_caso || 'HC';
+            document.getElementById('hc-tipo-badge').textContent = tipoCasoMostrado;
             document.getElementById('hc-nombre').textContent = item.nombre_consultante || 'Consultante';
             document.getElementById('hc-meta').textContent =
-                `Correo: ${item.cliente_email || '—'} · Fecha: ${item.fecha_sesion || '—'} · Hora: ${horaMostrada}`;
+                `Correo: ${item.cliente_email || '—'} · Tel: ${telefonoMostrado} · Fecha: ${item.fecha_sesion || '—'} · Hora: ${horaMostrada}`;
 
             updatePagoUI(item.estado_pago);
+            updateRiskBadge(extra);
 
             document.getElementById('hc-meet').value = item.link_meet || '';
             syncMeetPreview();
 
-            const extra = parseExtraClinical(item.detalle_clinico_json || item.datos_clinicos_json || item.notas_clinicas_json);
-            updateRiskBadge(extra);
-
+            document.getElementById('hc-cliente-email').value = item.cliente_email || '';
+            document.getElementById('hc-telefono').value = telefonoMostrado === '—' ? '' : telefonoMostrado;
+            document.getElementById('hc-ciudad').value = item.ciudad || contacto.ciudad || '';
             document.getElementById('hc-edad').value = item.edad || '';
             document.getElementById('hc-genero').value = item.genero || '';
             document.getElementById('hc-pronombres').value = extra.pronombres || '';
+            document.getElementById('hc-tipo-caso').value = tipoCasoMostrado;
             document.getElementById('hc-derivado').value = extra.derivado_por || '';
             document.getElementById('hc-expediente').value = extra.numero_expediente || '';
             document.getElementById('hc-consentimiento').checked = Boolean(item.consentimiento_aceptado);
@@ -1088,6 +1203,12 @@
             const puntajeNum = puntajeRaw === '' ? '' : Math.max(0, Math.min(10, parseInt(puntajeRaw, 10) || 0));
 
             return {
+                tipo_caso: document.getElementById('hc-tipo-caso').value.trim() || 'Consulta clínica directa',
+                contacto_consultante: {
+                    email: document.getElementById('hc-cliente-email').value.trim(),
+                    telefono: document.getElementById('hc-telefono').value.trim(),
+                    ciudad: document.getElementById('hc-ciudad').value.trim()
+                },
                 pronombres: document.getElementById('hc-pronombres').value.trim(),
                 derivado_por: document.getElementById('hc-derivado').value.trim(),
                 numero_expediente: document.getElementById('hc-expediente').value.trim(),
@@ -1161,35 +1282,45 @@
             return parts.join('\n\n') || null;
         }
 
-        async function persistHistoriaWithFallback(id, payload, extraObj) {
+        async function updateRowFlexible(id, payload, extraObj) {
             const serialized = JSON.stringify(extraObj);
             const jsonColCandidates = ['detalle_clinico_json', 'datos_clinicos_json', 'notas_clinicas_json'];
+            let currentPayload = { ...payload };
 
-            for (const colName of jsonColCandidates) {
-                const candidatePayload = { ...payload, [colName]: serialized };
-                const { error } = await supabaseClient
-                    .from('historias_clinicas')
-                    .update(candidatePayload)
-                    .eq('id', id)
-                    .eq('psicologo_id', currentUser.id);
+            for (let attempt = 0; attempt < 5; attempt++) {
+                for (const colName of jsonColCandidates) {
+                    const candidatePayload = { ...currentPayload, [colName]: serialized };
+                    const { error } = await supabaseClient
+                        .from('historias_clinicas')
+                        .update(candidatePayload)
+                        .eq('id', id)
+                        .eq('psicologo_id', currentUser.id);
 
-                if (!error) {
-                    return { error: null, extraCol: colName };
-                }
-                const msg = (error.message || '').toLowerCase();
-                const missingCol = msg.includes('column') || msg.includes('schema cache');
-                if (!missingCol) {
-                    return { error, extraCol: null };
+                    if (!error) {
+                        return { error: null, extraCol: colName, savedPayload: candidatePayload };
+                    }
+
+                    const msg = (error.message || '').toLowerCase();
+                    const missingColMatch = msg.match(/column "([^"]+)"/) || msg.match(/'([^']+)' column/);
+                    if (missingColMatch && missingColMatch[1]) {
+                        const badCol = missingColMatch[1];
+                        if (badCol in currentPayload) {
+                            delete currentPayload[badCol];
+                            break;
+                        }
+                    } else if (!msg.includes('column') && !msg.includes('schema cache')) {
+                        return { error, extraCol: null, savedPayload: currentPayload };
+                    }
                 }
             }
 
             const { error: baseError } = await supabaseClient
                 .from('historias_clinicas')
-                .update(payload)
+                .update(currentPayload)
                 .eq('id', id)
                 .eq('psicologo_id', currentUser.id);
 
-            return { error: baseError, extraCol: null };
+            return { error: baseError, extraCol: null, savedPayload: currentPayload };
         }
 
         async function guardarHistoriaClinica(event) {
@@ -1208,8 +1339,17 @@
 
             const extra = collectStructuredClinicalData();
             const obsBase = document.getElementById('hc-observacion').value.trim();
+            const clienteEmail = document.getElementById('hc-cliente-email').value.trim() || null;
+            const telefono = document.getElementById('hc-telefono').value.trim() || null;
+            const ciudad = document.getElementById('hc-ciudad').value.trim() || null;
+            const tipoCaso = document.getElementById('hc-tipo-caso').value.trim() || 'Consulta clínica directa';
 
             const payload = {
+                cliente_email: clienteEmail,
+                telefono_consultante: telefono,
+                telefono: telefono,
+                ciudad: ciudad,
+                tipo_caso: tipoCaso,
                 link_meet: meetRaw || null,
                 edad: document.getElementById('hc-edad').value.trim() || null,
                 genero: document.getElementById('hc-genero').value || null,
@@ -1222,7 +1362,7 @@
                 actualizado_en: new Date().toISOString()
             };
 
-            const { error, extraCol } = await persistHistoriaWithFallback(selectedHistoria.id, payload, extra);
+            const { error, extraCol, savedPayload } = await updateRowFlexible(selectedHistoria.id, payload, extra);
 
             btn.disabled = false;
             btn.textContent = 'Guardar Historia Clínica';
@@ -1232,17 +1372,26 @@
                 return;
             }
 
-            Object.assign(selectedHistoria, payload);
+            Object.assign(selectedHistoria, savedPayload);
+            selectedHistoria.cliente_email = clienteEmail;
+            selectedHistoria.telefono_consultante = telefono;
+            selectedHistoria.ciudad = ciudad;
+            selectedHistoria.tipo_caso = tipoCaso;
             if (extraCol) {
                 selectedHistoria[extraCol] = JSON.stringify(extra);
             } else {
                 selectedHistoria.detalle_clinico_json = JSON.stringify(extra);
             }
 
+            document.getElementById('hc-tipo-badge').textContent = tipoCaso;
+            const horaMostrada = normalizeTimeSlot(selectedHistoria.hora_sesion) || selectedHistoria.hora_sesion || '—';
+            document.getElementById('hc-meta').textContent =
+                `Correo: ${clienteEmail || '—'} · Tel: ${telefono || '—'} · Fecha: ${selectedHistoria.fecha_sesion || '—'} · Hora: ${horaMostrada}`;
+
             updateRiskBadge(extra);
             syncMeetPreview();
             renderCasesList();
-            showFeedback('Historia clínica completa y enlace de Meet guardados.', 'success');
+            showFeedback('Historia clínica, contacto del consultante y enlace de Meet guardados.', 'success');
         }
 
         function openNuevaHistoriaModal() {
@@ -1257,6 +1406,137 @@
 
         function closeNuevaHistoriaModal() {
             document.getElementById('nueva-hc-modal').classList.add('hidden');
+        }
+
+        async function insertRowFlexible(baseInsert, extraObj) {
+            const serialized = JSON.stringify(extraObj);
+            const jsonColCandidates = ['detalle_clinico_json', 'datos_clinicos_json', 'notas_clinicas_json'];
+            let candidateBase = { ...baseInsert };
+            let lastError = null;
+
+            for (let attempt = 0; attempt < 6; attempt++) {
+                for (const colName of jsonColCandidates) {
+                    const { data, error } = await supabaseClient
+                        .from('historias_clinicas')
+                        .insert({ ...candidateBase, [colName]: serialized })
+                        .select('*')
+                        .single();
+
+                    if (!error && data) {
+                        return { data, error: null };
+                    }
+                    lastError = error;
+
+                    const msg = (error?.message || '').toLowerCase();
+                    const missingColMatch = msg.match(/column "([^"]+)"/) || msg.match(/'([^']+)' column/);
+                    if (missingColMatch && missingColMatch[1]) {
+                        const badCol = missingColMatch[1];
+                        if (badCol in candidateBase) {
+                            delete candidateBase[badCol];
+                            break;
+                        }
+                    } else if (!msg.includes('column') && !msg.includes('schema cache')) {
+                        break;
+                    }
+                }
+
+                const { data, error } = await supabaseClient
+                    .from('historias_clinicas')
+                    .insert(candidateBase)
+                    .select('*')
+                    .single();
+
+                if (!error && data) {
+                    return { data, error: null };
+                }
+                lastError = error;
+
+                const msg = (error?.message || '').toLowerCase();
+                const missingColMatch = msg.match(/column "([^"]+)"/) || msg.match(/'([^']+)' column/);
+                if (missingColMatch && missingColMatch[1] && missingColMatch[1] in candidateBase) {
+                    delete candidateBase[missingColMatch[1]];
+                } else {
+                    break;
+                }
+            }
+
+            return { data: null, error: lastError };
+        }
+
+        async function notificarConsultantePorCorreo({ codigo, nombre, email, fecha, hora, tipoCaso, linkMeet }) {
+            if (!email) {
+                return { sent: false, reason: 'no_email' };
+            }
+
+            const subject = `Confirmación y número de historia clínica (${codigo}) — Serena Mente`;
+            const bodyLines = [
+                `Hola ${nombre},`,
+                ``,
+                `Se ha registrado tu historia clínica y consulta en Serena Mente.`,
+                `• Número / Código de historia clínica: ${codigo}`,
+                `• Tipo de caso: ${tipoCaso || 'Consulta clínica directa'}`,
+                `• Fecha: ${fecha || 'Por coordinar'}`,
+                `• Hora: ${hora || 'Por coordinar'}`,
+                linkMeet ? `• Enlace de Google Meet: ${linkMeet}` : `• Enlace de Google Meet: Se enviará o coordinará por este medio.`,
+                ``,
+                `Puedes consultar tu información con tu número de historia clínica (${codigo}) y tu correo (${email}) en el Portal del Consultante de Serena Mente.`
+            ];
+
+            if (window.emailjs && EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.serviceId && EMAILJS_CONFIG.templateId) {
+                try {
+                    await window.emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+                        to_email: email,
+                        cliente_email: email,
+                        nombre_consultante: nombre,
+                        codigo_caso: codigo,
+                        tipo_caso: tipoCaso || 'Consulta clínica directa',
+                        fecha_sesion: fecha || 'Por coordinar',
+                        hora_sesion: hora || 'Por coordinar',
+                        link_meet: linkMeet || '',
+                        mensaje: bodyLines.join('\n')
+                    });
+                    return { sent: true, mode: 'emailjs' };
+                } catch (err) {
+                    return { sent: false, reason: 'emailjs_error', error: err.message, subject, body: bodyLines.join('\n'), email };
+                }
+            }
+
+            return {
+                sent: false,
+                mode: 'mailto_fallback',
+                subject,
+                body: bodyLines.join('\n'),
+                email
+            };
+        }
+
+        async function enviarCorreoConsultanteActual() {
+            if (!selectedHistoria) return;
+            const email = (document.getElementById('hc-cliente-email').value || selectedHistoria.cliente_email || '').trim();
+            if (!email) {
+                showFeedback('Registra primero el correo electrónico del consultante para enviarle la notificación.', 'error');
+                return;
+            }
+
+            const codigo = selectedHistoria.codigo_caso || 'HC';
+            const nombre = selectedHistoria.nombre_consultante || 'Consultante';
+            const fecha = selectedHistoria.fecha_sesion || getTodayIsoDate();
+            const hora = normalizeTimeSlot(selectedHistoria.hora_sesion) || selectedHistoria.hora_sesion || 'Por coordinar';
+            const tipoCaso = document.getElementById('hc-tipo-caso').value.trim() || selectedHistoria.tipo_caso || 'Consulta clínica directa';
+            const linkMeet = document.getElementById('hc-meet').value.trim() || selectedHistoria.link_meet || '';
+
+            const res = await notificarConsultantePorCorreo({ codigo, nombre, email, fecha, hora, tipoCaso, linkMeet });
+            if (res.sent) {
+                showFeedback(`Correo automático enviado a ${email} con el código ${codigo}.`, 'success');
+                return;
+            }
+
+            const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(res.subject)}&body=${encodeURIComponent(res.body)}`;
+            window.open(mailtoUrl, '_blank');
+            showFeedback(
+                `Correo preparado para ${email} (código ${codigo}). Configura EmailJS en EMAILJS_CONFIG si deseas envío automático directo sin abrir tu gestor de correo.`,
+                'success'
+            );
         }
 
         async function crearHistoriaDirecta(event) {
@@ -1277,14 +1557,27 @@
             btn.disabled = true;
             btn.textContent = 'Creando...';
 
+            const tipoCaso = document.getElementById('new-hc-tipo-caso').value || 'Consulta clínica directa';
             const codigoInput = document.getElementById('new-hc-codigo').value.trim();
             const codigoGenerado = codigoInput || `HC-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
+            const clienteEmail = document.getElementById('new-hc-email').value.trim() || null;
+            const telefono = document.getElementById('new-hc-telefono').value.trim() || null;
+            const ciudad = document.getElementById('new-hc-ciudad').value.trim() || null;
+            const fechaSesion = document.getElementById('new-hc-fecha').value || getTodayIsoDate();
+            const horaSesion = document.getElementById('new-hc-hora').value.trim() || 'Registro directo';
+            const debeEnviarCorreo = document.getElementById('new-hc-enviar-correo').checked;
             const nowIso = new Date().toISOString();
 
             const extraInicial = {
+                tipo_caso: tipoCaso,
+                contacto_consultante: {
+                    email: clienteEmail || '',
+                    telefono: telefono || '',
+                    ciudad: ciudad || ''
+                },
                 pronombres: '',
                 derivado_por: '',
-                numero_expediente: document.getElementById('new-hc-expediente').value.trim(),
+                numero_expediente: '',
                 motivo_consulta: document.getElementById('new-hc-motivo').value.trim(),
                 historia_problema: '',
                 antecedentes: {},
@@ -1304,51 +1597,24 @@
 
             const baseInsert = {
                 psicologo_id: currentUser.id,
+                tipo_caso: tipoCaso,
                 codigo_caso: codigoGenerado,
                 nombre_consultante: nombre,
-                cliente_email: document.getElementById('new-hc-email').value.trim() || null,
+                cliente_email: clienteEmail,
+                telefono_consultante: telefono,
+                telefono: telefono,
+                ciudad: ciudad,
                 edad: document.getElementById('new-hc-edad').value.trim() || null,
                 genero: document.getElementById('new-hc-genero').value || null,
-                fecha_sesion: document.getElementById('new-hc-fecha').value || getTodayIsoDate(),
-                hora_sesion: document.getElementById('new-hc-hora').value.trim() || 'Registro directo',
+                fecha_sesion: fechaSesion,
+                hora_sesion: horaSesion,
                 estado_pago: 'Directa',
                 consentimiento_aceptado: false,
                 observacion_clinica: extraInicial.motivo_consulta || null,
                 actualizado_en: nowIso
             };
 
-            let createdRow = null;
-            let insertError = null;
-            const jsonColCandidates = ['detalle_clinico_json', 'datos_clinicos_json', 'notas_clinicas_json'];
-
-            for (const colName of jsonColCandidates) {
-                const { data, error } = await supabaseClient
-                    .from('historias_clinicas')
-                    .insert({ ...baseInsert, [colName]: JSON.stringify(extraInicial) })
-                    .select('*')
-                    .single();
-
-                if (!error && data) {
-                    createdRow = data;
-                    insertError = null;
-                    break;
-                }
-                insertError = error;
-                const msg = (error?.message || '').toLowerCase();
-                if (!msg.includes('column') && !msg.includes('schema cache')) {
-                    break;
-                }
-            }
-
-            if (!createdRow) {
-                const { data, error } = await supabaseClient
-                    .from('historias_clinicas')
-                    .insert(baseInsert)
-                    .select('*')
-                    .single();
-                createdRow = data;
-                insertError = error;
-            }
+            const { data: createdRow, error: insertError } = await insertRowFlexible(baseInsert, extraInicial);
 
             btn.disabled = false;
             btn.textContent = 'Crear y abrir historia clínica';
@@ -1359,6 +1625,9 @@
                 return;
             }
 
+            if (!createdRow.tipo_caso) {
+                createdRow.tipo_caso = tipoCaso;
+            }
             if (!createdRow.detalle_clinico_json && !createdRow.datos_clinicos_json && !createdRow.notas_clinicas_json) {
                 createdRow.detalle_clinico_json = JSON.stringify(extraInicial);
             }
@@ -1368,7 +1637,28 @@
             selectedHistoria = createdRow;
             await loadHistorias();
             selectHistoria(createdRow.id);
-            showFeedback('Historia clínica creada. Ya puedes completarla, guardarla o descargarla.', 'success');
+
+            let correoMsg = '';
+            if (debeEnviarCorreo && clienteEmail) {
+                const mailRes = await notificarConsultantePorCorreo({
+                    codigo: createdRow.codigo_caso || codigoGenerado,
+                    nombre,
+                    email: clienteEmail,
+                    fecha: fechaSesion,
+                    hora: horaSesion,
+                    tipoCaso,
+                    linkMeet: createdRow.link_meet || ''
+                });
+                if (mailRes.sent) {
+                    correoMsg = ` Se envió el correo automático a ${clienteEmail}.`;
+                } else {
+                    const mailtoUrl = `mailto:${encodeURIComponent(clienteEmail)}?subject=${encodeURIComponent(mailRes.subject)}&body=${encodeURIComponent(mailRes.body)}`;
+                    window.open(mailtoUrl, '_blank');
+                    correoMsg = ` Se abrió el borrador de correo para ${clienteEmail}.`;
+                }
+            }
+
+            showFeedback(`Historia clínica creada (${createdRow.codigo_caso || codigoGenerado}).${correoMsg}`, 'success');
         }
 
         function formatCheckedList(obj, labelsMap) {
@@ -1436,13 +1726,17 @@
   <h1>Historia Clínica Inicial — Serena Mente</h1>
   <div class="meta">
     <strong>Código:</strong> ${escapeHtml(codigo)} |
+    <strong>Tipo de caso:</strong> ${escapeHtml(extra.tipo_caso || '—')} |
     <strong>Consultante:</strong> ${escapeHtml(nombre)} |
     <strong>Fecha:</strong> ${escapeHtml(fecha)} |
     <strong>Hora:</strong> ${escapeHtml(hora)}
   </div>
 
-  <h2>01. Identificación</h2>
+  <h2>01. Identificación y contacto del consultante</h2>
   <div class="grid">
+    <p><strong>Correo:</strong> ${escapeHtml(extra.contacto_consultante?.email || '—')}</p>
+    <p><strong>Teléfono:</strong> ${escapeHtml(extra.contacto_consultante?.telefono || '—')}</p>
+    <p><strong>Ciudad:</strong> ${escapeHtml(extra.contacto_consultante?.ciudad || '—')}</p>
     <p><strong>Edad:</strong> ${escapeHtml(document.getElementById('hc-edad').value || '—')}</p>
     <p><strong>Género:</strong> ${escapeHtml(document.getElementById('hc-genero').value || '—')}</p>
     <p><strong>Pronombres:</strong> ${escapeHtml(extra.pronombres || '—')}</p>

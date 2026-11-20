@@ -32,18 +32,22 @@
 
     <!-- Header -->
     <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
             <div class="flex items-center space-x-3">
                 <a href="index.html" class="text-lg font-bold bg-gradient-to-r from-serena-700 to-serena-blue bg-clip-text text-transparent">
                     Serena Mente
                 </a>
                 <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
-                    Portal Profesional · v2.6
+                    Portal Profesional · v2.7
                 </span>
             </div>
             <div id="session-bar" class="hidden items-center space-x-3 text-sm">
                 <span id="pro-email-label" class="text-slate-600 font-medium hidden sm:inline"></span>
-                <button onclick="logoutPro()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-1.5 rounded-xl font-medium transition">
+                <button type="button" onclick="openNuevaHistoriaModal()"
+                    class="bg-serena-600 hover:bg-serena-700 text-white px-3.5 py-1.5 rounded-xl font-semibold transition shadow-sm">
+                    + Nueva historia clínica
+                </button>
+                <button type="button" onclick="logoutPro()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-1.5 rounded-xl font-medium transition">
                     Cerrar sesión
                 </button>
             </div>
@@ -82,11 +86,17 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-900">Agenda, Pagos e Historias Clínicas</h1>
-                    <p class="text-sm text-slate-500">Consulta tu agenda de 8:00 AM a 6:00 PM, revisa comprobantes, confirma pagos, asigna Meet y edita historias clínicas.</p>
+                    <p class="text-sm text-slate-500">Consulta tu agenda de 8:00 AM a 6:00 PM, crea historias clínicas independientes, revisa comprobantes, asigna Meet y descarga expedientes.</p>
                 </div>
-                <button onclick="loadHistorias()" class="self-start bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
-                    Actualizar todo
-                </button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" onclick="openNuevaHistoriaModal()"
+                        class="bg-serena-600 hover:bg-serena-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm">
+                        + Nueva historia clínica
+                    </button>
+                    <button type="button" onclick="loadHistorias()" class="bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
+                        Actualizar todo
+                    </button>
+                </div>
             </div>
 
             <!-- Bloque de Agenda del Día (8:00 AM - 6:00 PM) -->
@@ -108,7 +118,13 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 <!-- Lista de consultantes -->
                 <div class="lg:col-span-4 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">Consultantes registrados</h2>
+                    <div class="flex items-center justify-between gap-2">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">Consultantes e historias</h2>
+                        <button type="button" onclick="openNuevaHistoriaModal()"
+                            class="text-xs font-bold text-serena-700 hover:underline">
+                            + Crear directa
+                        </button>
+                    </div>
                     <div id="cases-list" class="space-y-2.5 max-h-[75vh] overflow-y-auto pr-1">
                         <p class="text-sm text-slate-400">Cargando registros...</p>
                     </div>
@@ -116,30 +132,43 @@
 
                 <!-- Detalle y Edición -->
                 <div id="editor-container" class="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
-                    <div id="empty-editor" class="text-center py-16 text-slate-400 space-y-2">
-                        <p class="text-base font-medium text-slate-600">Selecciona un consultante de la lista o una franja ocupada en la agenda</p>
-                        <p class="text-sm">Podrás ver el comprobante de pago, confirmarlo, gestionar el enlace de Meet y editar su historia clínica.</p>
+                    <div id="empty-editor" class="text-center py-16 text-slate-400 space-y-3">
+                        <p class="text-base font-medium text-slate-600">Selecciona un consultante o crea una historia clínica directa</p>
+                        <p class="text-sm max-w-md mx-auto">No necesitas que exista una cita previa para abrir una historia clínica inicial, editarla, guardarla o descargarla.</p>
+                        <button type="button" onclick="openNuevaHistoriaModal()"
+                            class="mt-2 inline-flex items-center gap-1.5 bg-serena-600 hover:bg-serena-700 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shadow-sm transition">
+                            + Crear nueva historia clínica
+                        </button>
                     </div>
 
                     <div id="active-editor" class="hidden space-y-6">
-                        <!-- Encabezado del caso + Acciones de Pago y Eliminación -->
+                        <!-- Encabezado del caso + Acciones -->
                         <div class="flex flex-wrap items-start justify-between gap-4 pb-5 border-b border-slate-100">
                             <div>
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span id="hc-codigo" class="font-mono text-sm font-extrabold bg-sky-50 text-sky-900 border border-sky-200 px-3 py-1 rounded-lg"></span>
                                     <span id="hc-pago-badge" class="text-xs font-bold px-3 py-1 rounded-full"></span>
+                                    <span id="hc-riesgo-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700"></span>
                                 </div>
                                 <h2 id="hc-nombre" class="text-xl font-extrabold text-slate-900 mt-2"></h2>
                                 <p id="hc-meta" class="text-xs text-slate-500 mt-0.5"></p>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
+                                <button type="button" onclick="descargarHistoriaHtml()"
+                                    class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
+                                    Descargar HTML
+                                </button>
+                                <button type="button" onclick="imprimirHistoriaPdf()"
+                                    class="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
+                                    Imprimir / PDF
+                                </button>
                                 <button type="button" id="btn-confirmar-pago" onclick="confirmarPagoActual()"
-                                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm shadow-sm transition">
+                                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
                                     ✓ Confirmar Pago
                                 </button>
                                 <button type="button" id="btn-eliminar-hc" onclick="eliminarHistoriaActual()"
-                                    class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-semibold px-4 py-2.5 rounded-xl text-sm transition">
-                                    Eliminar registro
+                                    class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm transition">
+                                    Eliminar
                                 </button>
                             </div>
                         </div>
@@ -179,64 +208,315 @@
                             <div id="hc-comprobante-preview" class="hidden pt-1"></div>
                         </div>
 
-                        <!-- Formulario de Historia Clínica -->
-                        <form id="hc-form" onsubmit="guardarHistoriaClinica(event)" class="space-y-5">
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Formulario Robusto de Historia Clínica Inicial -->
+                        <form id="hc-form" onsubmit="guardarHistoriaClinica(event)" class="space-y-6">
+                            <!-- 01. Identificación -->
+                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">01. Identificación</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Edad</label>
+                                        <input type="text" id="hc-edad" placeholder="Ej. 26 años"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Género</label>
+                                        <select id="hc-genero"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="Femenino">Femenino</option>
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="No binario">No binario</option>
+                                            <option value="Prefiero no decir">Prefiero no decir</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Pronombres</label>
+                                        <input type="text" id="hc-pronombres" placeholder="Ej. él/le/ella"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Derivado por</label>
+                                        <input type="text" id="hc-derivado" placeholder="Iniciativa propia, médico, institución..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">N.º de expediente</label>
+                                        <input type="text" id="hc-expediente" placeholder="Ej. EXP-2026-001"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div class="flex items-end pb-1">
+                                        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 w-full">
+                                            <input type="checkbox" id="hc-consentimiento" class="w-4 h-4 accent-serena-600 rounded">
+                                            <span class="text-xs font-semibold text-slate-700">Consentimiento informado</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 02 y 03. Motivo de consulta e Historia del problema -->
+                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">02. Motivo de consulta y 03. Historia del problema</h3>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Edad</label>
-                                    <input type="text" id="hc-edad" placeholder="Ej. 26 años"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">02. Motivo de consulta (frase textual / con sus palabras)</label>
+                                    <textarea id="hc-motivo" rows="2" placeholder="Anota una frase textual o cómo lo expresa el consultante antes de traducirlo a lenguaje clínico..."
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Género</label>
-                                    <select id="hc-genero"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                        <option value="">Seleccionar...</option>
-                                        <option value="Femenino">Femenino</option>
-                                        <option value="Masculino">Masculino</option>
-                                        <option value="No binario">No binario</option>
-                                        <option value="Prefiero no decir">Prefiero no decir</option>
-                                        <option value="Otro">Otro</option>
-                                    </select>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">03. Historia del problema (inicio, evolución e intentos previos)</label>
+                                    <textarea id="hc-historia-problema" rows="3" placeholder="Cuándo empezó, cómo ha evolucionado y qué ha intentado hasta ahora..."
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
                                 </div>
-                                <div class="flex items-end pb-1">
-                                    <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 w-full">
-                                        <input type="checkbox" id="hc-consentimiento" class="w-4 h-4 accent-serena-600 rounded">
-                                        <span class="text-xs font-semibold text-slate-700">Consentimiento informado</span>
+                            </div>
+
+                            <!-- 04. Antecedentes -->
+                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">04. Antecedentes</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="ant-psico" class="accent-serena-600 rounded">
+                                        <span>Tratamiento psicológico previo</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="ant-medicacion" class="accent-serena-600 rounded">
+                                        <span>Medicación actual</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="ant-familiares" class="accent-serena-600 rounded">
+                                        <span>Antecedentes familiares</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="ant-psiquiatria" class="accent-serena-600 rounded">
+                                        <span>Seguimiento psiquiátrico</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="ant-hospital" class="accent-serena-600 rounded">
+                                        <span>Hospitalizaciones</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="ant-medica" class="accent-serena-600 rounded">
+                                        <span>Enfermedad médica relevante</span>
                                     </label>
                                 </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Detalle de antecedentes</label>
+                                    <textarea id="hc-antecedentes-detalle" rows="2" placeholder="Fármacos, dosis, tiempos, antecedentes relevantes..."
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                </div>
                             </div>
 
+                            <!-- 05. Contexto psicosocial -->
+                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">05. Contexto psicosocial</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Convivencia</label>
+                                        <textarea id="hc-convivencia" rows="2" placeholder="Con quién vive..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Situación laboral o académica</label>
+                                        <textarea id="hc-situacion-lab" rows="2" placeholder="De qué vive, ocupación, estudios..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Red de apoyo y estresores actuales</label>
+                                        <textarea id="hc-red-estres" rows="2" placeholder="Con quién cuenta y factores de estrés..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 06. Exploración del estado mental -->
+                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">06. Exploración del estado mental (observación clínica)</h3>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="em-aspecto" class="accent-serena-600 rounded">
+                                        <span>Aspecto cuidado</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="em-orientado" class="accent-serena-600 rounded">
+                                        <span>Orientado</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="em-contacto" class="accent-serena-600 rounded">
+                                        <span>Contacto adecuado</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="em-coherente" class="accent-serena-600 rounded">
+                                        <span>Discurso coherente</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="em-animo-bajo" class="accent-serena-600 rounded">
+                                        <span>Ánimo bajo</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="em-ansiedad" class="accent-serena-600 rounded">
+                                        <span>Ansiedad manifiesta</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="em-enlentecimiento" class="accent-serena-600 rounded">
+                                        <span>Enlentecimiento</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="em-inquietud" class="accent-serena-600 rounded">
+                                        <span>Inquietud psicomotriz</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="em-sueno-alt" class="accent-serena-600 rounded">
+                                        <span>Sueño alterado</span>
+                                    </label>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Sueño</label>
+                                        <textarea id="hc-sueno" rows="2" placeholder="Calidad, horas, conciliación, despertares..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Vigilia</label>
+                                        <textarea id="hc-vigilia" rows="2" placeholder="Nivel de alerta, energía diurna, fatiga..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Alimentación</label>
+                                        <textarea id="hc-alimentacion" rows="2" placeholder="Apetito, hábitos, cambios recientes..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Discurso</label>
+                                        <textarea id="hc-discurso" rows="2" placeholder="Ritmo, coherencia, tono afectivo, claridad..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 07. Valoración de riesgo + Contacto de apoyo en caso de gravedad -->
+                            <div class="border border-rose-200 bg-rose-50/30 rounded-2xl p-4 sm:p-5 space-y-4">
+                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-rose-800">07. Valoración de riesgo y red de apoyo ante gravedad</h3>
+                                    <span class="text-[11px] font-semibold text-rose-700">Evaluar de forma explícita y repetible</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="rk-ideacion" class="accent-rose-600 rounded">
+                                        <span>Ideación autolítica</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="rk-plan" class="accent-rose-600 rounded">
+                                        <span>Plan estructurado</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="rk-intentos" class="accent-rose-600 rounded">
+                                        <span>Intentos previos</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="rk-autolesiones" class="accent-rose-600 rounded">
+                                        <span>Autolesiones</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="rk-sustancias" class="accent-rose-600 rounded">
+                                        <span>Consumo de sustancias</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                        <input type="checkbox" id="rk-terceros" class="accent-rose-600 rounded">
+                                        <span>Riesgo hacia terceros</span>
+                                    </label>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Riesgo estimado (0–10)</label>
+                                        <input type="number" id="hc-riesgo-puntaje" min="0" max="10" step="1" placeholder="0 a 10"
+                                            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-rose-500">
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Factores de protección y medidas acordadas</label>
+                                        <textarea id="hc-proteccion" rows="2" placeholder="Factores protectores, plan de seguridad, red de apoyo..."
+                                            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-rose-500"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Contacto de apoyo ante situación de gravedad -->
+                                <div class="bg-white border border-rose-200 rounded-2xl p-4 space-y-3">
+                                    <p class="text-xs font-bold uppercase tracking-wider text-rose-900">
+                                        Contacto de apoyo de confianza / emergencia (por gravedad del caso)
+                                    </p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nombre del contacto</label>
+                                            <input type="text" id="hc-contacto-nombre" placeholder="Nombre completo"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Vínculo / parentesco</label>
+                                            <input type="text" id="hc-contacto-vinculo" placeholder="Madre, pareja, tutor..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Teléfono / línea de apoyo</label>
+                                            <input type="text" id="hc-contacto-telefono" placeholder="+57 300 000 0000"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Protocolo / nota de contacto en caso de gravedad</label>
+                                        <textarea id="hc-contacto-protocolo" rows="2" placeholder="Cuándo contactar, autorización o ruta de apoyo/emergencia..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 08. Hipótesis de trabajo y 09. Objetivos iniciales y próxima sesión -->
+                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">08. Hipótesis de trabajo y 09. Objetivos iniciales y seguimiento</h3>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">08. Hipótesis de trabajo (provisional y revisable)</label>
+                                    <textarea id="hc-hipotesis" rows="2" placeholder="Formulación o hipótesis clínica provisional..."
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">09. Objetivos iniciales</label>
+                                        <textarea id="hc-objetivos" rows="2" placeholder="Metas acordadas en la entrevista..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Frecuencia acordada</label>
+                                        <input type="text" id="hc-frecuencia" placeholder="Ej. Semanal, quincenal..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Próxima cita / tareas</label>
+                                        <input type="text" id="hc-proxima-cita" placeholder="Fecha/hora o acuerdo previo"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Observación clínica y notas libres -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Sueño</label>
-                                    <textarea id="hc-sueno" rows="2" placeholder="Calidad, horas, conciliación, despertares..."
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Observación clínica general</label>
+                                    <textarea id="hc-observacion" rows="3" placeholder="Apreciación clínica, devolución o síntesis del encuentro..."
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-serena-600"></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Vigilia</label>
-                                    <textarea id="hc-vigilia" rows="2" placeholder="Nivel de alerta, energía diurna, fatiga..."
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Alimentación</label>
-                                    <textarea id="hc-alimentacion" rows="2" placeholder="Apetito, hábitos, cambios recientes..."
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Discurso</label>
-                                    <textarea id="hc-discurso" rows="2" placeholder="Ritmo, coherencia, tono afectivo, claridad..."
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Notas libres</label>
+                                    <textarea id="hc-notas-libres" rows="3" placeholder="Anotaciones adicionales del profesional..."
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-serena-600"></textarea>
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Observación Clínica</label>
-                                <textarea id="hc-observacion" rows="4" placeholder="Apreciación clínica, motivo de consulta, formulación o plan de intervención..."
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                            </div>
-
-                            <div class="flex justify-end gap-3 pt-2">
+                            <div class="flex flex-wrap justify-end gap-3 pt-2">
+                                <button type="button" onclick="descargarHistoriaHtml()"
+                                    class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-4 py-3 rounded-xl text-sm transition">
+                                    Descargar expediente (.html)
+                                </button>
                                 <button type="submit" id="btn-guardar-hc"
                                     class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow transition">
                                     Guardar Historia Clínica
@@ -248,6 +528,105 @@
             </div>
         </section>
     </main>
+
+    <!-- Modal: Crear Nueva Historia Clínica Directa (sin requerir agendamiento previo) -->
+    <div id="nueva-hc-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-slate-200 shadow-xl space-y-5 my-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900">Nueva historia clínica directa</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Crea una historia clínica inicial directamente desde el portal sin depender de una reserva previa.</p>
+                </div>
+                <button type="button" onclick="closeNuevaHistoriaModal()"
+                    class="text-slate-400 hover:text-slate-700 text-lg font-bold px-2 py-1">
+                    ✕
+                </button>
+            </div>
+
+            <form id="nueva-hc-form" onsubmit="crearHistoriaDirecta(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nombre o código del consultante *</label>
+                        <input type="text" id="new-hc-nombre" required placeholder="Nombre completo o código"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Código de caso (opcional)</label>
+                        <input type="text" id="new-hc-codigo" placeholder="Ej. HC-2026-101 (auto si vacío)"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Correo electrónico (opcional)</label>
+                        <input type="email" id="new-hc-email" placeholder="consultante@correo.com"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">N.º de expediente</label>
+                        <input type="text" id="new-hc-expediente" placeholder="Ej. EXP-001"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Edad</label>
+                        <input type="text" id="new-hc-edad" placeholder="Ej. 28 años"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Género</label>
+                        <select id="new-hc-genero"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                            <option value="">Seleccionar...</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="No binario">No binario</option>
+                            <option value="Prefiero no decir">Prefiero no decir</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Fecha de registro / sesión</label>
+                        <input type="date" id="new-hc-fecha"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Hora (opcional)</label>
+                        <input type="text" id="new-hc-hora" placeholder="Ej. 10:00 AM o Libre"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Motivo de consulta inicial</label>
+                    <textarea id="new-hc-motivo" rows="2" placeholder="Motivo expresado en la primera entrevista..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                </div>
+
+                <div class="bg-rose-50/50 border border-rose-200 rounded-2xl p-3.5 space-y-3">
+                    <p class="text-xs font-bold uppercase text-rose-800">Contacto de apoyo ante gravedad (opcional al crear)</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <input type="text" id="new-hc-contacto-nombre" placeholder="Nombre del contacto"
+                            class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm">
+                        <input type="text" id="new-hc-contacto-vinculo" placeholder="Vínculo (familiar, tutor...)"
+                            class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm">
+                        <input type="text" id="new-hc-contacto-telefono" placeholder="Teléfono de apoyo"
+                            class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm">
+                    </div>
+                </div>
+
+                <div id="nueva-hc-error" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3"></div>
+
+                <div class="flex justify-end gap-2.5 pt-2">
+                    <button type="button" onclick="closeNuevaHistoriaModal()"
+                        class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-sm transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btn-crear-hc-directa"
+                        class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shadow-sm transition">
+                        Crear y abrir historia clínica
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
@@ -322,6 +701,17 @@
 
         function isSafeUrl(url) {
             return /^https?:\/\/[^\s]+$/i.test(String(url || '').trim());
+        }
+
+        function parseExtraClinical(raw) {
+            if (!raw) return {};
+            if (typeof raw === 'object') return raw;
+            try {
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (_) {
+                return {};
+            }
         }
 
         function syncMeetPreview() {
@@ -468,7 +858,7 @@
         function renderCasesList() {
             const listEl = document.getElementById('cases-list');
             if (!historiasList.length) {
-                listEl.innerHTML = '<p class="text-sm text-slate-400">No tienes citas o historias registradas aún.</p>';
+                listEl.innerHTML = '<p class="text-sm text-slate-400">No tienes historias clínicas registradas aún. Usa "+ Nueva historia clínica" para crear una.</p>';
                 return;
             }
 
@@ -485,10 +875,32 @@
                             </span>
                         </div>
                         <p class="font-bold text-sm text-slate-900 mt-1 truncate">${escapeHtml(h.nombre_consultante || 'Consultante')}</p>
-                        <p class="text-xs text-slate-500 truncate">${escapeHtml(h.fecha_sesion || '')} · ${escapeHtml(normalizeTimeSlot(h.hora_sesion) || h.hora_sesion || '')}</p>
+                        <p class="text-xs text-slate-500 truncate">${escapeHtml(h.fecha_sesion || '')} · ${escapeHtml(normalizeTimeSlot(h.hora_sesion) || h.hora_sesion || 'Registro clínico')}</p>
                     </button>
                 `;
             }).join('');
+        }
+
+        function updateRiskBadge(extra) {
+            const badge = document.getElementById('hc-riesgo-badge');
+            if (!badge) return;
+            const rk = extra?.riesgo || {};
+            const score = rk.puntaje !== '' && rk.puntaje !== undefined && rk.puntaje !== null ? Number(rk.puntaje) : null;
+            const flags = Boolean(rk.ideacion || rk.plan || rk.intentos || rk.autolesiones || rk.terceros);
+
+            if ((score !== null && !Number.isNaN(score) && score >= 7) || rk.plan || rk.intentos) {
+                badge.textContent = `Riesgo: ${score !== null ? `${score}/10` : 'Alto'}`;
+                badge.className = 'text-xs font-bold px-3 py-1 rounded-full bg-rose-100 text-rose-800';
+            } else if ((score !== null && !Number.isNaN(score) && score >= 4) || flags || rk.sustancias) {
+                badge.textContent = `Riesgo: ${score !== null ? `${score}/10` : 'Moderado'}`;
+                badge.className = 'text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-800';
+            } else if (score !== null && !Number.isNaN(score)) {
+                badge.textContent = `Riesgo: ${score}/10`;
+                badge.className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800';
+            } else {
+                badge.textContent = 'Riesgo: Sin puntuar';
+                badge.className = 'text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700';
+            }
         }
 
         async function selectHistoria(id) {
@@ -519,14 +931,73 @@
             document.getElementById('hc-meet').value = item.link_meet || '';
             syncMeetPreview();
 
+            const extra = parseExtraClinical(item.detalle_clinico_json || item.datos_clinicos_json || item.notas_clinicas_json);
+            updateRiskBadge(extra);
+
             document.getElementById('hc-edad').value = item.edad || '';
             document.getElementById('hc-genero').value = item.genero || '';
+            document.getElementById('hc-pronombres').value = extra.pronombres || '';
+            document.getElementById('hc-derivado').value = extra.derivado_por || '';
+            document.getElementById('hc-expediente').value = extra.numero_expediente || '';
             document.getElementById('hc-consentimiento').checked = Boolean(item.consentimiento_aceptado);
+
+            document.getElementById('hc-motivo').value = extra.motivo_consulta || '';
+            document.getElementById('hc-historia-problema').value = extra.historia_problema || '';
+
+            const ant = extra.antecedentes || {};
+            document.getElementById('ant-psico').checked = Boolean(ant.tratamiento_previo);
+            document.getElementById('ant-medicacion').checked = Boolean(ant.medicacion_actual);
+            document.getElementById('ant-familiares').checked = Boolean(ant.familiares);
+            document.getElementById('ant-psiquiatria').checked = Boolean(ant.seguimiento_psiquiatrico);
+            document.getElementById('ant-hospital').checked = Boolean(ant.hospitalizaciones);
+            document.getElementById('ant-medica').checked = Boolean(ant.enfermedad_medica);
+            document.getElementById('hc-antecedentes-detalle').value = ant.detalle || '';
+
+            const ctx = extra.contexto_psicosocial || {};
+            document.getElementById('hc-convivencia').value = ctx.convivencia || '';
+            document.getElementById('hc-situacion-lab').value = ctx.situacion_laboral_academica || '';
+            document.getElementById('hc-red-estres').value = ctx.red_apoyo_estresores || '';
+
+            const em = extra.estado_mental || {};
+            document.getElementById('em-aspecto').checked = Boolean(em.aspecto_cuidado);
+            document.getElementById('em-orientado').checked = Boolean(em.orientado);
+            document.getElementById('em-contacto').checked = Boolean(em.contacto_adecuado);
+            document.getElementById('em-coherente').checked = Boolean(em.discurso_coherente);
+            document.getElementById('em-animo-bajo').checked = Boolean(em.animo_bajo);
+            document.getElementById('em-ansiedad').checked = Boolean(em.ansiedad_manifiesta);
+            document.getElementById('em-enlentecimiento').checked = Boolean(em.enlentecimiento);
+            document.getElementById('em-inquietud').checked = Boolean(em.inquietud_psicomotriz);
+            document.getElementById('em-sueno-alt').checked = Boolean(em.sueno_alterado);
+
             document.getElementById('hc-sueno').value = item.sueno || '';
             document.getElementById('hc-vigilia').value = item.vigilia || '';
             document.getElementById('hc-alimentacion').value = item.alimentacion || '';
             document.getElementById('hc-discurso').value = item.discurso || '';
+
+            const rk = extra.riesgo || {};
+            document.getElementById('rk-ideacion').checked = Boolean(rk.ideacion);
+            document.getElementById('rk-plan').checked = Boolean(rk.plan);
+            document.getElementById('rk-intentos').checked = Boolean(rk.intentos);
+            document.getElementById('rk-autolesiones').checked = Boolean(rk.autolesiones);
+            document.getElementById('rk-sustancias').checked = Boolean(rk.sustancias);
+            document.getElementById('rk-terceros').checked = Boolean(rk.terceros);
+            document.getElementById('hc-riesgo-puntaje').value = rk.puntaje ?? '';
+            document.getElementById('hc-proteccion').value = rk.factores_proteccion || '';
+
+            const cap = extra.contacto_apoyo || {};
+            document.getElementById('hc-contacto-nombre').value = cap.nombre || '';
+            document.getElementById('hc-contacto-vinculo').value = cap.vinculo || '';
+            document.getElementById('hc-contacto-telefono').value = cap.telefono || '';
+            document.getElementById('hc-contacto-protocolo').value = cap.protocolo || '';
+
+            document.getElementById('hc-hipotesis').value = extra.hipotesis_trabajo || '';
+            const obj = extra.objetivos_seguimiento || {};
+            document.getElementById('hc-objetivos').value = obj.objetivos_iniciales || '';
+            document.getElementById('hc-frecuencia').value = obj.frecuencia || '';
+            document.getElementById('hc-proxima-cita').value = obj.proxima_cita || '';
+
             document.getElementById('hc-observacion').value = item.observacion_clinica || '';
+            document.getElementById('hc-notas-libres').value = extra.notas_libres || '';
 
             await loadReceiptPreview(item.comprobante_url);
         }
@@ -543,8 +1014,8 @@
             btn.disabled = confirmado;
             btn.textContent = confirmado ? '✓ Pago Confirmado' : '✓ Confirmar Pago';
             btn.className = confirmado
-                ? 'bg-emerald-100 text-emerald-800 font-semibold px-4 py-2.5 rounded-xl text-sm cursor-default'
-                : 'bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm shadow-sm transition';
+                ? 'bg-emerald-100 text-emerald-800 font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm cursor-default'
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition';
         }
 
         async function loadReceiptPreview(comprobantePath) {
@@ -612,6 +1083,115 @@
             showFeedback('Pago confirmado correctamente.', 'success');
         }
 
+        function collectStructuredClinicalData() {
+            const puntajeRaw = document.getElementById('hc-riesgo-puntaje').value.trim();
+            const puntajeNum = puntajeRaw === '' ? '' : Math.max(0, Math.min(10, parseInt(puntajeRaw, 10) || 0));
+
+            return {
+                pronombres: document.getElementById('hc-pronombres').value.trim(),
+                derivado_por: document.getElementById('hc-derivado').value.trim(),
+                numero_expediente: document.getElementById('hc-expediente').value.trim(),
+                motivo_consulta: document.getElementById('hc-motivo').value.trim(),
+                historia_problema: document.getElementById('hc-historia-problema').value.trim(),
+                antecedentes: {
+                    tratamiento_previo: document.getElementById('ant-psico').checked,
+                    medicacion_actual: document.getElementById('ant-medicacion').checked,
+                    familiares: document.getElementById('ant-familiares').checked,
+                    seguimiento_psiquiatrico: document.getElementById('ant-psiquiatria').checked,
+                    hospitalizaciones: document.getElementById('ant-hospital').checked,
+                    enfermedad_medica: document.getElementById('ant-medica').checked,
+                    detalle: document.getElementById('hc-antecedentes-detalle').value.trim()
+                },
+                contexto_psicosocial: {
+                    convivencia: document.getElementById('hc-convivencia').value.trim(),
+                    situacion_laboral_academica: document.getElementById('hc-situacion-lab').value.trim(),
+                    red_apoyo_estresores: document.getElementById('hc-red-estres').value.trim()
+                },
+                estado_mental: {
+                    aspecto_cuidado: document.getElementById('em-aspecto').checked,
+                    orientado: document.getElementById('em-orientado').checked,
+                    contacto_adecuado: document.getElementById('em-contacto').checked,
+                    discurso_coherente: document.getElementById('em-coherente').checked,
+                    animo_bajo: document.getElementById('em-animo-bajo').checked,
+                    ansiedad_manifiesta: document.getElementById('em-ansiedad').checked,
+                    enlentecimiento: document.getElementById('em-enlentecimiento').checked,
+                    inquietud_psicomotriz: document.getElementById('em-inquietud').checked,
+                    sueno_alterado: document.getElementById('em-sueno-alt').checked
+                },
+                riesgo: {
+                    ideacion: document.getElementById('rk-ideacion').checked,
+                    plan: document.getElementById('rk-plan').checked,
+                    intentos: document.getElementById('rk-intentos').checked,
+                    autolesiones: document.getElementById('rk-autolesiones').checked,
+                    sustancias: document.getElementById('rk-sustancias').checked,
+                    terceros: document.getElementById('rk-terceros').checked,
+                    puntaje: puntajeNum,
+                    factores_proteccion: document.getElementById('hc-proteccion').value.trim()
+                },
+                contacto_apoyo: {
+                    nombre: document.getElementById('hc-contacto-nombre').value.trim(),
+                    vinculo: document.getElementById('hc-contacto-vinculo').value.trim(),
+                    telefono: document.getElementById('hc-contacto-telefono').value.trim(),
+                    protocolo: document.getElementById('hc-contacto-protocolo').value.trim()
+                },
+                hipotesis_trabajo: document.getElementById('hc-hipotesis').value.trim(),
+                objetivos_seguimiento: {
+                    objetivos_iniciales: document.getElementById('hc-objetivos').value.trim(),
+                    frecuencia: document.getElementById('hc-frecuencia').value.trim(),
+                    proxima_cita: document.getElementById('hc-proxima-cita').value.trim()
+                },
+                notas_libres: document.getElementById('hc-notas-libres').value.trim()
+            };
+        }
+
+        function buildComposedObservation(observacionBase, extra) {
+            const parts = [];
+            if (observacionBase) parts.push(observacionBase);
+            if (extra.motivo_consulta) parts.push(`Motivo de consulta: ${extra.motivo_consulta}`);
+            if (extra.historia_problema) parts.push(`Historia del problema: ${extra.historia_problema}`);
+            if (extra.hipotesis_trabajo) parts.push(`Hipótesis de trabajo: ${extra.hipotesis_trabajo}`);
+            if (extra.objetivos_seguimiento?.objetivos_iniciales) {
+                parts.push(`Objetivos iniciales: ${extra.objetivos_seguimiento.objetivos_iniciales}`);
+            }
+            if (extra.contacto_apoyo?.nombre || extra.contacto_apoyo?.telefono) {
+                parts.push(
+                    `Contacto de apoyo: ${extra.contacto_apoyo.nombre || '—'} (${extra.contacto_apoyo.vinculo || '—'}) - ${extra.contacto_apoyo.telefono || '—'}`
+                );
+            }
+            return parts.join('\n\n') || null;
+        }
+
+        async function persistHistoriaWithFallback(id, payload, extraObj) {
+            const serialized = JSON.stringify(extraObj);
+            const jsonColCandidates = ['detalle_clinico_json', 'datos_clinicos_json', 'notas_clinicas_json'];
+
+            for (const colName of jsonColCandidates) {
+                const candidatePayload = { ...payload, [colName]: serialized };
+                const { error } = await supabaseClient
+                    .from('historias_clinicas')
+                    .update(candidatePayload)
+                    .eq('id', id)
+                    .eq('psicologo_id', currentUser.id);
+
+                if (!error) {
+                    return { error: null, extraCol: colName };
+                }
+                const msg = (error.message || '').toLowerCase();
+                const missingCol = msg.includes('column') || msg.includes('schema cache');
+                if (!missingCol) {
+                    return { error, extraCol: null };
+                }
+            }
+
+            const { error: baseError } = await supabaseClient
+                .from('historias_clinicas')
+                .update(payload)
+                .eq('id', id)
+                .eq('psicologo_id', currentUser.id);
+
+            return { error: baseError, extraCol: null };
+        }
+
         async function guardarHistoriaClinica(event) {
             event.preventDefault();
             if (!selectedHistoria || !currentUser) return;
@@ -626,6 +1206,9 @@
             btn.disabled = true;
             btn.textContent = 'Guardando...';
 
+            const extra = collectStructuredClinicalData();
+            const obsBase = document.getElementById('hc-observacion').value.trim();
+
             const payload = {
                 link_meet: meetRaw || null,
                 edad: document.getElementById('hc-edad').value.trim() || null,
@@ -635,15 +1218,11 @@
                 vigilia: document.getElementById('hc-vigilia').value.trim() || null,
                 alimentacion: document.getElementById('hc-alimentacion').value.trim() || null,
                 discurso: document.getElementById('hc-discurso').value.trim() || null,
-                observacion_clinica: document.getElementById('hc-observacion').value.trim() || null,
+                observacion_clinica: buildComposedObservation(obsBase, extra),
                 actualizado_en: new Date().toISOString()
             };
 
-            const { error } = await supabaseClient
-                .from('historias_clinicas')
-                .update(payload)
-                .eq('id', selectedHistoria.id)
-                .eq('psicologo_id', currentUser.id);
+            const { error, extraCol } = await persistHistoriaWithFallback(selectedHistoria.id, payload, extra);
 
             btn.disabled = false;
             btn.textContent = 'Guardar Historia Clínica';
@@ -654,9 +1233,301 @@
             }
 
             Object.assign(selectedHistoria, payload);
+            if (extraCol) {
+                selectedHistoria[extraCol] = JSON.stringify(extra);
+            } else {
+                selectedHistoria.detalle_clinico_json = JSON.stringify(extra);
+            }
+
+            updateRiskBadge(extra);
             syncMeetPreview();
             renderCasesList();
-            showFeedback('Historia clínica y enlace de Meet guardados en Supabase.', 'success');
+            showFeedback('Historia clínica completa y enlace de Meet guardados.', 'success');
+        }
+
+        function openNuevaHistoriaModal() {
+            if (!currentUser) return;
+            document.getElementById('nueva-hc-error').classList.add('hidden');
+            const fechaInput = document.getElementById('new-hc-fecha');
+            if (fechaInput && !fechaInput.value) {
+                fechaInput.value = getTodayIsoDate();
+            }
+            document.getElementById('nueva-hc-modal').classList.remove('hidden');
+        }
+
+        function closeNuevaHistoriaModal() {
+            document.getElementById('nueva-hc-modal').classList.add('hidden');
+        }
+
+        async function crearHistoriaDirecta(event) {
+            event.preventDefault();
+            if (!currentUser) return;
+
+            const nombre = document.getElementById('new-hc-nombre').value.trim();
+            const errBox = document.getElementById('nueva-hc-error');
+            const btn = document.getElementById('btn-crear-hc-directa');
+
+            if (!nombre) {
+                errBox.textContent = 'Ingresa el nombre o código del consultante.';
+                errBox.classList.remove('hidden');
+                return;
+            }
+
+            errBox.classList.add('hidden');
+            btn.disabled = true;
+            btn.textContent = 'Creando...';
+
+            const codigoInput = document.getElementById('new-hc-codigo').value.trim();
+            const codigoGenerado = codigoInput || `HC-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
+            const nowIso = new Date().toISOString();
+
+            const extraInicial = {
+                pronombres: '',
+                derivado_por: '',
+                numero_expediente: document.getElementById('new-hc-expediente').value.trim(),
+                motivo_consulta: document.getElementById('new-hc-motivo').value.trim(),
+                historia_problema: '',
+                antecedentes: {},
+                contexto_psicosocial: {},
+                estado_mental: {},
+                riesgo: { puntaje: '' },
+                contacto_apoyo: {
+                    nombre: document.getElementById('new-hc-contacto-nombre').value.trim(),
+                    vinculo: document.getElementById('new-hc-contacto-vinculo').value.trim(),
+                    telefono: document.getElementById('new-hc-contacto-telefono').value.trim(),
+                    protocolo: ''
+                },
+                hipotesis_trabajo: '',
+                objetivos_seguimiento: {},
+                notas_libres: ''
+            };
+
+            const baseInsert = {
+                psicologo_id: currentUser.id,
+                codigo_caso: codigoGenerado,
+                nombre_consultante: nombre,
+                cliente_email: document.getElementById('new-hc-email').value.trim() || null,
+                edad: document.getElementById('new-hc-edad').value.trim() || null,
+                genero: document.getElementById('new-hc-genero').value || null,
+                fecha_sesion: document.getElementById('new-hc-fecha').value || getTodayIsoDate(),
+                hora_sesion: document.getElementById('new-hc-hora').value.trim() || 'Registro directo',
+                estado_pago: 'Directa',
+                consentimiento_aceptado: false,
+                observacion_clinica: extraInicial.motivo_consulta || null,
+                actualizado_en: nowIso
+            };
+
+            let createdRow = null;
+            let insertError = null;
+            const jsonColCandidates = ['detalle_clinico_json', 'datos_clinicos_json', 'notas_clinicas_json'];
+
+            for (const colName of jsonColCandidates) {
+                const { data, error } = await supabaseClient
+                    .from('historias_clinicas')
+                    .insert({ ...baseInsert, [colName]: JSON.stringify(extraInicial) })
+                    .select('*')
+                    .single();
+
+                if (!error && data) {
+                    createdRow = data;
+                    insertError = null;
+                    break;
+                }
+                insertError = error;
+                const msg = (error?.message || '').toLowerCase();
+                if (!msg.includes('column') && !msg.includes('schema cache')) {
+                    break;
+                }
+            }
+
+            if (!createdRow) {
+                const { data, error } = await supabaseClient
+                    .from('historias_clinicas')
+                    .insert(baseInsert)
+                    .select('*')
+                    .single();
+                createdRow = data;
+                insertError = error;
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Crear y abrir historia clínica';
+
+            if (insertError || !createdRow) {
+                errBox.textContent = `No se pudo crear la historia clínica: ${insertError?.message || 'Error desconocido'}`;
+                errBox.classList.remove('hidden');
+                return;
+            }
+
+            if (!createdRow.detalle_clinico_json && !createdRow.datos_clinicos_json && !createdRow.notas_clinicas_json) {
+                createdRow.detalle_clinico_json = JSON.stringify(extraInicial);
+            }
+
+            document.getElementById('nueva-hc-form').reset();
+            closeNuevaHistoriaModal();
+            selectedHistoria = createdRow;
+            await loadHistorias();
+            selectHistoria(createdRow.id);
+            showFeedback('Historia clínica creada. Ya puedes completarla, guardarla o descargarla.', 'success');
+        }
+
+        function formatCheckedList(obj, labelsMap) {
+            if (!obj || typeof obj !== 'object') return 'Ninguno marcado';
+            const active = Object.entries(labelsMap)
+                .filter(([key]) => Boolean(obj[key]))
+                .map(([, label]) => label);
+            return active.length ? active.join(', ') : 'Ninguno marcado';
+        }
+
+        function generateExpedienteHtmlString() {
+            if (!selectedHistoria) return '';
+            const extra = collectStructuredClinicalData();
+            const nombre = selectedHistoria.nombre_consultante || 'Consultante';
+            const codigo = selectedHistoria.codigo_caso || 'HC';
+            const fecha = selectedHistoria.fecha_sesion || getTodayIsoDate();
+            const hora = normalizeTimeSlot(selectedHistoria.hora_sesion) || selectedHistoria.hora_sesion || '—';
+
+            const antTexto = formatCheckedList(extra.antecedentes, {
+                tratamiento_previo: 'Tratamiento psicológico previo',
+                medicacion_actual: 'Medicación actual',
+                familiares: 'Antecedentes familiares',
+                seguimiento_psiquiatrico: 'Seguimiento psiquiátrico',
+                hospitalizaciones: 'Hospitalizaciones',
+                enfermedad_medica: 'Enfermedad médica relevante'
+            });
+
+            const emTexto = formatCheckedList(extra.estado_mental, {
+                aspecto_cuidado: 'Aspecto cuidado',
+                orientado: 'Orientado',
+                contacto_adecuado: 'Contacto adecuado',
+                discurso_coherente: 'Discurso coherente',
+                animo_bajo: 'Ánimo bajo',
+                ansiedad_manifiesta: 'Ansiedad manifiesta',
+                enlentecimiento: 'Enlentecimiento',
+                inquietud_psicomotriz: 'Inquietud psicomotriz',
+                sueno_alterado: 'Sueño alterado'
+            });
+
+            const rkTexto = formatCheckedList(extra.riesgo, {
+                ideacion: 'Ideación autolítica',
+                plan: 'Plan estructurado',
+                intentos: 'Intentos previos',
+                autolesiones: 'Autolesiones',
+                sustancias: 'Consumo de sustancias',
+                terceros: 'Riesgo hacia terceros'
+            });
+
+            return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Historia Clínica — ${escapeHtml(codigo)}</title>
+<style>
+  body { font-family: Arial, sans-serif; color: #0f172a; max-width: 820px; margin: 32px auto; padding: 0 20px; line-height: 1.5; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .meta { color: #475569; font-size: 13px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+  h2 { font-size: 15px; background: #f1f5f9; padding: 8px 12px; border-left: 4px solid #059669; margin-top: 20px; }
+  p { font-size: 13.5px; margin: 6px 0; white-space: pre-line; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; }
+  .emergency { background: #fff1f2; border: 1px solid #fecdd3; padding: 12px; border-radius: 8px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>Historia Clínica Inicial — Serena Mente</h1>
+  <div class="meta">
+    <strong>Código:</strong> ${escapeHtml(codigo)} |
+    <strong>Consultante:</strong> ${escapeHtml(nombre)} |
+    <strong>Fecha:</strong> ${escapeHtml(fecha)} |
+    <strong>Hora:</strong> ${escapeHtml(hora)}
+  </div>
+
+  <h2>01. Identificación</h2>
+  <div class="grid">
+    <p><strong>Edad:</strong> ${escapeHtml(document.getElementById('hc-edad').value || '—')}</p>
+    <p><strong>Género:</strong> ${escapeHtml(document.getElementById('hc-genero').value || '—')}</p>
+    <p><strong>Pronombres:</strong> ${escapeHtml(extra.pronombres || '—')}</p>
+    <p><strong>Derivado por:</strong> ${escapeHtml(extra.derivado_por || '—')}</p>
+    <p><strong>N.º de expediente:</strong> ${escapeHtml(extra.numero_expediente || '—')}</p>
+    <p><strong>Consentimiento informado:</strong> ${document.getElementById('hc-consentimiento').checked ? 'Sí' : 'No'}</p>
+  </div>
+
+  <h2>02. Motivo de consulta</h2>
+  <p>${escapeHtml(extra.motivo_consulta || '—')}</p>
+
+  <h2>03. Historia del problema</h2>
+  <p>${escapeHtml(extra.historia_problema || '—')}</p>
+
+  <h2>04. Antecedentes</h2>
+  <p><strong>Marcados:</strong> ${escapeHtml(antTexto)}</p>
+  <p><strong>Detalle:</strong> ${escapeHtml(extra.antecedentes?.detalle || '—')}</p>
+
+  <h2>05. Contexto psicosocial</h2>
+  <p><strong>Convivencia:</strong> ${escapeHtml(extra.contexto_psicosocial?.convivencia || '—')}</p>
+  <p><strong>Situación laboral / académica:</strong> ${escapeHtml(extra.contexto_psicosocial?.situacion_laboral_academica || '—')}</p>
+  <p><strong>Red de apoyo y estresores:</strong> ${escapeHtml(extra.contexto_psicosocial?.red_apoyo_estresores || '—')}</p>
+
+  <h2>06. Exploración del estado mental</h2>
+  <p><strong>Observaciones marcadas:</strong> ${escapeHtml(emTexto)}</p>
+  <p><strong>Sueño:</strong> ${escapeHtml(document.getElementById('hc-sueno').value || '—')}</p>
+  <p><strong>Vigilia:</strong> ${escapeHtml(document.getElementById('hc-vigilia').value || '—')}</p>
+  <p><strong>Alimentación:</strong> ${escapeHtml(document.getElementById('hc-alimentacion').value || '—')}</p>
+  <p><strong>Discurso:</strong> ${escapeHtml(document.getElementById('hc-discurso').value || '—')}</p>
+
+  <h2>07. Valoración de riesgo y contacto de apoyo</h2>
+  <p><strong>Indicadores marcados:</strong> ${escapeHtml(rkTexto)}</p>
+  <p><strong>Riesgo estimado (0–10):</strong> ${escapeHtml(extra.riesgo?.puntaje !== '' ? `${extra.riesgo.puntaje}/10` : '—')}</p>
+  <p><strong>Factores de protección y medidas:</strong> ${escapeHtml(extra.riesgo?.factores_proteccion || '—')}</p>
+  <div class="emergency">
+    <p><strong>Contacto de apoyo ante gravedad:</strong> ${escapeHtml(extra.contacto_apoyo?.nombre || '—')} (${escapeHtml(extra.contacto_apoyo?.vinculo || '—')}) · Tel: ${escapeHtml(extra.contacto_apoyo?.telefono || '—')}</p>
+    <p><strong>Protocolo / nota de contacto:</strong> ${escapeHtml(extra.contacto_apoyo?.protocolo || '—')}</p>
+  </div>
+
+  <h2>08. Hipótesis de trabajo</h2>
+  <p>${escapeHtml(extra.hipotesis_trabajo || '—')}</p>
+
+  <h2>09. Objetivos iniciales y seguimiento</h2>
+  <p><strong>Objetivos iniciales:</strong> ${escapeHtml(extra.objetivos_seguimiento?.objetivos_iniciales || '—')}</p>
+  <p><strong>Frecuencia acordada:</strong> ${escapeHtml(extra.objetivos_seguimiento?.frecuencia || '—')}</p>
+  <p><strong>Próxima cita / tareas:</strong> ${escapeHtml(extra.objetivos_seguimiento?.proxima_cita || '—')}</p>
+
+  <h2>Observación clínica y notas libres</h2>
+  <p><strong>Observación clínica:</strong> ${escapeHtml(document.getElementById('hc-observacion').value || '—')}</p>
+  <p><strong>Notas libres:</strong> ${escapeHtml(extra.notas_libres || '—')}</p>
+</body>
+</html>`;
+        }
+
+        function descargarHistoriaHtml() {
+            if (!selectedHistoria) return;
+            const htmlContent = generateExpedienteHtmlString();
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const safeCode = (selectedHistoria.codigo_caso || 'historia-clinica').replace(/[^a-zA-Z0-9_-]/g, '_');
+            a.href = url;
+            a.download = `${safeCode}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showFeedback('Expediente descargado en formato HTML.', 'success');
+        }
+
+        function imprimirHistoriaPdf() {
+            if (!selectedHistoria) return;
+            const htmlContent = generateExpedienteHtmlString();
+            const printWin = window.open('', '_blank', 'width=900,height=700');
+            if (!printWin) {
+                showFeedback('El navegador bloqueó la ventana emergente. Usa "Descargar HTML" o permite ventanas emergentes.', 'error');
+                return;
+            }
+            printWin.document.open();
+            printWin.document.write(htmlContent);
+            printWin.document.close();
+            printWin.focus();
+            setTimeout(() => {
+                printWin.print();
+            }, 250);
         }
 
         async function eliminarHistoriaActual() {
@@ -681,7 +1552,7 @@
                 .select('id');
 
             btn.disabled = false;
-            btn.textContent = 'Eliminar registro';
+            btn.textContent = 'Eliminar';
 
             if (error) {
                 showFeedback(`No se pudo eliminar el registro: ${error.message}`, 'error');

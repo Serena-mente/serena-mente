@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Serena Mente — Orientación Psicológica Virtual</title>
+    <title>Serena Mente — Orientación psicológica virtual</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -14,15 +14,20 @@
                 extend: {
                     colors: {
                         serena: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                            900: '#064e3b',
-                            light: '#e0f2fe',
-                            blue: '#0284c7',
-                            darkblue: '#0369a1'
+                            50: '#F5FAF8',
+                            100: '#D9F5E8',
+                            500: '#07976B',
+                            600: '#07976B',
+                            700: '#078E99',
+                            900: '#10263D',
+                            light: '#D9F5E8',
+                            blue: '#078E99',
+                            darkblue: '#10263D',
+                            navy: '#10263D',
+                            teal: '#078E99',
+                            mint: '#07976B',
+                            calm: '#D9F5E8',
+                            harmony: '#F5FAF8'
                         }
                     }
                 }
@@ -30,78 +35,99 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5FAF8;
+            color: #10263D;
+        }
+        .brand-btn-primary {
+            background: linear-gradient(135deg, #078E99 0%, #07976B 100%);
+            color: #ffffff;
+        }
+        .brand-btn-primary:hover {
+            background: linear-gradient(135deg, #10263D 0%, #078E99 100%);
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="bg-[#F5FAF8] text-[#10263D] antialiased">
 
     <!-- Navigation Header -->
-    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <span class="text-xl font-bold bg-gradient-to-r from-serena-700 to-serena-blue bg-clip-text text-transparent">Serena Mente</span>
-            </div>
-            <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-slate-600">
-                <a href="index.html" class="text-serena-600 font-bold">Inicio</a>
-                <a href="quienes-somos.html" class="hover:text-serena-600 transition">Quiénes Somos</a>
-                <a href="conoce-nuestro-equipo.html" class="hover:text-serena-600 transition">Conoce Nuestro Equipo</a>
-                <a href="#nosotros" class="hover:text-serena-600 transition">¿Cómo Funciona?</a>
-                <a href="#tarifas" class="hover:text-serena-600 transition">Tarifas</a>
-                <a href="faq.html" class="hover:text-serena-600 transition">Preguntas Frecuentes</a>
-                <a href="contacto.html" class="hover:text-serena-600 transition">Contacto</a>
-                <a href="#portal-acceso" class="text-emerald-600 font-bold hover:underline">Acceso Plataforma</a>
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#D9F5E8] shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <a href="index.html" class="flex items-center space-x-2.5 shrink-0 whitespace-nowrap">
+                <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-10 w-auto object-contain">
+                <span class="text-xl font-extrabold tracking-tight text-[#10263D]">
+                    Serena <span class="text-[#07976B]">Mente</span>
+                </span>
+            </a>
+            <nav class="hidden lg:flex items-center space-x-5 font-medium text-sm text-[#10263D]/80 whitespace-nowrap">
+                <a href="index.html" class="text-[#07976B] font-bold">Inicio</a>
+                <a href="quienes-somos.html" class="hover:text-[#07976B] transition">Quiénes somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-[#07976B] transition">Conoce nuestro equipo</a>
+                <a href="#nosotros" class="hover:text-[#07976B] transition">¿Cómo funciona?</a>
+                <a href="#tarifas" class="hover:text-[#07976B] transition">Tarifas</a>
+                <a href="faq.html" class="hover:text-[#07976B] transition">Preguntas frecuentes</a>
+                <a href="contacto.html" class="hover:text-[#07976B] transition">Contacto</a>
+                <a href="#portal-acceso" class="text-[#078E99] font-semibold hover:underline">Acceso plataforma</a>
             </nav>
-            <div>
-                <a href="conoce-nuestro-equipo.html" class="bg-serena-600 hover:bg-serena-700 text-white font-medium px-5 py-2.5 rounded-full shadow-md transition text-sm">
-                    Agendar Cita
+            <div class="shrink-0">
+                <a href="conoce-nuestro-equipo.html" class="brand-btn-primary inline-block font-medium px-5 py-2.5 rounded-full shadow-sm transition text-sm whitespace-nowrap">
+                    Agendar cita
                 </a>
             </div>
         </div>
     </header>
 
     <!-- Hero Section -->
-    <section id="inicio" class="relative overflow-hidden bg-gradient-to-b from-serena-50 via-sky-50/50 to-white py-20 lg:py-28">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section id="inicio" class="bg-[#F5FAF8] py-14 lg:py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div class="space-y-6 text-center lg:text-left">
-                    <div class="inline-flex items-center space-x-2 bg-serena-100 text-serena-700 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider">
-                        <span>Atención Psicológica Profesional y Segura</span>
-                    </div>
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                        Tu espacio seguro para el <span class="bg-gradient-to-r from-serena-600 to-serena-blue bg-clip-text text-transparent">bienestar emocional</span>
-                    </h1>
-                    <p class="text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                        Orientación psicológica virtual accesible con profesionales orientados a distintas áreas de trabajo y rigurosos modelos metodológicos. Sesiones confidenciales mediadas por Google Meet.
+                    <p class="text-xs font-semibold text-[#078E99]">
+                        Orientación psicológica virtual ética y estructurada
                     </p>
-                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-                        <a href="conoce-nuestro-equipo.html" class="w-full sm:w-auto bg-serena-600 hover:bg-serena-700 text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg transition text-center">
-                            Conoce Nuestro Equipo y Modelos
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#10263D] tracking-tight leading-tight">
+                        Tu espacio seguro para el <span class="text-[#07976B]">bienestar emocional</span>
+                    </h1>
+                    <p class="text-base sm:text-lg text-[#10263D]/75 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                        Orientación psicológica virtual accesible a través de un equipo colegiado de psicólogos con distintos enfoques y áreas de trabajo. Sesiones confidenciales mediadas por Google Meet.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                        <a href="conoce-nuestro-equipo.html" class="w-full sm:w-auto brand-btn-primary font-semibold px-7 py-3.5 rounded-xl shadow-sm transition text-center text-sm">
+                            Conoce nuestro equipo
                         </a>
-                        <a href="#portal-acceso" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-semibold px-8 py-3.5 rounded-xl transition text-center shadow-sm">
-                            Ingresar a mi Cuenta
+                        <a href="#portal-acceso" class="w-full sm:w-auto bg-white hover:bg-[#D9F5E8]/40 text-[#10263D] border border-[#D9F5E8] font-semibold px-7 py-3.5 rounded-xl transition text-center text-sm shadow-sm">
+                            Ingresar a mi cuenta
                         </a>
                     </div>
                 </div>
-                <div class="relative flex justify-center">
-                    <div class="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-xl border border-slate-100 space-y-4">
-                        <div class="absolute -top-4 -right-4 bg-serena-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
-                            Tarifa Única $80k
-                        </div>
-                        <div class="p-4 bg-slate-50 rounded-2xl">
-                            <h4 class="font-bold text-slate-800">Modelo Multidisciplinario</h4>
-                            <p class="text-xs text-slate-500">Enfoques clínicos, jurídicos y organizacionales</p>
-                        </div>
-                        <div class="p-4 bg-sky-50 rounded-2xl border border-sky-100">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-bold text-sky-800 uppercase">Consulta Individual</span>
-                                <span class="text-sm font-extrabold text-sky-900">$80.000 COP</span>
+
+                <div class="flex justify-center">
+                    <div class="w-full max-w-md bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-[#D9F5E8] space-y-4">
+                        <div class="flex items-center justify-between border-b border-[#D9F5E8] pb-3">
+                            <div>
+                                <h2 class="font-bold text-[#10263D] text-base">Equipo colegiado de psicólogos</h2>
+                                <p class="text-xs text-[#10263D]/65 mt-0.5">Orientación según enfoque y área de trabajo</p>
                             </div>
-                            <p class="text-xs text-slate-600">Incluye sesión virtual de 50 minutos por Google Meet + seguimiento continuo.</p>
+                            <span class="text-xs font-semibold text-[#07976B] bg-[#F5FAF8] border border-[#D9F5E8] px-3 py-1 rounded-xl shrink-0">
+                                $80.000 COP
+                            </span>
                         </div>
-                        <a href="conoce-nuestro-equipo.html" class="block w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 rounded-xl text-center text-sm transition">
-                            Agendar Consulta
+
+                        <div class="p-4 bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-[#078E99]">Consulta individual</span>
+                                <span class="text-sm font-extrabold text-[#10263D]">$80.000 COP</span>
+                            </div>
+                            <p class="text-xs text-[#10263D]/75 leading-relaxed">
+                                Sesión virtual de 50 minutos por Google Meet con seguimiento y orientación acorde a tu proceso.
+                            </p>
+                        </div>
+
+                        <a href="conoce-nuestro-equipo.html" class="block w-full bg-[#10263D] hover:bg-[#078E99] text-white font-medium py-3 rounded-xl text-center text-sm transition">
+                            Agendar consulta
                         </a>
                     </div>
                 </div>
@@ -110,53 +136,60 @@
     </section>
 
     <!-- Portal de Acceso -->
-    <section id="portal-acceso" class="py-16 bg-white border-y border-slate-100">
+    <section id="portal-acceso" class="py-16 bg-white border-y border-[#D9F5E8]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-10">
-                <span class="text-serena-600 font-semibold text-sm uppercase tracking-wider">Plataforma Interactiva</span>
-                <h2 class="text-3xl font-bold text-slate-900 mt-2">Portal de Acceso</h2>
-                <p class="text-slate-600 mt-2 text-sm">Accede a tu plataforma dedicada como consultante o ingresa a tu espacio de trabajo profesional.</p>
+                <p class="text-xs font-semibold text-[#078E99]">Plataforma interactiva</p>
+                <h2 class="text-3xl font-bold text-[#10263D] mt-1">Portal de acceso</h2>
+                <p class="text-[#10263D]/75 mt-2 text-sm">
+                    Accede a tu espacio dedicado como consultante o ingresa a tu entorno de trabajo profesional.
+                </p>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <!-- Portal Consultantes (Plataforma Independiente) -->
-                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between text-center space-y-6">
+                <!-- Portal Consultantes -->
+                <div class="bg-[#F5FAF8] p-8 rounded-3xl border border-[#D9F5E8] shadow-sm flex flex-col justify-between text-center space-y-6">
                     <div class="space-y-3">
-                        <span class="inline-block text-xs font-bold uppercase tracking-wider text-sky-700 bg-sky-100 px-3 py-1 rounded-full">
-                            Espacio del Consultante
+                        <span class="inline-block text-xs font-semibold text-[#078E99] bg-white border border-[#D9F5E8] px-3 py-1 rounded-xl">
+                            Espacio del consultante
                         </span>
-                        <h3 class="text-xl font-bold text-slate-900">Portal de Consultantes</h3>
-                        <p class="text-sm text-slate-600 leading-relaxed">
-                            Ingresa a tu plataforma independiente para consultar tu cita, confirmar tu consentimiento informado, enviar un mensaje a tu psicólogo y unirte a Google Meet.
+                        <h3 class="text-xl font-bold text-[#10263D]">Portal de consultantes</h3>
+                        <p class="text-sm text-[#10263D]/75 leading-relaxed">
+                            Ingresa a tu espacio independiente para consultar tu cita, confirmar tu consentimiento informado, enviar un mensaje a tu psicólogo y unirte a Google Meet.
                         </p>
                     </div>
                     <div class="pt-2">
                         <a
                             href="portal-consultante.html"
-                            class="inline-flex items-center justify-center w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3.5 px-6 rounded-xl text-sm transition shadow-md"
+                            class="inline-flex items-center justify-center w-full bg-[#078E99] hover:bg-[#10263D] text-white font-semibold py-3.5 px-6 rounded-xl text-sm transition shadow-sm"
                         >
-                            Abrir Portal del Consultante
+                            Abrir portal del consultante
                         </a>
                     </div>
                 </div>
 
                 <!-- Portal Profesionales -->
-                <div id="therapist-card" class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 text-center">
-                    <h3 class="text-xl font-bold text-slate-900">Portal de Profesionales</h3>
-                    <p id="therapist-subtitle" class="text-sm text-slate-600">Inicia sesión con tu cuenta registrada para validar tu perfil y gestionar tus historias clínicas.</p>
+                <div id="therapist-card" class="bg-[#F5FAF8] p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-4 text-center">
+                    <span class="inline-block text-xs font-semibold text-[#07976B] bg-white border border-[#D9F5E8] px-3 py-1 rounded-xl">
+                        Equipo profesional
+                    </span>
+                    <h3 class="text-xl font-bold text-[#10263D]">Portal de profesionales</h3>
+                    <p id="therapist-subtitle" class="text-sm text-[#10263D]/75">
+                        Inicia sesión con tu cuenta registrada para validar reservas, gestionar tus consultas y acceder a tu espacio profesional.
+                    </p>
 
-                    <div id="active-session-box" class="hidden p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-left space-y-2">
-                        <p class="font-bold text-emerald-900">Ya tienes una sesión profesional activa.</p>
-                        <a href="portal-profesional.html" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-xl transition">
-                            Ir a Portal Profesional
+                    <div id="active-session-box" class="hidden p-4 bg-white border border-[#07976B]/30 rounded-2xl text-xs text-left space-y-2">
+                        <p class="font-bold text-[#10263D]">Ya tienes una sesión profesional activa.</p>
+                        <a href="portal-profesional.html" class="inline-block bg-[#07976B] hover:bg-[#10263D] text-white font-semibold px-4 py-2 rounded-xl transition">
+                            Ir a portal profesional
                         </a>
                     </div>
-                    
-                    <form id="therapist-login-form" onsubmit="loginTherapist(event)" class="space-y-3 pt-2">
-                        <input type="email" id="therapist-email" required placeholder="correo.profesional@gmail.com" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
-                        <input type="password" id="therapist-password" required placeholder="Tu contraseña de Supabase" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-serena-600">
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl text-sm transition shadow-md">
-                            Iniciar Sesión Profesional
+
+                    <form id="therapist-login-form" onsubmit="loginTherapist(event)" class="space-y-3 pt-1">
+                        <input type="email" id="therapist-email" required placeholder="correo.profesional@gmail.com" class="w-full bg-white border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                        <input type="password" id="therapist-password" required placeholder="Tu contraseña" class="w-full bg-white border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                        <button type="submit" class="w-full bg-[#07976B] hover:bg-[#10263D] text-white font-medium py-3 rounded-xl text-sm transition shadow-sm">
+                            Iniciar sesión profesional
                         </button>
                     </form>
 
@@ -167,70 +200,75 @@
     </section>
 
     <!-- How It Works Section -->
-    <section id="nosotros" class="py-20 bg-white">
+    <section id="nosotros" class="py-16 bg-[#F5FAF8]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <span class="text-serena-600 font-semibold text-sm uppercase tracking-wider">Proceso Transparente</span>
-                <h2 class="text-3xl font-bold text-slate-900 mt-2">¿Cómo funciona Serena Mente?</h2>
-                <p class="text-slate-600 mt-3">Un modelo ágil diseñado para garantizar comodidad, seguridad y acceso a una atención de calidad.</p>
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <p class="text-xs font-semibold text-[#078E99]">Proceso transparente</p>
+                <h2 class="text-3xl font-bold text-[#10263D] mt-1">¿Cómo funciona Serena Mente?</h2>
+                <p class="text-[#10263D]/75 mt-2 text-sm sm:text-base">
+                    Un modelo claro diseñado para brindar comodidad, organización y acceso a orientación psicológica virtual.
+                </p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
-                    <div class="w-10 h-10 bg-serena-100 text-serena-700 font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">1</div>
-                    <h3 class="font-bold text-slate-800 mb-2">Elige al Profesional</h3>
-                    <p class="text-sm text-slate-600">Revisa las áreas de trabajo e inclínate por el enfoque ideal.</p>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-[#D9F5E8] shadow-sm text-center">
+                    <div class="w-10 h-10 bg-[#F5FAF8] border border-[#D9F5E8] text-[#07976B] font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">1</div>
+                    <h3 class="font-bold text-[#10263D] mb-2 text-base">Elige al profesional</h3>
+                    <p class="text-sm text-[#10263D]/75">Revisa las áreas de trabajo y elige el perfil acorde a lo que buscas.</p>
                 </div>
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
-                    <div class="w-10 h-10 bg-serena-100 text-serena-700 font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">2</div>
-                    <h3 class="font-bold text-slate-800 mb-2">Sube tu Comprobante</h3>
-                    <p class="text-sm text-slate-600">Transfiere $80.000 COP y adjunta la captura del pago en el formulario.</p>
+                <div class="bg-white p-6 rounded-2xl border border-[#D9F5E8] shadow-sm text-center">
+                    <div class="w-10 h-10 bg-[#F5FAF8] border border-[#D9F5E8] text-[#07976B] font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">2</div>
+                    <h3 class="font-bold text-[#10263D] mb-2 text-base">Sube tu comprobante</h3>
+                    <p class="text-sm text-[#10263D]/75">Transfiere $80.000 COP y adjunta la captura del pago en el formulario de reserva.</p>
                 </div>
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
-                    <div class="w-10 h-10 bg-serena-100 text-serena-700 font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">3</div>
-                    <h3 class="font-bold text-slate-800 mb-2">Validación y Meet</h3>
-                    <p class="text-sm text-slate-600">El profesional valida el pago y recibes tu acceso a Google Meet.</p>
+                <div class="bg-white p-6 rounded-2xl border border-[#D9F5E8] shadow-sm text-center">
+                    <div class="w-10 h-10 bg-[#F5FAF8] border border-[#D9F5E8] text-[#07976B] font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">3</div>
+                    <h3 class="font-bold text-[#10263D] mb-2 text-base">Validación y Meet</h3>
+                    <p class="text-sm text-[#10263D]/75">El profesional valida el comprobante y se habilita tu enlace de Google Meet.</p>
                 </div>
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
-                    <div class="w-10 h-10 bg-serena-100 text-serena-700 font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">4</div>
-                    <h3 class="font-bold text-slate-800 mb-2">Atención y Reseña</h3>
-                    <p class="text-sm text-slate-600">Asiste a tu consulta virtual y valora la atención recibida.</p>
+                <div class="bg-white p-6 rounded-2xl border border-[#D9F5E8] shadow-sm text-center">
+                    <div class="w-10 h-10 bg-[#F5FAF8] border border-[#D9F5E8] text-[#07976B] font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">4</div>
+                    <h3 class="font-bold text-[#10263D] mb-2 text-base">Atención y reseña</h3>
+                    <p class="text-sm text-[#10263D]/75">Asiste a tu sesión virtual y comparte tu valoración sobre la atención recibida.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Tarifas Banner -->
-    <section id="tarifas" class="py-16 bg-slate-50 border-y border-slate-100">
+    <section id="tarifas" class="py-16 bg-white border-t border-[#D9F5E8]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-gradient-to-r from-serena-900 to-serena-700 text-white rounded-3xl p-8 lg:p-12 shadow-xl flex flex-col lg:flex-row items-center justify-between">
-                <div class="space-y-4 mb-6 lg:mb-0 max-w-2xl">
-                    <span class="bg-white/20 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase">Inversión Clara</span>
-                    <h2 class="text-3xl font-bold">Tarifas y Opciones de Paquetes</h2>
-                    <p class="text-slate-200 text-sm leading-relaxed">
-                        Cada consulta individual tiene un costo estándar de <strong class="text-white">$80.000 COP</strong>. Disponemos también de opciones de acompañamiento continuo. El pago previo es obligatorio para asegurar tu espacio.
+            <div class="bg-[#10263D] border border-[#078E99]/30 text-white rounded-3xl p-8 lg:p-12 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-6">
+                <div class="space-y-3 max-w-2xl">
+                    <p class="text-xs font-semibold text-[#D9F5E8]">Inversión clara</p>
+                    <h2 class="text-2xl sm:text-3xl font-bold">Tarifa de orientación individual</h2>
+                    <p class="text-[#D9F5E8]/85 text-sm sm:text-base leading-relaxed">
+                        Cada sesión de orientación individual tiene un valor estándar de <strong class="text-white">$80.000 COP</strong>. El pago previo y la carga del comprobante son necesarios para confirmar tu espacio en agenda.
                     </p>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                    <a href="conoce-nuestro-equipo.html" class="bg-white text-serena-900 hover:bg-slate-100 font-bold px-6 py-3.5 rounded-xl text-center text-sm shadow-md transition">
-                        Agendar Sesión Ahora
+                <div class="shrink-0 w-full lg:w-auto">
+                    <a href="conoce-nuestro-equipo.html" class="block w-full lg:w-auto bg-white hover:bg-[#F5FAF8] text-[#10263D] font-bold px-6 py-3.5 rounded-xl text-center text-sm shadow-sm transition whitespace-nowrap">
+                        Agendar sesión ahora
                     </a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 border-t border-slate-800 text-center py-8 px-4 text-slate-400 space-y-3">
-        <p class="space-x-4">
-            <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes Somos</a>
-            <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce Nuestro Equipo</a>
-            <a href="faq.html" class="hover:text-white transition text-sm">Preguntas Frecuentes</a>
-            <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
-            <a href="legal.html" class="text-emerald-400 hover:underline text-sm font-medium">Términos y Condiciones</a>
-        </p>
-        <p class="text-xs text-slate-500 pt-2">
-            &copy; 2026 Serena Mente - Plataforma de Orientación Psicológica Virtual. Todos los derechos reservados.
-        </p>
+    <!-- Footer Institucional -->
+    <footer class="bg-[#10263D] border-t border-[#078E99]/30 text-center py-10 px-4 text-[#D9F5E8]/80">
+        <div class="max-w-5xl mx-auto flex flex-col items-center space-y-4">
+            <img src="assets/imagotipo.png" alt="Imagotipo Serena Mente" class="h-11 w-auto object-contain brightness-0 invert opacity-90">
+            <p class="flex flex-wrap justify-center gap-x-5 gap-y-2">
+                <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce nuestro equipo</a>
+                <a href="faq.html" class="hover:text-white transition text-sm">Preguntas frecuentes</a>
+                <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
+                <a href="legal.html" class="text-[#07976B] hover:underline text-sm font-medium">Términos y condiciones</a>
+            </p>
+            <p class="text-xs text-[#D9F5E8]/60 pt-1">
+                &copy; 2026 Serena Mente - Plataforma de orientación psicológica virtual. Todos los derechos reservados.
+            </p>
+        </div>
     </footer>
 
     <script>
@@ -253,7 +291,7 @@
             const email = document.getElementById('therapist-email').value.trim().toLowerCase();
             const password = document.getElementById('therapist-password').value;
 
-            showTherapistMessage('Autenticando en Supabase...', false);
+            showTherapistMessage('Autenticando...', false);
 
             const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
                 email,

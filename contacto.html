@@ -5,58 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contacto — Serena Mente</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Inter', sans-serif; } </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5FAF8;
+            color: #10263D;
+        }
+        .brand-btn-primary {
+            background: linear-gradient(135deg, #078E99 0%, #07976B 100%);
+            color: #ffffff;
+        }
+        .brand-btn-primary:hover {
+            background: linear-gradient(135deg, #10263D 0%, #078E99 100%);
+        }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
-    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
+<body class="bg-[#F5FAF8] text-[#10263D] antialiased">
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#D9F5E8] shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <a href="index.html" class="text-xl font-bold bg-gradient-to-r from-emerald-700 to-sky-600 bg-clip-text text-transparent">Serena Mente</a>
+                <a href="index.html" class="flex items-center space-x-3 group">
+                    <!-- Isotipo Serena Mente -->
+                    <svg class="w-10 h-10 shrink-0 transition-transform duration-200 group-hover:scale-105" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Isotipo Serena Mente">
+                        <defs>
+                            <linearGradient id="serenaTealGrad" x1="12" y1="22" x2="62" y2="104" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#07976B"/>
+                                <stop offset="100%" stop-color="#078E99"/>
+                            </linearGradient>
+                            <linearGradient id="serenaNavyGrad" x1="48" y1="12" x2="104" y2="96" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#10263D"/>
+                                <stop offset="100%" stop-color="#078E99"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="34" cy="40" r="11" fill="url(#serenaTealGrad)"/>
+                        <path d="M18 68C18 57.5 27.5 52 38 56C46 59 53 64 62 64C71 64 76 58 76 51C76 47 72 45 68 47C63 50 56 51 49 48C40 44 26 47 21 60C19 63 18 66 18 68Z" fill="url(#serenaTealGrad)"/>
+                        <path d="M21 71C27 89 44 102 65 102C84 102 99 88 102 69C96 81 83 89 67 89C49 89 34 80 21 71Z" fill="url(#serenaTealGrad)"/>
+                        <circle cx="68" cy="24" r="12.5" fill="url(#serenaNavyGrad)"/>
+                        <path d="M47 54C52 43 66 38 80 40C95 42 105 54 105 70C105 83 96 94 84 98C92 91 96 81 95 69C94 56 85 48 73 48C63 48 55 52 47 54Z" fill="url(#serenaNavyGrad)"/>
+                    </svg>
+                    <div class="leading-tight">
+                        <span class="block text-lg font-extrabold tracking-tight text-[#10263D]">Serena <span class="text-[#07976B]">Mente</span></span>
+                        <span class="block text-[10px] font-semibold uppercase tracking-widest text-[#078E99]">Acompañamiento y Confianza</span>
+                    </div>
+                </a>
             </div>
-            <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-slate-600">
-                <a href="index.html" class="hover:text-emerald-600 transition">Inicio</a>
-                <a href="quienes-somos.html" class="hover:text-emerald-600 transition">Quiénes Somos</a>
-                <a href="faq.html" class="hover:text-emerald-600 transition">Preguntas Frecuentes</a>
-                <a href="contacto.html" class="text-emerald-600 font-bold">Contacto</a>
+            <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-[#10263D]/80">
+                <a href="index.html" class="hover:text-[#07976B] transition">Inicio</a>
+                <a href="quienes-somos.html" class="hover:text-[#07976B] transition">Quiénes Somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-[#07976B] transition">Conoce Nuestro Equipo</a>
+                <a href="faq.html" class="hover:text-[#07976B] transition">Preguntas Frecuentes</a>
+                <a href="contacto.html" class="text-[#07976B] font-bold">Contacto</a>
             </nav>
+            <div>
+                <a href="index.html#portal-acceso" class="brand-btn-primary font-medium px-5 py-2.5 rounded-full shadow-md transition text-sm">
+                    Acceso Plataforma
+                </a>
+            </div>
         </div>
     </header>
 
-    <main class="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div class="text-center space-y-4 max-w-2xl mx-auto">
-            <span class="text-emerald-600 font-semibold text-sm uppercase tracking-wider">Estamos para Ayudarte</span>
-            <h1 class="text-4xl font-extrabold text-slate-900">Contacto</h1>
-            <p class="text-slate-600 text-lg">¿Tienes dudas adicionales o requieres asistencia con tu proceso? Comunícate con nosotros.</p>
+    <main class="py-16 md:py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        <div class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm text-center space-y-4 max-w-3xl mx-auto">
+            <span class="inline-block bg-[#D9F5E8] text-[#10263D] font-semibold text-xs uppercase tracking-wider px-4 py-1.5 rounded-full">
+                Acompañamiento y Confianza
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-[#10263D]">Contacto</h1>
+            <p class="text-[#10263D]/75 text-base sm:text-lg leading-relaxed">
+                ¿Tienes dudas adicionales o requieres asistencia con tu proceso? Comunícate con nosotros en un espacio cercano, ético y confidencial.
+            </p>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white p-8 rounded-3xl border border-slate-200 text-center space-y-3 shadow-sm">
-                <h3 class="font-bold text-slate-900 text-lg">WhatsApp / Teléfono</h3>
-                <p class="text-sm text-slate-600">+57 300 000 0000</p>
-                <p class="text-xs text-slate-400">Atención rápida en horarios hábiles</p>
+            <div class="bg-white p-8 rounded-3xl border border-[#D9F5E8] hover:border-[#078E99]/40 text-center space-y-3 shadow-sm transition">
+                <span class="inline-block bg-[#D9F5E8] text-[#07976B] text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                    Acompañamiento
+                </span>
+                <h3 class="font-bold text-[#10263D] text-lg">WhatsApp / Teléfono</h3>
+                <p class="text-sm font-semibold text-[#078E99]">+57 300 000 0000</p>
+                <p class="text-xs text-[#10263D]/65">Atención rápida en horarios hábiles (8:00 AM - 6:00 PM)</p>
             </div>
-            <div class="bg-white p-8 rounded-3xl border border-slate-200 text-center space-y-3 shadow-sm">
-                <h3 class="font-bold text-slate-900 text-lg">Correo Electrónico</h3>
-                <p class="text-sm text-slate-600">contacto@serenamente.co</p>
-                <p class="text-xs text-slate-400">Soporte y consultas institucionales</p>
+
+            <div class="bg-white p-8 rounded-3xl border border-[#D9F5E8] hover:border-[#078E99]/40 text-center space-y-3 shadow-sm transition">
+                <span class="inline-block bg-[#D9F5E8] text-[#078E99] text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                    Confianza
+                </span>
+                <h3 class="font-bold text-[#10263D] text-lg">Correo Electrónico</h3>
+                <p class="text-sm font-semibold text-[#078E99]">contacto@serenamente.co</p>
+                <p class="text-xs text-[#10263D]/65">Soporte y consultas institucionales</p>
             </div>
-            <div class="bg-white p-8 rounded-3xl border border-slate-200 text-center space-y-3 shadow-sm">
-                <h3 class="font-bold text-slate-900 text-lg">Ubicación</h3>
-                <p class="text-sm text-slate-600">Santa Marta, Magdalena, Colombia</p>
-                <p class="text-xs text-slate-400">Plataforma 100% Virtual</p>
+
+            <div class="bg-white p-8 rounded-3xl border border-[#D9F5E8] hover:border-[#078E99]/40 text-center space-y-3 shadow-sm transition">
+                <span class="inline-block bg-[#D9F5E8] text-[#10263D] text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                    Equilibrio
+                </span>
+                <h3 class="font-bold text-[#10263D] text-lg">Ubicación</h3>
+                <p class="text-sm font-semibold text-[#07976B]">Santa Marta, Magdalena, Colombia</p>
+                <p class="text-xs text-[#10263D]/65">Plataforma 100% Virtual · Bienestar emocional</p>
             </div>
         </div>
     </main>
 
-    <footer class="bg-slate-900 border-t border-slate-800 text-center py-8 px-4 text-slate-400 space-y-3">
+    <footer class="bg-[#10263D] border-t border-[#078E99]/30 text-center py-9 px-4 text-[#D9F5E8]/80 space-y-3">
         <p class="space-x-4">
             <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes Somos</a>
+            <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce Nuestro Equipo</a>
             <a href="faq.html" class="hover:text-white transition text-sm">Preguntas Frecuentes</a>
             <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
-            <a href="legal.html" class="text-emerald-400 hover:underline text-sm font-medium">Términos y Condiciones</a>
+            <a href="legal.html" class="text-[#07976B] hover:underline text-sm font-medium">Términos y Condiciones</a>
         </p>
-        <p class="text-xs text-slate-500 pt-2">&copy; 2026 Serena Mente. Todos los derechos reservados.</p>
+        <p class="text-xs text-[#D9F5E8]/60 pt-2">&copy; 2026 Serena Mente. Todos los derechos reservados.</p>
     </footer>
 </body>
 </html>

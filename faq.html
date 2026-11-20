@@ -46,6 +46,15 @@
         .brand-btn-primary:hover {
             background: linear-gradient(135deg, #10263D 0%, #078E99 100%);
         }
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        details[open] .faq-chevron {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body class="bg-[#F5FAF8] text-[#10263D] antialiased">
@@ -96,63 +105,87 @@
             </div>
         </section>
 
-        <!-- Lista de Preguntas Frecuentes -->
+        <!-- Lista Desplegable de Preguntas Frecuentes -->
         <section class="space-y-4">
-            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
-                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿En qué consiste el servicio de Serena Mente?</h2>
-                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+            <details class="bg-white rounded-3xl border border-[#D9F5E8] shadow-sm overflow-hidden">
+                <summary class="cursor-pointer px-7 py-6 flex items-center justify-between gap-4 font-bold text-[#10263D] text-base sm:text-lg hover:bg-[#F5FAF8]/60 transition">
+                    <span>¿En qué consiste el servicio de Serena Mente?</span>
+                    <span class="faq-chevron text-[#078E99] text-sm font-semibold transition-transform duration-200 shrink-0">▼</span>
+                </summary>
+                <div class="px-7 pb-6 pt-1 text-sm sm:text-base text-[#10263D]/80 leading-relaxed border-t border-[#D9F5E8]/60">
                     Serena Mente es una plataforma de orientación psicológica virtual articulada por un grupo de psicólogos y profesionales de la salud mental. Ofrecemos espacios estructurados, éticos y accesibles para acompañar procesos de bienestar emocional, autoconocimiento, regulación y toma de decisiones a través de modalidad en línea.
-                </p>
-            </article>
+                </div>
+            </details>
 
-            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
-                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Cómo funciona el proceso para agendar una orientación y verificar el pago?</h2>
-                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+            <details class="bg-white rounded-3xl border border-[#D9F5E8] shadow-sm overflow-hidden">
+                <summary class="cursor-pointer px-7 py-6 flex items-center justify-between gap-4 font-bold text-[#10263D] text-base sm:text-lg hover:bg-[#F5FAF8]/60 transition">
+                    <span>¿Cómo funciona el proceso para agendar una orientación y verificar el pago?</span>
+                    <span class="faq-chevron text-[#078E99] text-sm font-semibold transition-transform duration-200 shrink-0">▼</span>
+                </summary>
+                <div class="px-7 pb-6 pt-1 text-sm sm:text-base text-[#10263D]/80 leading-relaxed border-t border-[#D9F5E8]/60">
                     Puedes explorar el perfil y disponibilidad de los profesionales en la sección del equipo, seleccionar el espacio correspondiente y completar los datos de reserva. Para confirmar la cita, realizas la transferencia por valor de $80.000 COP a Nequi o Daviplata al número indicado en la plataforma y adjuntas la captura del comprobante; una vez validado por el profesional, el enlace de acceso por Google Meet se activa automáticamente en tu portal de consultante.
-                </p>
-            </article>
+                </div>
+            </details>
 
-            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
-                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Qué diferencia hay entre orientación psicológica virtual y atención clínica presencial o de urgencia?</h2>
-                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+            <details class="bg-white rounded-3xl border border-[#D9F5E8] shadow-sm overflow-hidden">
+                <summary class="cursor-pointer px-7 py-6 flex items-center justify-between gap-4 font-bold text-[#10263D] text-base sm:text-lg hover:bg-[#F5FAF8]/60 transition">
+                    <span>¿Qué diferencia hay entre orientación psicológica virtual y atención clínica presencial o de urgencia?</span>
+                    <span class="faq-chevron text-[#078E99] text-sm font-semibold transition-transform duration-200 shrink-0">▼</span>
+                </summary>
+                <div class="px-7 pb-6 pt-1 text-sm sm:text-base text-[#10263D]/80 leading-relaxed border-t border-[#D9F5E8]/60">
                     La orientación psicológica virtual es una modalidad en línea pensada para brindar escucha profesional, análisis, herramientas de afrontamiento y acompañamiento estructurado a distancia. Sin embargo, cuando una situación requiere evaluación clínica presencial, intervención psiquiátrica, seguimiento especializado continuo o atención inmediata ante una crisis o riesgo vital, el consultante debe acudir a los servicios de urgencias, redes de salud habilitadas o atención presencial correspondiente.
-                </p>
-            </article>
+                </div>
+            </details>
 
-            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
-                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Cuál es el perfil de los profesionales que atienden?</h2>
-                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+            <details class="bg-white rounded-3xl border border-[#D9F5E8] shadow-sm overflow-hidden">
+                <summary class="cursor-pointer px-7 py-6 flex items-center justify-between gap-4 font-bold text-[#10263D] text-base sm:text-lg hover:bg-[#F5FAF8]/60 transition">
+                    <span>¿Cuál es el perfil de los profesionales que atienden?</span>
+                    <span class="faq-chevron text-[#078E99] text-sm font-semibold transition-transform duration-200 shrink-0">▼</span>
+                </summary>
+                <div class="px-7 pb-6 pt-1 text-sm sm:text-base text-[#10263D]/80 leading-relaxed border-t border-[#D9F5E8]/60">
                     Nuestros profesionales son psicólogos titulados con registro profesional vigente en Colombia, organizados por áreas de trabajo y enfoque (clínica, jurídica, organizacional y acompañamiento según etapa de vida), comprometidos con el rigor ético, el criterio científico y el trabajo colegiado.
-                </p>
-            </article>
+                </div>
+            </details>
 
-            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
-                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Cómo se protege la confidencialidad de mis datos y de lo que comparto?</h2>
-                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+            <details class="bg-white rounded-3xl border border-[#D9F5E8] shadow-sm overflow-hidden">
+                <summary class="cursor-pointer px-7 py-6 flex items-center justify-between gap-4 font-bold text-[#10263D] text-base sm:text-lg hover:bg-[#F5FAF8]/60 transition">
+                    <span>¿Cómo se protege la confidencialidad de mis datos y de lo que comparto?</span>
+                    <span class="faq-chevron text-[#078E99] text-sm font-semibold transition-transform duration-200 shrink-0">▼</span>
+                </summary>
+                <div class="px-7 pb-6 pt-1 text-sm sm:text-base text-[#10263D]/80 leading-relaxed border-t border-[#D9F5E8]/60">
                     El manejo de la información se rige por los principios deontológicos, bioéticos y de secreto profesional aplicables al ejercicio de la psicología en Colombia (incluyendo la Ley 1090 de 2006 y la Ley 1616 de 2013), así como por la normativa vigente sobre tratamiento de datos personales. La información se trata con reserva y únicamente con fines propios del servicio o coordinación, salvo las excepciones previstas por la ley, como el consentimiento informado, el riesgo inminente para la integridad del consultante o de terceros, o el requerimiento de autoridad competente.
-                </p>
-            </article>
+                </div>
+            </details>
 
-            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
-                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Qué necesito para participar en una sesión virtual?</h2>
-                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+            <details class="bg-white rounded-3xl border border-[#D9F5E8] shadow-sm overflow-hidden">
+                <summary class="cursor-pointer px-7 py-6 flex items-center justify-between gap-4 font-bold text-[#10263D] text-base sm:text-lg hover:bg-[#F5FAF8]/60 transition">
+                    <span>¿Qué necesito para participar en una sesión virtual?</span>
+                    <span class="faq-chevron text-[#078E99] text-sm font-semibold transition-transform duration-200 shrink-0">▼</span>
+                </summary>
+                <div class="px-7 pb-6 pt-1 text-sm sm:text-base text-[#10263D]/80 leading-relaxed border-t border-[#D9F5E8]/60">
                     Solo necesitas contar con una conexión a internet estable, un dispositivo con cámara y micrófono en buen estado (computador, tableta o teléfono inteligente) para conectarte a Google Meet y un espacio privado, tranquilo y cómodo donde puedas conversar sin interrupciones.
-                </p>
-            </article>
+                </div>
+            </details>
 
-            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
-                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Qué pasa si necesito reprogramar o cancelar una cita?</h2>
-                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+            <details class="bg-white rounded-3xl border border-[#D9F5E8] shadow-sm overflow-hidden">
+                <summary class="cursor-pointer px-7 py-6 flex items-center justify-between gap-4 font-bold text-[#10263D] text-base sm:text-lg hover:bg-[#F5FAF8]/60 transition">
+                    <span>¿Qué pasa si necesito reprogramar o cancelar una cita?</span>
+                    <span class="faq-chevron text-[#078E99] text-sm font-semibold transition-transform duration-200 shrink-0">▼</span>
+                </summary>
+                <div class="px-7 pb-6 pt-1 text-sm sm:text-base text-[#10263D]/80 leading-relaxed border-t border-[#D9F5E8]/60">
                     Las solicitudes de reprogramación o cancelación deben gestionarse con antelación a través de los canales dispuestos por la coordinación o directamente con el profesional correspondiente, de acuerdo con las condiciones informadas al momento de reservar. Te recomendamos avisar lo antes posible para reorganizar la agenda de manera oportuna.
-                </p>
-            </article>
+                </div>
+            </details>
 
-            <article class="bg-white p-7 md:p-8 rounded-3xl border border-[#D9F5E8] shadow-sm space-y-2.5">
-                <h2 class="font-bold text-[#10263D] text-base sm:text-lg">¿Cómo elijo al profesional adecuado para lo que necesito?</h2>
-                <p class="text-sm sm:text-base text-[#10263D]/80 leading-relaxed">
+            <details class="bg-white rounded-3xl border border-[#D9F5E8] shadow-sm overflow-hidden">
+                <summary class="cursor-pointer px-7 py-6 flex items-center justify-between gap-4 font-bold text-[#10263D] text-base sm:text-lg hover:bg-[#F5FAF8]/60 transition">
+                    <span>¿Cómo elijo al profesional adecuado para lo que necesito?</span>
+                    <span class="faq-chevron text-[#078E99] text-sm font-semibold transition-transform duration-200 shrink-0">▼</span>
+                </summary>
+                <div class="px-7 pb-6 pt-1 text-sm sm:text-base text-[#10263D]/80 leading-relaxed border-t border-[#D9F5E8]/60">
                     Puedes revisar la información de los profesionales disponibles en la sección de nuestro equipo para conocer su enfoque, área de trabajo y disponibilidad. Si no estás seguro de qué perfil se ajusta mejor a tu motivo de consulta, puedes escribirnos a través de la página de contacto para recibir orientación sobre cómo avanzar.
-                </p>
-            </article>
+                </div>
+            </details>
         </section>
 
         <!-- Cierre con botón a Contacto -->

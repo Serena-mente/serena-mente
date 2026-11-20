@@ -4,7 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contacto — Serena Mente</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        serena: {
+                            50: '#F5FAF8',
+                            100: '#D9F5E8',
+                            500: '#07976B',
+                            600: '#07976B',
+                            700: '#078E99',
+                            900: '#10263D',
+                            light: '#D9F5E8',
+                            blue: '#078E99',
+                            darkblue: '#10263D',
+                            navy: '#10263D',
+                            teal: '#078E99',
+                            mint: '#07976B',
+                            calm: '#D9F5E8',
+                            harmony: '#F5FAF8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -22,70 +49,104 @@
     </style>
 </head>
 <body class="bg-[#F5FAF8] text-[#10263D] antialiased">
+
+    <!-- Navigation Header -->
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#D9F5E8] shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <a href="index.html" class="flex items-center space-x-3">
-                <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-10 w-auto object-contain">
-                <span class="text-xl font-extrabold tracking-tight text-[#10263D]">
-                    Serena <span class="text-[#07976B]">Mente</span>
-                </span>
-            </a>
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="flex items-center space-x-3">
+                    <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-10 w-auto object-contain">
+                    <span class="text-xl font-extrabold tracking-tight text-[#10263D]">
+                        Serena <span class="text-[#07976B]">Mente</span>
+                    </span>
+                </a>
+            </div>
             <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-[#10263D]/80">
                 <a href="index.html" class="hover:text-[#07976B] transition">Inicio</a>
-                <a href="quienes-somos.html" class="hover:text-[#07976B] transition">Quiénes Somos</a>
-                <a href="conoce-nuestro-equipo.html" class="hover:text-[#07976B] transition">Conoce Nuestro Equipo</a>
-                <a href="faq.html" class="hover:text-[#07976B] transition">Preguntas Frecuentes</a>
+                <a href="quienes-somos.html" class="hover:text-[#07976B] transition">Quiénes somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-[#07976B] transition">Conoce nuestro equipo</a>
+                <a href="faq.html" class="hover:text-[#07976B] transition">Preguntas frecuentes</a>
                 <a href="contacto.html" class="text-[#07976B] font-bold">Contacto</a>
             </nav>
             <div>
                 <a href="index.html#portal-acceso" class="brand-btn-primary font-medium px-5 py-2.5 rounded-full shadow-md transition text-sm">
-                    Acceso Plataforma
+                    Acceso plataforma
                 </a>
             </div>
         </div>
     </header>
 
-    <main class="py-16 md:py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm text-center space-y-4 max-w-3xl mx-auto">
-            <span class="inline-block bg-[#D9F5E8] text-[#10263D] font-semibold text-xs uppercase tracking-wider px-4 py-1.5 rounded-full">
-                Estamos para Ayudarte
-            </span>
+    <!-- Main Content: Contacto -->
+    <main class="py-16 md:py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-3xl p-8 md:p-12 border border-[#D9F5E8] shadow-sm space-y-6">
             <h1 class="text-3xl sm:text-4xl font-extrabold text-[#10263D]">Contacto</h1>
-            <p class="text-[#10263D]/75 text-base sm:text-lg leading-relaxed">
-                ¿Tienes dudas adicionales o requieres asistencia con tu proceso? Comunícate con nosotros.
+            <p class="text-[#10263D]/75 text-base leading-relaxed">
+                ¿Tienes dudas sobre el proceso de reserva, los planes de orientación o la atención en línea? Escríbenos a través de nuestros canales oficiales y nuestro equipo de coordinación responderá a la brevedad.
             </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white p-8 rounded-3xl border border-[#D9F5E8] hover:border-[#078E99]/40 text-center space-y-3 shadow-sm transition">
-                <h3 class="font-bold text-[#10263D] text-lg">WhatsApp / Teléfono</h3>
-                <p class="text-sm font-semibold text-[#078E99]">+57 300 000 0000</p>
-                <p class="text-xs text-[#10263D]/65">Atención rápida en horarios hábiles</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div class="bg-[#F5FAF8] rounded-2xl p-6 border border-[#D9F5E8] space-y-1">
+                    <h2 class="text-sm font-bold text-[#10263D]">Correo electrónico</h2>
+                    <p class="text-sm text-[#078E99] font-medium">serenelyserenamente@gmail.com</p>
+                </div>
+                <div class="bg-[#F5FAF8] rounded-2xl p-6 border border-[#D9F5E8] space-y-1">
+                    <h2 class="text-sm font-bold text-[#10263D]">Teléfono y WhatsApp</h2>
+                    <p class="text-sm text-[#10263D]/80 font-medium">322 500 0756</p>
+                    <p class="text-xs text-[#10263D]/60">Horario de atención: lunes a sábado de 8:00 AM a 6:00 PM</p>
+                </div>
             </div>
-
-            <div class="bg-white p-8 rounded-3xl border border-[#D9F5E8] hover:border-[#078E99]/40 text-center space-y-3 shadow-sm transition">
-                <h3 class="font-bold text-[#10263D] text-lg">Correo Electrónico</h3>
-                <p class="text-sm font-semibold text-[#078E99]">contacto@serenamente.co</p>
-                <p class="text-xs text-[#10263D]/65">Soporte y consultas institucionales</p>
-            </div>
-
-            <div class="bg-white p-8 rounded-3xl border border-[#D9F5E8] hover:border-[#078E99]/40 text-center space-y-3 shadow-sm transition">
-                <h3 class="font-bold text-[#10263D] text-lg">Ubicación</h3>
-                <p class="text-sm font-semibold text-[#07976B]">Santa Marta, Magdalena, Colombia</p>
-                <p class="text-xs text-[#10263D]/65">Plataforma 100% Virtual</p>
-            </div>
+            <form onsubmit="handleContactSubmit(event)" class="space-y-4 pt-4 border-t border-[#D9F5E8]">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-[#10263D] mb-1">Nombre completo</label>
+                        <input type="text" required placeholder="Tu nombre" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-[#10263D] mb-1">Correo electrónico</label>
+                        <input type="email" required placeholder="tu@correo.com" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-[#10263D] mb-1">Mensaje</label>
+                    <textarea rows="4" required placeholder="Escribe tu consulta o solicitud..." class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]"></textarea>
+                </div>
+                <button type="submit" class="brand-btn-primary font-medium px-6 py-3 rounded-xl text-sm transition shadow-sm">
+                    Enviar mensaje
+                </button>
+            </form>
         </div>
     </main>
 
+    <!-- Notification Toast -->
+    <div id="notification-toast" class="fixed bottom-5 right-5 z-50 bg-[#10263D] border border-[#078E99]/40 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 transform translate-y-24 opacity-0 transition-all duration-300">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#07976B]"></span>
+        <span id="toast-message" class="text-sm font-medium">Mensaje enviado con éxito</span>
+    </div>
+
+    <!-- Footer -->
     <footer class="bg-[#10263D] border-t border-[#078E99]/30 text-center py-9 px-4 text-[#D9F5E8]/80 space-y-3">
         <p class="space-x-4">
-            <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes Somos</a>
-            <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce Nuestro Equipo</a>
-            <a href="faq.html" class="hover:text-white transition text-sm">Preguntas Frecuentes</a>
+            <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes somos</a>
+            <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce nuestro equipo</a>
+            <a href="faq.html" class="hover:text-white transition text-sm">Preguntas frecuentes</a>
             <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
-            <a href="legal.html" class="text-[#07976B] hover:underline text-sm font-medium">Términos y Condiciones</a>
+            <a href="legal.html" class="text-[#07976B] hover:underline text-sm font-medium">Términos y condiciones</a>
         </p>
-        <p class="text-xs text-[#D9F5E8]/60 pt-2">&copy; 2026 Serena Mente. Todos los derechos reservados.</p>
+        <p class="text-xs text-[#D9F5E8]/60 pt-2">
+            &copy; 2026 Serena Mente - Plataforma de orientación psicológica virtual. Todos los derechos reservados.
+        </p>
     </footer>
+
+    <script>
+        function handleContactSubmit(event) {
+            event.preventDefault();
+            event.target.reset();
+            const toast = document.getElementById('notification-toast');
+            document.getElementById('toast-message').innerText = 'Mensaje enviado. Te responderemos pronto.';
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 4000);
+        }
+    </script>
 </body>
 </html>

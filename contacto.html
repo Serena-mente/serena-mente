@@ -79,45 +79,110 @@
         </div>
     </header>
 
-    <!-- Main Content: Contacto -->
-    <main class="py-16 md:py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-white rounded-3xl p-8 md:p-12 border border-[#D9F5E8] shadow-sm space-y-6">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-[#10263D]">Contacto</h1>
-            <p class="text-[#10263D]/75 text-base leading-relaxed">
-                ¿Tienes dudas sobre el proceso de reserva, los planes de orientación o la atención en línea? Escríbenos a través de nuestros canales oficiales y nuestro equipo de coordinación responderá a la brevedad.
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                <div class="bg-[#F5FAF8] rounded-2xl p-6 border border-[#D9F5E8] space-y-1">
-                    <h2 class="text-sm font-bold text-[#10263D]">Correo electrónico</h2>
-                    <p class="text-sm text-[#078E99] font-medium">serenelyserenamente@gmail.com</p>
+    <!-- Main Content: Contacto Institucional -->
+    <main class="py-14 md:py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+        <!-- Cabecera Institucional con Imagotipo -->
+        <section class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-[#D9F5E8]">
+                <div class="flex items-center gap-4">
+                    <img src="assets/imagotipo.png" alt="Imagotipo Serena Mente" class="h-14 sm:h-16 w-auto object-contain">
+                    <div>
+                        <p class="text-xs font-semibold text-[#078E99]">Coordinación y atención al usuario</p>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-[#10263D] mt-0.5">Contacto</h1>
+                    </div>
                 </div>
-                <div class="bg-[#F5FAF8] rounded-2xl p-6 border border-[#D9F5E8] space-y-1">
-                    <h2 class="text-sm font-bold text-[#10263D]">Teléfono y WhatsApp</h2>
-                    <p class="text-sm text-[#10263D]/80 font-medium">322 500 0756</p>
-                    <p class="text-xs text-[#10263D]/60">Horario de atención: lunes a sábado de 8:00 AM a 6:00 PM</p>
+                <div class="bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl px-4 py-3 text-xs text-[#10263D]/80 space-y-0.5">
+                    <p class="font-semibold text-[#10263D]">Atención virtual respaldada</p>
+                    <p class="text-[#07976B] font-medium">Lunes a sábado · 8:00 AM a 6:00 PM</p>
                 </div>
             </div>
-            <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-4 pt-4 border-t border-[#D9F5E8]">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-[#10263D] mb-1">Nombre completo</label>
-                        <input type="text" id="contact-name" required placeholder="Tu nombre" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+
+            <div class="pt-6 space-y-4">
+                <p class="text-[#10263D]/75 text-sm sm:text-base leading-relaxed">
+                    ¿Tienes dudas sobre el proceso de reserva, los modelos de orientación psicológica o la validación de comprobantes? Escríbenos a través de nuestros canales oficiales y nuestro equipo de coordinación responderá a la brevedad.
+                </p>
+
+                <!-- Línea institucional de criterios -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                    <div class="bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl p-4">
+                        <h2 class="text-xs font-bold text-[#10263D]">Acompañamiento</h2>
+                        <p class="text-xs text-[#10263D]/70 mt-1">Orientación cercana en cada consulta.</p>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-[#10263D] mb-1">Correo electrónico</label>
-                        <input type="email" id="contact-email" required placeholder="tu@correo.com" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                    <div class="bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl p-4">
+                        <h2 class="text-xs font-bold text-[#10263D]">Bienestar emocional</h2>
+                        <p class="text-xs text-[#10263D]/70 mt-1">Atención enfocada en la salud mental.</p>
+                    </div>
+                    <div class="bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl p-4">
+                        <h2 class="text-xs font-bold text-[#10263D]">Equilibrio</h2>
+                        <p class="text-xs text-[#10263D]/70 mt-1">Acompañamiento acorde a cada etapa.</p>
+                    </div>
+                    <div class="bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl p-4">
+                        <h2 class="text-xs font-bold text-[#10263D]">Confianza</h2>
+                        <p class="text-xs text-[#10263D]/70 mt-1">Manejo ético y reservado de datos.</p>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-[#10263D] mb-1">Mensaje</label>
-                    <textarea id="contact-message" rows="4" required placeholder="Escribe tu consulta o solicitud..." class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]"></textarea>
+            </div>
+        </section>
+
+        <!-- Canales Oficiales y Formulario -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <!-- Columna de Canales Institucionales -->
+            <div class="space-y-4 lg:col-span-1">
+                <div class="bg-white rounded-3xl p-6 border border-[#D9F5E8] shadow-sm space-y-4">
+                    <h2 class="text-base font-bold text-[#10263D]">Canales oficiales</h2>
+
+                    <div class="bg-[#F5FAF8] rounded-2xl p-4 border border-[#D9F5E8] space-y-1">
+                        <p class="text-xs font-semibold text-[#10263D]">Correo electrónico</p>
+                        <a href="mailto:serenelyserenamente@gmail.com" class="text-sm text-[#078E99] font-medium hover:underline break-all">
+                            serenelyserenamente@gmail.com
+                        </a>
+                    </div>
+
+                    <div class="bg-[#F5FAF8] rounded-2xl p-4 border border-[#D9F5E8] space-y-1">
+                        <p class="text-xs font-semibold text-[#10263D]">Teléfono y WhatsApp</p>
+                        <p class="text-sm text-[#10263D] font-semibold">322 500 0756</p>
+                        <p class="text-xs text-[#10263D]/60">Lunes a sábado · 8:00 AM a 6:00 PM</p>
+                    </div>
+
+                    <div class="bg-[#F5FAF8] rounded-2xl p-4 border border-[#D9F5E8] space-y-1">
+                        <p class="text-xs font-semibold text-[#10263D]">Confidencialidad y ética</p>
+                        <p class="text-xs text-[#10263D]/70 leading-relaxed">
+                            Los mensajes enviados se utilizan únicamente para dar respuesta a tu solicitud y gestionar la coordinación de la plataforma.
+                        </p>
+                    </div>
                 </div>
-                <div id="contact-feedback" class="hidden text-xs rounded-xl p-3"></div>
-                <button type="submit" id="btn-contact-submit" class="brand-btn-primary font-medium px-6 py-3 rounded-xl text-sm transition shadow-sm">
-                    Enviar mensaje
-                </button>
-            </form>
-        </div>
+            </div>
+
+            <!-- Columna del Formulario -->
+            <div class="bg-white rounded-3xl p-8 border border-[#D9F5E8] shadow-sm lg:col-span-2">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-[#10263D]">Escríbenos un mensaje</h2>
+                    <p class="text-xs text-[#10263D]/70 mt-1">Completa los campos y nos pondremos en contacto contigo.</p>
+                </div>
+
+                <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-[#10263D] mb-1">Nombre completo</label>
+                            <input type="text" id="contact-name" required placeholder="Tu nombre y apellido" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-[#10263D] mb-1">Correo electrónico</label>
+                            <input type="email" id="contact-email" required placeholder="tu@correo.com" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-[#10263D] mb-1">Mensaje</label>
+                        <textarea id="contact-message" rows="4" required placeholder="Escribe tu consulta o solicitud..." class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]"></textarea>
+                    </div>
+                    <div id="contact-feedback" class="hidden text-xs rounded-xl p-3"></div>
+                    <button type="submit" id="btn-contact-submit" class="brand-btn-primary font-medium px-6 py-3 rounded-xl text-sm transition shadow-sm">
+                        Enviar mensaje
+                    </button>
+                </form>
+            </div>
+        </section>
     </main>
 
     <!-- Notification Toast -->
@@ -126,18 +191,21 @@
         <span id="toast-message" class="text-sm font-medium">Mensaje enviado con éxito</span>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-[#10263D] border-t border-[#078E99]/30 text-center py-9 px-4 text-[#D9F5E8]/80 space-y-3">
-        <p class="space-x-4">
-            <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes somos</a>
-            <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce nuestro equipo</a>
-            <a href="faq.html" class="hover:text-white transition text-sm">Preguntas frecuentes</a>
-            <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
-            <a href="legal.html" class="text-[#07976B] hover:underline text-sm font-medium">Términos y condiciones</a>
-        </p>
-        <p class="text-xs text-[#D9F5E8]/60 pt-2">
-            &copy; 2026 Serena Mente - Plataforma de orientación psicológica virtual. Todos los derechos reservados.
-        </p>
+    <!-- Footer Institucional -->
+    <footer class="bg-[#10263D] border-t border-[#078E99]/30 text-center py-10 px-4 text-[#D9F5E8]/80">
+        <div class="max-w-5xl mx-auto flex flex-col items-center space-y-4">
+            <img src="assets/imagotipo.png" alt="Imagotipo Serena Mente" class="h-11 w-auto object-contain brightness-0 invert opacity-90">
+            <p class="flex flex-wrap justify-center gap-x-5 gap-y-2">
+                <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce nuestro equipo</a>
+                <a href="faq.html" class="hover:text-white transition text-sm">Preguntas frecuentes</a>
+                <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
+                <a href="legal.html" class="text-[#07976B] hover:underline text-sm font-medium">Términos y condiciones</a>
+            </p>
+            <p class="text-xs text-[#D9F5E8]/60 pt-1">
+                &copy; 2026 Serena Mente - Plataforma de orientación psicológica virtual. Todos los derechos reservados.
+            </p>
+        </div>
     </footer>
 
     <script>

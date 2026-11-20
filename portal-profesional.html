@@ -39,9 +39,15 @@
                 <a href="index.html" class="flex items-center space-x-2.5 group focus:outline-none">
                     <!-- Isotipo Serena Mente (mente serena + brote/equilibrio) -->
                     <svg class="w-9 h-9 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <rect width="36" height="36" rx="10" fill="#059669"/>
-                        <circle cx="18" cy="14" r="4.5" stroke="#ffffff" stroke-width="2"/>
-                        <path d="M10.5 25.5C10.5 21.6 13.9 19 18 19C22.1 19 25.5 21.6 25.5 25.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="smBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#059669"/>
+                                <stop offset="100%" stop-color="#0284c7"/>
+                            </linearGradient>
+                        </defs>
+                        <rect width="36" height="36" rx="10" fill="url(#smBrandGrad)"/>
+                        <path d="M18 10V26M10 18H26" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+                        <circle cx="18" cy="18" r="9.5" stroke="#ffffff" stroke-width="1.6" stroke-opacity="0.75"/>
                     </svg>
                     <span class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-serena-700 to-serena-blue bg-clip-text text-transparent">
                         Serena Mente
@@ -72,9 +78,15 @@
         <section id="login-section" class="max-w-md mx-auto bg-white rounded-3xl p-8 shadow-md border border-slate-200 mt-8">
             <div class="flex items-center space-x-3 mb-4">
                 <svg class="w-9 h-9 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <rect width="36" height="36" rx="10" fill="#059669"/>
-                        <circle cx="18" cy="14" r="4.5" stroke="#ffffff" stroke-width="2"/>
-                        <path d="M10.5 25.5C10.5 21.6 13.9 19 18 19C22.1 19 25.5 21.6 25.5 25.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="smBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#059669"/>
+                                <stop offset="100%" stop-color="#0284c7"/>
+                            </linearGradient>
+                        </defs>
+                        <rect width="36" height="36" rx="10" fill="url(#smBrandGrad)"/>
+                        <path d="M18 10V26M10 18H26" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+                        <circle cx="18" cy="18" r="9.5" stroke="#ffffff" stroke-width="1.6" stroke-opacity="0.75"/>
                     </svg>
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-900">Acceso Profesional</h1>
@@ -594,9 +606,15 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
             <div class="flex items-center space-x-2">
                 <svg class="w-9 h-9 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <rect width="36" height="36" rx="10" fill="#059669"/>
-                        <circle cx="18" cy="14" r="4.5" stroke="#ffffff" stroke-width="2"/>
-                        <path d="M10.5 25.5C10.5 21.6 13.9 19 18 19C22.1 19 25.5 21.6 25.5 25.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="smBrandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#059669"/>
+                                <stop offset="100%" stop-color="#0284c7"/>
+                            </linearGradient>
+                        </defs>
+                        <rect width="36" height="36" rx="10" fill="url(#smBrandGrad)"/>
+                        <path d="M18 10V26M10 18H26" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+                        <circle cx="18" cy="18" r="9.5" stroke="#ffffff" stroke-width="1.6" stroke-opacity="0.75"/>
                     </svg>
                 <span class="font-bold text-slate-700">Serena Mente</span>
                 <span>· Práctica psicológica y psicoeducación</span>
@@ -881,30 +899,40 @@
                 ''
             ).trim();
             if (rawName) return rawName;
-
-            const email = (user?.email || '').trim().toLowerCase();
-            if (email.includes('alexandersarmiento')) {
-                return 'Alexander Rafael Sarmiento Ceballos';
-            }
-            if (email) {
-                const localPart = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
-                return localPart.replace(/ \w/g, c => c.toUpperCase());
-            }
-            return 'Profesional de Psicología';
+            return user?.email || 'Cuenta sin nombre registrado';
         }
 
-        function onAuthenticated(user) {
-            currentUser = user;
-            const proName = resolvePsychologistName(user);
-            const proCard = (user?.user_metadata?.tarjeta_profesional || user?.user_metadata?.tp || '').trim();
-            const displayLabel = proCard ? `Psic. ${proName} · T.P. ${proCard}` : `Psic. ${proName}`;
+        async function fetchProfileNameIfAvailable(user) {
+            const fallback = resolvePsychologistName(user);
+            if (!user?.id) return { name: fallback, card: '' };
+            for (const tbl of ['perfiles', 'profesionales', 'psicologos']) {
+                const { data, error } = await supabaseClient
+                    .from(tbl)
+                    .select('*')
+                    .eq('id', user.id)
+                    .maybeSingle();
+                if (!error && data) {
+                    const dbName = (data.nombre_completo || data.full_name || data.nombre || '').trim();
+                    const dbCard = (data.tarjeta_profesional || data.numero_tarjeta || data.tp || '').trim();
+                    if (dbName) return { name: dbName, card: dbCard };
+                }
+            }
+            const metaCard = (user?.user_metadata?.tarjeta_profesional || user?.user_metadata?.tp || '').trim();
+            return { name: fallback, card: metaCard };
+        }
 
+        async function onAuthenticated(user) {
+            currentUser = user;
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
             const bar = document.getElementById('session-bar');
             bar.classList.remove('hidden');
             bar.classList.add('flex');
-            document.getElementById('pro-email-label').textContent = `${displayLabel} (${user.email || ''})`;
+            document.getElementById('pro-email-label').textContent = user.email || '';
+
+            const { name, card } = await fetchProfileNameIfAvailable(user);
+            currentUser._resolvedName = name;
+            const displayLabel = card ? `${name} · T.P. ${card}` : name;
 
             const badgeEl = document.getElementById('pro-name-badge');
             const inlineEl = document.getElementById('pro-full-name-inline');
@@ -1793,7 +1821,7 @@
 </head>
 <body>
   <h1>Historia Clínica Inicial — Serena Mente</h1>
-  <p><strong>Profesional a cargo:</strong> ${escapeHtml(resolvePsychologistName(currentUser))}</p>
+  <p><strong>Profesional a cargo:</strong> ${escapeHtml(currentUser?._resolvedName || resolvePsychologistName(currentUser))}</p>
   <div class="meta">
     <strong>Código:</strong> ${escapeHtml(codigo)} |
     <strong>Tipo de caso:</strong> ${escapeHtml(extra.tipo_caso || '—')} |

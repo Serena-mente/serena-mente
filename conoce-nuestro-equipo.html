@@ -81,16 +81,36 @@
 
     <!-- Main Content: Equipo y Modelos de Trabajo -->
     <main class="py-16 md:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm text-center max-w-4xl mx-auto space-y-5">
-            <span class="inline-block bg-[#D9F5E8] text-[#10263D] font-semibold text-xs uppercase tracking-wider px-4 py-1.5 rounded-full">
-                Excelencia y Rigor Profesional
-            </span>
+        <div class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm text-center max-w-4xl mx-auto space-y-6">
+            <p class="text-xs font-bold uppercase tracking-widest text-[#078E99]">
+                Excelencia · Rigor · Calma
+            </p>
             <h1 class="text-3xl sm:text-4xl font-extrabold text-[#10263D]">
-                Conoce Nuestro Equipo y Modelos de Trabajo
+                Conoce Nuestro Equipo Y Modelos De Trabajo
             </h1>
             <p class="text-[#10263D]/75 text-base sm:text-lg leading-relaxed">
                 Cada profesional de nuestra plataforma fundamenta su práctica en marcos teóricos rigurosos, adaptados a las necesidades particulares de cada consultante. Horario de atención: <strong class="text-[#10263D]">8:00 AM a 6:00 PM</strong>. Tarifa única de consulta: <strong class="text-[#07976B]">$80.000 COP</strong>.
             </p>
+
+            <!-- Pilares sin burbujas, con cada palabra iniciando en mayúscula -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4 border-t border-[#D9F5E8] text-left">
+                <div class="space-y-1">
+                    <h2 class="text-sm font-bold text-[#10263D]">Acompañamiento</h2>
+                    <p class="text-xs font-medium text-[#07976B]">Presencia Cercana Y Ética</p>
+                </div>
+                <div class="space-y-1">
+                    <h2 class="text-sm font-bold text-[#10263D]">Bienestar Emocional</h2>
+                    <p class="text-xs font-medium text-[#078E99]">Cuidado Integral Del Ser</p>
+                </div>
+                <div class="space-y-1">
+                    <h2 class="text-sm font-bold text-[#10263D]">Equilibrio</h2>
+                    <p class="text-xs font-medium text-[#07976B]">Armonía En Cada Etapa</p>
+                </div>
+                <div class="space-y-1">
+                    <h2 class="text-sm font-bold text-[#10263D]">Confianza</h2>
+                    <p class="text-xs font-medium text-[#078E99]">Espacio Seguro Y Confidencial</p>
+                </div>
+            </div>
         </div>
 
         <!-- Grid de Profesionales Detallados -->
@@ -319,7 +339,7 @@
                 <div class="bg-white rounded-3xl p-8 shadow-sm border border-[#D9F5E8] flex flex-col justify-between hover:shadow-md hover:border-[#078E99]/40 transition">
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
-                            <span class="bg-[#D9F5E8] text-[#10263D] text-xs font-semibold px-3 py-1 rounded-full">${escapeHtml(p.badge)}</span>
+                            <span class="text-xs font-semibold text-[#07976B]">${escapeHtml(p.badge)}</span>
                             <div class="flex items-center space-x-1 text-[#07976B] text-sm font-semibold">
                                 <span>★</span>
                                 <span class="text-[#10263D]">${escapeHtml(p.rating)}</span>
@@ -356,7 +376,7 @@
 
             content.innerHTML = `
                 <div class="mb-6">
-                    <span class="bg-[#D9F5E8] text-[#10263D] text-xs font-semibold px-3 py-1 rounded-full">Agenda 8:00 AM – 6:00 PM</span>
+                    <span class="text-xs font-semibold text-[#07976B]">Agenda 8:00 AM – 6:00 PM</span>
                     <h3 class="text-2xl font-bold text-[#10263D] mt-2">Agendar con ${escapeHtml(psi.name)}</h3>
                     <p class="text-xs text-[#078E99] font-medium mt-1">${escapeHtml(psi.area)}</p>
                 </div>
@@ -626,7 +646,7 @@
             const modalContent = document.getElementById('modal-content');
             modalContent.innerHTML = `
                 <div class="text-center space-y-4 py-4">
-                    <span class="inline-block bg-[#D9F5E8] text-[#10263D] text-xs font-bold px-3 py-1 rounded-full">Reserva Registrada</span>
+                    <span class="text-xs font-bold text-[#07976B]">Reserva Registrada</span>
                     <h3 class="text-2xl font-bold text-[#10263D]">¡Solicitud Enviada a ${escapeHtml(psi.name)}!</h3>
                     <p class="text-sm text-[#10263D]/75">
                         Tu comprobante (<strong>${escapeHtml(receiptName)}</strong>) fue subido a la plataforma y tu cita quedó registrada para el <strong>${escapeHtml(date)}</strong> a las <strong>${escapeHtml(timeLabel)}</strong>.

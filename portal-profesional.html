@@ -54,7 +54,7 @@
                     </span>
                 </a>
                 <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
-                    Portal Profesional · v4
+                    Portal Profesional · v5
                 </span>
             </div>
 
@@ -634,13 +634,9 @@
                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo de caso *</label>
                         <select id="new-hc-tipo-caso" required
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                            <option value="directa">Consulta clínica directa</option>
-                            <option value="cita">Cita agendada</option>
-                            <option value="evaluacion">Evaluación y diagnóstico</option>
-                            <option value="psicoterapia">Psicoterapia individual</option>
-                            <option value="orientacion">Orientación / psicoeducación</option>
-                            <option value="crisis">Intervención en crisis</option>
-                            <option value="general">General</option>
+                            <option value="individual">Individual</option>
+                            <option value="organizacional">Organizacional</option>
+                            <option value="juridico">Jurídico</option>
                         </select>
                     </div>
                     <div>
@@ -1213,7 +1209,7 @@
             const puntajeNum = puntajeRaw === '' ? '' : Math.max(0, Math.min(10, parseInt(puntajeRaw, 10) || 0));
 
             return {
-                tipo_caso: document.getElementById('hc-tipo-caso').value.trim() || 'Consulta clínica directa',
+                tipo_caso: document.getElementById('hc-tipo-caso').value.trim() || 'individual',
                 contacto_consultante: {
                     email: document.getElementById('hc-cliente-email').value.trim(),
                     telefono: document.getElementById('hc-telefono').value.trim(),
@@ -1352,7 +1348,7 @@
             const clienteEmail = document.getElementById('hc-cliente-email').value.trim() || null;
             const telefono = document.getElementById('hc-telefono').value.trim() || null;
             const ciudad = document.getElementById('hc-ciudad').value.trim() || null;
-            const tipoCaso = document.getElementById('hc-tipo-caso').value.trim() || 'Consulta clínica directa';
+            const tipoCaso = document.getElementById('hc-tipo-caso').value.trim() || 'individual';
 
             const payload = {
                 cliente_email: clienteEmail,
@@ -1439,7 +1435,7 @@
 
                     const checkMsg = (error?.message || '').toLowerCase();
                     if (checkMsg.includes('tipo_caso_check') || (checkMsg.includes('check constraint') && checkMsg.includes('tipo_caso'))) {
-                        const fallbackCandidates = ['directa', 'cita', 'general', 'individual', 'consulta', 'clinica', 'normal', 'primera_vez', 'seguimiento'];
+                        const fallbackCandidates = ['individual', 'organizacional', 'juridico'];
                         for (const fb of fallbackCandidates) {
                             if (fb === candidateBase.tipo_caso) continue;
                             const retryRes = await supabaseClient
@@ -1479,7 +1475,7 @@
 
                 const checkMsg2 = (error?.message || '').toLowerCase();
                 if (checkMsg2.includes('tipo_caso_check') || (checkMsg2.includes('check constraint') && checkMsg2.includes('tipo_caso'))) {
-                    const fallbackCandidates = ['directa', 'cita', 'general', 'individual', 'consulta', 'clinica', 'normal', 'primera_vez', 'seguimiento'];
+                    const fallbackCandidates = ['individual', 'organizacional', 'juridico'];
                     for (const fb of fallbackCandidates) {
                         if (fb === candidateBase.tipo_caso) continue;
                         const retryRes = await supabaseClient
@@ -1599,7 +1595,7 @@
             btn.disabled = true;
             btn.textContent = 'Creando...';
 
-            const tipoCaso = document.getElementById('new-hc-tipo-caso').value || 'Consulta clínica directa';
+            const tipoCaso = document.getElementById('new-hc-tipo-caso').value || 'individual';
             const codigoInput = document.getElementById('new-hc-codigo').value.trim();
             const codigoGenerado = codigoInput || `HC-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
             const clienteEmail = document.getElementById('new-hc-email').value.trim() || null;

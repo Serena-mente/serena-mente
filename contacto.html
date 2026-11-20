@@ -1,23 +1,91 @@
-<header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#D9F5E8] shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        <a href="index.html" class="flex items-center space-x-3">
-            <!-- Usa tu isotipo real (431256.png) sin fondo negro en fondos claros -->
-            <img src="431256.png" alt="Isotipo Serena Mente" class="w-10 h-10 object-contain mix-blend-lighten">
-            <span class="text-xl font-extrabold tracking-tight text-[#10263D]">
-                Serena <span class="text-[#07976B]">Mente</span>
-            </span>
-        </a>
-        <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-[#10263D]/80">
-            <a href="index.html" class="hover:text-[#07976B] transition">Inicio</a>
-            <a href="quienes-somos.html" class="hover:text-[#07976B] transition">Quiénes Somos</a>
-            <a href="conoce-nuestro-equipo.html" class="hover:text-[#07976B] transition">Conoce Nuestro Equipo</a>
-            <a href="faq.html" class="hover:text-[#07976B] transition">Preguntas Frecuentes</a>
-            <a href="contacto.html" class="text-[#07976B] font-bold">Contacto</a>
-        </nav>
-        <div>
-            <a href="index.html#portal-acceso" class="brand-btn-primary font-medium px-5 py-2.5 rounded-full shadow-md transition text-sm">
-                Acceso Plataforma
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto — Serena Mente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5FAF8;
+            color: #10263D;
+        }
+        .brand-btn-primary {
+            background: linear-gradient(135deg, #078E99 0%, #07976B 100%);
+            color: #ffffff;
+        }
+        .brand-btn-primary:hover {
+            background: linear-gradient(135deg, #10263D 0%, #078E99 100%);
+        }
+    </style>
+</head>
+<body class="bg-[#F5FAF8] text-[#10263D] antialiased">
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#D9F5E8] shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center space-x-3">
+                <img src="431256.png" alt="Isotipo Serena Mente" class="w-10 h-10 object-contain mix-blend-lighten">
+                <span class="text-xl font-extrabold tracking-tight text-[#10263D]">
+                    Serena <span class="text-[#07976B]">Mente</span>
+                </span>
             </a>
+            <nav class="hidden md:flex items-center space-x-6 font-medium text-sm text-[#10263D]/80">
+                <a href="index.html" class="hover:text-[#07976B] transition">Inicio</a>
+                <a href="quienes-somos.html" class="hover:text-[#07976B] transition">Quiénes Somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-[#07976B] transition">Conoce Nuestro Equipo</a>
+                <a href="faq.html" class="hover:text-[#07976B] transition">Preguntas Frecuentes</a>
+                <a href="contacto.html" class="text-[#07976B] font-bold">Contacto</a>
+            </nav>
+            <div>
+                <a href="index.html#portal-acceso" class="brand-btn-primary font-medium px-5 py-2.5 rounded-full shadow-md transition text-sm">
+                    Acceso Plataforma
+                </a>
+            </div>
         </div>
-    </div>
-</header>
+    </header>
+
+    <main class="py-16 md:py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        <div class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm text-center space-y-4 max-w-3xl mx-auto">
+            <span class="inline-block bg-[#D9F5E8] text-[#10263D] font-semibold text-xs uppercase tracking-wider px-4 py-1.5 rounded-full">
+                Estamos para Ayudarte
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-[#10263D]">Contacto</h1>
+            <p class="text-[#10263D]/75 text-base sm:text-lg leading-relaxed">
+                ¿Tienes dudas adicionales o requieres asistencia con tu proceso? Comunícate con nosotros.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-3xl border border-[#D9F5E8] hover:border-[#078E99]/40 text-center space-y-3 shadow-sm transition">
+                <h3 class="font-bold text-[#10263D] text-lg">WhatsApp / Teléfono</h3>
+                <p class="text-sm font-semibold text-[#078E99]">+57 300 000 0000</p>
+                <p class="text-xs text-[#10263D]/65">Atención rápida en horarios hábiles</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-[#D9F5E8] hover:border-[#078E99]/40 text-center space-y-3 shadow-sm transition">
+                <h3 class="font-bold text-[#10263D] text-lg">Correo Electrónico</h3>
+                <p class="text-sm font-semibold text-[#078E99]">contacto@serenamente.co</p>
+                <p class="text-xs text-[#10263D]/65">Soporte y consultas institucionales</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-[#D9F5E8] hover:border-[#078E99]/40 text-center space-y-3 shadow-sm transition">
+                <h3 class="font-bold text-[#10263D] text-lg">Ubicación</h3>
+                <p class="text-sm font-semibold text-[#07976B]">Santa Marta, Magdalena, Colombia</p>
+                <p class="text-xs text-[#10263D]/65">Plataforma 100% Virtual</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-[#10263D] border-t border-[#078E99]/30 text-center py-9 px-4 text-[#D9F5E8]/80 space-y-3">
+        <p class="space-x-4">
+            <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes Somos</a>
+            <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce Nuestro Equipo</a>
+            <a href="faq.html" class="hover:text-white transition text-sm">Preguntas Frecuentes</a>
+            <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
+            <a href="legal.html" class="text-[#07976B] hover:underline text-sm font-medium">Términos y Condiciones</a>
+        </p>
+        <p class="text-xs text-[#D9F5E8]/60 pt-2">&copy; 2026 Serena Mente. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

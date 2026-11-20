@@ -888,7 +888,7 @@
             }
             if (email) {
                 const localPart = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
-                return localPart.replace(/\w/g, c => c.toUpperCase());
+                return localPart.replace(/ \w/g, c => c.toUpperCase());
             }
             return 'Profesional de Psicología';
         }

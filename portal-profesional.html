@@ -31,7 +31,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- Header: Imagotipo en PNG + Acción única de Nueva historia clínica -->
+    <!-- Header único y limpio -->
     <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
             <a href="index.html" class="flex items-center space-x-2.5 focus:outline-none" aria-label="Serena Mente">
@@ -66,7 +66,7 @@
                 <img src="assets/isotipo.png" alt="Serena Mente" class="w-10 h-10 object-contain shrink-0" onerror="this.style.display='none'">
                 <img src="assets/logotipo.png" alt="Serena Mente" class="h-7 w-auto object-contain" onerror="this.style.display='none'">
             </div>
-            <p class="text-sm text-slate-500 mt-1">Inicia sesión con tu cuenta registrada para gestionar agenda, pagos, comprobantes, historia clínica y notas de evolución.</p>
+            <p class="text-sm text-slate-500 mt-1">Inicia sesión para gestionar agenda, comprobantes, historia clínica y notas de evolución.</p>
 
             <form id="pro-login-form" onsubmit="loginPro(event)" class="space-y-4 mt-6">
                 <div>
@@ -87,32 +87,28 @@
             </form>
         </section>
 
-        <!-- Dashboard View (Plano y directo) -->
+        <!-- Dashboard View -->
         <section id="dashboard-section" class="hidden space-y-6">
-            <!-- Barra superior plana -->
+            <!-- Barra superior sin repetir el nombre del profesional -->
             <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <img src="assets/isotipo.png" alt="Serena Mente" class="w-10 h-10 object-contain shrink-0" onerror="this.style.display='none'">
                     <div>
-                        <span id="pro-name-badge" class="text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-200 px-3 py-1 rounded-full"></span>
-                        <p class="text-xs text-slate-500 mt-1">
-                            Profesional: <strong id="pro-full-name-inline" class="text-slate-700">Cargando...</strong>
-                        </p>
+                        <p id="pro-full-name-inline" class="text-sm font-bold text-slate-900">Cargando...</p>
+                        <p id="pro-sub-meta" class="text-xs text-slate-500">Consulta clínica y seguimiento</p>
                     </div>
                 </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <button type="button" onclick="loadHistorias()" class="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
-                        Actualizar
-                    </button>
-                </div>
+                <button type="button" onclick="loadHistorias()" class="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition">
+                    Actualizar
+                </button>
             </div>
 
-            <!-- Agenda (8:00 AM - 6:00 PM) con horario desplegable y acciones separadas: Agendar horario vs Cita directa -->
+            <!-- Agenda (8:00 AM - 6:00 PM) -->
             <div id="agenda-day-panel" class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Agenda (8:00 AM – 6:00 PM)</h2>
-                        <p id="agenda-summary" class="text-xs text-slate-500 mt-0.5">El comprobante de pago es obligatorio para agendar en horario; la cita directa es para registro sin cobro previo.</p>
+                        <p id="agenda-summary" class="text-xs text-slate-500 mt-0.5">Comprobante obligatorio al agendar en horario; cita directa para registro sin cobro previo.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <label for="agenda-date" class="text-xs font-semibold text-slate-700 uppercase">Fecha</label>
@@ -146,585 +142,572 @@
                 <div id="agenda-slots-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5"></div>
             </div>
 
-            <!-- Estructura de Consultantes + Historia Clínica + Pagos y Comprobantes -->
+            <!-- Estructura de Consultantes + Detalle del Caso (Historia Clínica Inicial + Apartado de Evolución) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <!-- Columna izquierda: Consultantes y Pagos/Comprobantes -->
-                <div class="lg:col-span-4 space-y-6">
-                    <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
-                        <div class="flex items-center justify-between gap-2">
-                            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">Consultantes</h2>
-                            <span id="cases-count-badge" class="text-[11px] font-bold text-slate-500">0</span>
-                        </div>
-                        <input type="search" id="search-cases-input" oninput="renderCasesList()"
-                            placeholder="Buscar por nombre, código o correo..."
-                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-serena-600">
-                        <div id="cases-list" class="space-y-2.5 max-h-[55vh] overflow-y-auto pr-1">
-                            <p class="text-sm text-slate-400">Cargando registros...</p>
+                <!-- Columna izquierda: Lista compacta de consultantes -->
+                <div class="lg:col-span-4 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-600">Consultantes</h2>
+                        <div class="flex items-center gap-1.5">
+                            <select id="cases-filter-select" onchange="renderCasesList()"
+                                class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-semibold">
+                                <option value="todos">Todos</option>
+                                <option value="comprobante">Con comprobante</option>
+                                <option value="pendiente">Pago pendiente</option>
+                            </select>
+                            <span id="cases-count-badge" class="text-[11px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">0</span>
                         </div>
                     </div>
-
-                    <!-- Pagos y comprobantes -->
-                    <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
-                        <div class="flex items-center justify-between gap-2">
-                            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Pagos y comprobantes</h2>
-                            <select id="pagos-filter-select" onchange="renderPagosResumen()"
-                                class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs font-semibold">
-                                <option value="todos">Todos</option>
-                                <option value="pendiente">Pendientes</option>
-                                <option value="confirmado">Confirmados</option>
-                                <option value="con-comprobante">Con comprobante</option>
-                            </select>
-                        </div>
-                        <div id="pagos-resumen-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+                    <input type="search" id="search-cases-input" oninput="renderCasesList()"
+                        placeholder="Buscar por nombre, código o correo..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-serena-600">
+                    <div id="cases-list" class="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1">
+                        <p class="text-sm text-slate-400">Cargando registros...</p>
                     </div>
                 </div>
 
-                <!-- Columna derecha: Historia clínica + Comprobantes + Notas de evolución a posteriori -->
-                <div id="editor-container" class="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
-                    <div id="empty-editor" class="text-center py-16 text-slate-400 space-y-3">
+                <!-- Columna derecha: Selector entre Historia Clínica Inicial y Apartado de Evolución -->
+                <div id="editor-container" class="lg:col-span-8 space-y-6">
+                    <div id="empty-editor" class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm text-center py-16 text-slate-400 space-y-3">
                         <p class="text-base font-medium text-slate-600">Selecciona un consultante o crea una historia clínica</p>
-                        <p class="text-sm max-w-md mx-auto">Agenda una cita con comprobante o registra una cita directa para abrir la historia clínica e ir sumando notas de evolución a posteriori.</p>
-                        <div class="flex flex-wrap justify-center gap-2 pt-2">
-                            <button type="button" onclick="openNuevaHistoriaModal('agendar')"
-                                class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm shadow-sm transition">
-                                Agendar horario
-                            </button>
-                            <button type="button" onclick="openNuevaHistoriaModal('directa')"
-                                class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2.5 rounded-xl text-sm shadow-sm transition">
-                                Cita directa
-                            </button>
-                        </div>
+                        <p class="text-sm max-w-md mx-auto">Al registrar la primera historia clínica, podrás abrir su apartado de evolución para agregar notas de sesiones posteriores.</p>
                     </div>
 
                     <div id="active-editor" class="hidden space-y-6">
-                        <!-- Encabezado del caso + Acciones (solo PDF, sin HTML) -->
-                        <div class="flex flex-wrap items-start justify-between gap-4 pb-5 border-b border-slate-100">
-                            <div>
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span id="hc-codigo" class="font-mono text-sm font-extrabold bg-sky-50 text-sky-900 border border-sky-200 px-3 py-1 rounded-lg"></span>
-                                    <span id="hc-tipo-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-800"></span>
-                                    <span id="hc-pago-badge" class="text-xs font-bold px-3 py-1 rounded-full"></span>
-                                    <span id="hc-riesgo-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700"></span>
+                        <!-- Encabezado único del consultante y acciones principales -->
+                        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex flex-wrap items-start justify-between gap-4">
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span id="hc-codigo" class="font-mono text-sm font-extrabold bg-sky-50 text-sky-900 border border-sky-200 px-3 py-1 rounded-lg"></span>
+                                        <span id="hc-tipo-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-800"></span>
+                                        <span id="hc-pago-badge" class="text-xs font-bold px-3 py-1 rounded-full"></span>
+                                        <span id="hc-riesgo-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700"></span>
+                                    </div>
+                                    <h2 id="hc-nombre" class="text-xl font-extrabold text-slate-900 mt-2"></h2>
+                                    <p id="hc-meta" class="text-xs text-slate-500 mt-0.5"></p>
                                 </div>
-                                <h2 id="hc-nombre" class="text-xl font-extrabold text-slate-900 mt-2"></h2>
-                                <p id="hc-meta" class="text-xs text-slate-500 mt-0.5"></p>
+
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <button type="button" onclick="enviarCorreoConsultanteActual()"
+                                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
+                                        ✉ Enviar correo
+                                    </button>
+                                    <button type="button" onclick="imprimirHistoriaPdf()"
+                                        class="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
+                                        Descargar / Imprimir PDF
+                                    </button>
+                                    <button type="button" id="btn-confirmar-pago" onclick="confirmarPagoActual()"
+                                        class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
+                                        ✓ Confirmar Pago
+                                    </button>
+                                    <button type="button" id="btn-eliminar-hc" onclick="eliminarHistoriaActual()"
+                                        class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm transition">
+                                        Eliminar
+                                    </button>
+                                </div>
                             </div>
-                            <div class="flex flex-wrap items-center gap-2">
-                                <button type="button" onclick="enviarCorreoConsultanteActual()"
-                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
-                                    ✉ Enviar correo
+
+                            <!-- Pestañas claras: Historia Clínica Inicial vs Apartado de Evolución -->
+                            <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+                                <button type="button" id="tab-btn-inicial" onclick="switchEditorTab('inicial')"
+                                    class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-serena-600 text-white shadow-xs transition">
+                                    1. Historia clínica inicial
                                 </button>
-                                <button type="button" onclick="imprimirHistoriaPdf()"
-                                    class="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
-                                    Descargar / Imprimir PDF
-                                </button>
-                                <button type="button" id="btn-confirmar-pago" onclick="confirmarPagoActual()"
-                                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
-                                    ✓ Confirmar Pago
-                                </button>
-                                <button type="button" id="btn-eliminar-hc" onclick="eliminarHistoriaActual()"
-                                    class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm transition">
-                                    Eliminar
+                                <button type="button" id="tab-btn-evolucion" onclick="switchEditorTab('evolucion')"
+                                    class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-2">
+                                    <span>2. Apartado de evolución</span>
+                                    <span id="evo-count-badge" class="text-[11px] px-2 py-0.5 rounded-full bg-white text-slate-800 border border-slate-200">0</span>
                                 </button>
                             </div>
+
+                            <div id="editor-feedback" class="hidden text-xs rounded-xl p-3"></div>
                         </div>
 
-                        <div id="editor-feedback" class="hidden text-xs rounded-xl p-3"></div>
-
-                        <!-- Enlace de Ingreso a Google Meet -->
-                        <div class="bg-sky-50/70 border border-sky-200 rounded-2xl p-4 space-y-2">
-                            <div class="flex items-center justify-between gap-2 flex-wrap">
-                                <label for="hc-meet" class="text-xs font-bold uppercase tracking-wider text-sky-900">
-                                    Enlace de Ingreso a Google Meet
-                                </label>
-                                <a id="hc-meet-link" href="#" target="_blank" rel="noopener noreferrer"
-                                    class="hidden text-xs font-semibold text-sky-700 hover:underline">
-                                    Abrir sala de Meet ↗
-                                </a>
-                            </div>
-                            <input type="url" id="hc-meet" placeholder="https://meet.google.com/xxx-xxxx-xxx"
-                                oninput="syncMeetPreview()"
-                                class="w-full bg-white border border-sky-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-sky-600">
-                            <p class="text-[11px] text-sky-800">
-                                Se guarda junto con la historia clínica al pulsar "Guardar Historia Clínica".
-                            </p>
-                        </div>
-
-                        <!-- Comprobante de Pago -->
-                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
-                            <div class="flex items-center justify-between gap-2 flex-wrap">
-                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Comprobante de Pago</h3>
-                                <a id="hc-comprobante-link" href="#" target="_blank" rel="noopener noreferrer"
-                                    class="hidden text-xs font-semibold text-serena-700 hover:underline">
-                                    Abrir en pestaña nueva ↗
-                                </a>
-                            </div>
-                            <p id="hc-comprobante-estado" class="text-xs text-slate-500">Sin comprobante adjunto.</p>
-                            <div id="hc-comprobante-preview" class="hidden pt-1"></div>
-                        </div>
-
-                        <!-- Historia Clínica Inicial -->
-                        <form id="hc-form" onsubmit="guardarHistoriaClinica(event)" class="space-y-6">
-                            <!-- 01. Identificación -->
-                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                        <!-- PESTAÑA 1: HISTORIA CLÍNICA INICIAL -->
+                        <div id="panel-historia-inicial" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                            <!-- Enlace de Google Meet -->
+                            <div class="bg-sky-50/70 border border-sky-200 rounded-2xl p-4 space-y-2">
                                 <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">01. Identificación y contacto del consultante</h3>
-                                    <span class="text-[11px] text-slate-500">Primera entrevista · Puedes usar código o nombre</span>
+                                    <label for="hc-meet" class="text-xs font-bold uppercase tracking-wider text-sky-900">
+                                        Enlace de Ingreso a Google Meet
+                                    </label>
+                                    <a id="hc-meet-link" href="#" target="_blank" rel="noopener noreferrer"
+                                        class="hidden text-xs font-semibold text-sky-700 hover:underline">
+                                        Abrir sala de Meet ↗
+                                    </a>
                                 </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Correo electrónico</label>
-                                        <input type="email" id="hc-cliente-email" placeholder="consultante@correo.com"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Teléfono / WhatsApp</label>
-                                        <input type="text" id="hc-telefono" placeholder="+57 300 000 0000"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Ciudad / Residencia</label>
-                                        <input type="text" id="hc-ciudad" placeholder="Ej. Santa Marta"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Edad</label>
-                                        <input type="text" id="hc-edad" placeholder="Ej. 26 años"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Género</label>
-                                        <select id="hc-genero"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                            <option value="">Seleccionar...</option>
-                                            <option value="Femenino">Femenino</option>
-                                            <option value="Masculino">Masculino</option>
-                                            <option value="No binario">No binario</option>
-                                            <option value="Prefiero no decir">Prefiero no decir</option>
-                                            <option value="Otro">Otro</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Pronombres</label>
-                                        <input type="text" id="hc-pronombres" placeholder="Ej. él/ella/elle"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Horario de sesión</label>
-                                        <select id="hc-hora-sesion"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                            <option value="">Seleccionar horario...</option>
-                                            <option value="08:00 AM">08:00 AM</option>
-                                            <option value="09:00 AM">09:00 AM</option>
-                                            <option value="10:00 AM">10:00 AM</option>
-                                            <option value="11:00 AM">11:00 AM</option>
-                                            <option value="12:00 PM">12:00 PM</option>
-                                            <option value="01:00 PM">01:00 PM</option>
-                                            <option value="02:00 PM">02:00 PM</option>
-                                            <option value="03:00 PM">03:00 PM</option>
-                                            <option value="04:00 PM">04:00 PM</option>
-                                            <option value="05:00 PM">05:00 PM</option>
-                                            <option value="06:00 PM">06:00 PM</option>
-                                            <option value="Cita directa">Cita directa</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo de caso</label>
-                                        <input type="text" id="hc-tipo-caso" placeholder="Ej. individual"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Derivado por</label>
-                                        <input type="text" id="hc-derivado" placeholder="Iniciativa propia, médico, institución..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">N.º de expediente</label>
-                                        <input type="text" id="hc-expediente" placeholder="Ej. EXP-2026-001"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                    </div>
-                                </div>
+                                <input type="url" id="hc-meet" placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                                    oninput="syncMeetPreview()"
+                                    class="w-full bg-white border border-sky-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-sky-600">
                             </div>
 
-                            <!-- 02 y 03. Motivo de consulta e Historia del problema -->
-                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
-                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">02. Motivo de consulta y 03. Historia del problema</h3>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">02. Motivo de consulta (con sus palabras, antes de traducir a lenguaje clínico)</label>
-                                    <textarea id="hc-motivo" rows="2" placeholder="Anota una frase textual del consultante; releerla en sesiones posteriores ayuda a ordenar el caso..."
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">03. Historia del problema (inicio, evolución e intentos previos)</label>
-                                    <textarea id="hc-historia-problema" rows="3" placeholder="Cuándo empezó, cómo ha evolucionado y qué ha intentado hasta ahora..."
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- 04. Antecedentes -->
-                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
-                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">04. Antecedentes</h3>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="ant-psico" class="accent-serena-600 rounded">
-                                        <span>Tratamiento psicológico previo</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="ant-medicacion" class="accent-serena-600 rounded">
-                                        <span>Medicación actual</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="ant-familiares" class="accent-serena-600 rounded">
-                                        <span>Antecedentes familiares</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="ant-psiquiatria" class="accent-serena-600 rounded">
-                                        <span>Seguimiento psiquiátrico</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="ant-hospital" class="accent-serena-600 rounded">
-                                        <span>Hospitalizaciones</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="ant-medica" class="accent-serena-600 rounded">
-                                        <span>Enfermedad médica relevante</span>
-                                    </label>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Detalle de antecedentes</label>
-                                    <textarea id="hc-antecedentes-detalle" rows="2" placeholder="Marca lo que aplique y detalla fármacos, dosis, tiempos o antecedentes relevantes..."
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- 05. Contexto psicosocial -->
-                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
-                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">05. Contexto psicosocial (con quién vive, de qué vive y con quién cuenta)</h3>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Convivencia</label>
-                                        <textarea id="hc-convivencia" rows="2" placeholder="Con quién vive..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Situación laboral o académica</label>
-                                        <textarea id="hc-situacion-lab" rows="2" placeholder="De qué vive, ocupación, estudios..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Red de apoyo y factores de estrés actuales</label>
-                                        <textarea id="hc-red-estres" rows="2" placeholder="Con quién cuenta y estresores actuales..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 06. Exploración del estado mental -->
-                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                            <!-- Comprobante de Pago -->
+                            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
                                 <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">06. Exploración del estado mental</h3>
-                                    <span class="text-[11px] text-slate-500">Lo que observas tú, no lo que te cuenta</span>
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Comprobante de Pago</h3>
+                                    <a id="hc-comprobante-link" href="#" target="_blank" rel="noopener noreferrer"
+                                        class="hidden text-xs font-semibold text-serena-700 hover:underline">
+                                        Abrir en pestaña nueva ↗
+                                    </a>
                                 </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="em-aspecto" class="accent-serena-600 rounded">
-                                        <span>Aspecto cuidado</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="em-orientado" class="accent-serena-600 rounded">
-                                        <span>Orientado</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="em-contacto" class="accent-serena-600 rounded">
-                                        <span>Contacto adecuado</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="em-coherente" class="accent-serena-600 rounded">
-                                        <span>Discurso coherente</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="em-animo-bajo" class="accent-serena-600 rounded">
-                                        <span>Ánimo bajo</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="em-ansiedad" class="accent-serena-600 rounded">
-                                        <span>Ansiedad manifiesta</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="em-enlentecimiento" class="accent-serena-600 rounded">
-                                        <span>Enlentecimiento</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="em-inquietud" class="accent-serena-600 rounded">
-                                        <span>Inquietud psicomotriz</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="em-sueno-alt" class="accent-serena-600 rounded">
-                                        <span>Sueño alterado</span>
-                                    </label>
-                                </div>
-
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Sueño</label>
-                                        <textarea id="hc-sueno" rows="2" placeholder="Calidad, horas, conciliación, despertares..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Vigilia</label>
-                                        <textarea id="hc-vigilia" rows="2" placeholder="Nivel de alerta, energía diurna, fatiga..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Alimentación</label>
-                                        <textarea id="hc-alimentacion" rows="2" placeholder="Apetito, hábitos, cambios recientes..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Discurso</label>
-                                        <textarea id="hc-discurso" rows="2" placeholder="Ritmo, coherencia, tono afectivo, claridad..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                    </div>
-                                </div>
+                                <p id="hc-comprobante-estado" class="text-xs text-slate-500">Sin comprobante adjunto.</p>
+                                <div id="hc-comprobante-preview" class="hidden pt-1"></div>
                             </div>
 
-                            <!-- 07. Valoración de riesgo (0 a 10) + Contacto de apoyo -->
-                            <div class="border border-rose-200 bg-rose-50/30 rounded-2xl p-4 sm:p-5 space-y-4">
-                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-rose-800">07. Valoración de riesgo y red de apoyo</h3>
-                                    <span class="text-[11px] font-semibold text-rose-700">Pregúntalo de forma explícita · Repetible en seguimiento</span>
-                                </div>
-
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="rk-ideacion" class="accent-rose-600 rounded">
-                                        <span>Ideación autolítica</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="rk-plan" class="accent-rose-600 rounded">
-                                        <span>Plan estructurado</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="rk-intentos" class="accent-rose-600 rounded">
-                                        <span>Intentos previos</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="rk-autolesiones" class="accent-rose-600 rounded">
-                                        <span>Autolesiones</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="rk-sustancias" class="accent-rose-600 rounded">
-                                        <span>Consumo de sustancias</span>
-                                    </label>
-                                    <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
-                                        <input type="checkbox" id="rk-terceros" class="accent-rose-600 rounded">
-                                        <span>Riesgo hacia terceros</span>
-                                    </label>
-                                </div>
-
-                                <div class="bg-white border border-rose-200 rounded-2xl p-3.5 space-y-2">
-                                    <div class="flex items-center justify-between text-[11px] font-bold text-slate-600">
-                                        <span>0 · Sin riesgo</span>
-                                        <span>Riesgo estimado en este momento</span>
-                                        <span class="text-rose-800">10 · Riesgo alto</span>
+                            <form id="hc-form" onsubmit="guardarHistoriaClinica(event)" class="space-y-6">
+                                <!-- 01. Identificación -->
+                                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">01. Identificación y contacto del consultante</h3>
+                                        <span class="text-[11px] text-slate-500">Primera entrevista</span>
                                     </div>
-                                    <div class="grid grid-cols-11 gap-1" id="risk-scale-buttons">
-                                        <button type="button" data-score="0" onclick="setRiskScore(0)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-emerald-100">0</button>
-                                        <button type="button" data-score="1" onclick="setRiskScore(1)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-emerald-100">1</button>
-                                        <button type="button" data-score="2" onclick="setRiskScore(2)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-emerald-100">2</button>
-                                        <button type="button" data-score="3" onclick="setRiskScore(3)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-emerald-100">3</button>
-                                        <button type="button" data-score="4" onclick="setRiskScore(4)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-amber-100">4</button>
-                                        <button type="button" data-score="5" onclick="setRiskScore(5)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-amber-100">5</button>
-                                        <button type="button" data-score="6" onclick="setRiskScore(6)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-amber-100">6</button>
-                                        <button type="button" data-score="7" onclick="setRiskScore(7)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-rose-100">7</button>
-                                        <button type="button" data-score="8" onclick="setRiskScore(8)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-rose-100">8</button>
-                                        <button type="button" data-score="9" onclick="setRiskScore(9)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-rose-100">9</button>
-                                        <button type="button" data-score="10" onclick="setRiskScore(10)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-rose-100">10</button>
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Puntaje de riesgo (0–10)</label>
-                                        <input type="number" id="hc-riesgo-puntaje" min="0" max="10" step="1" placeholder="0 a 10"
-                                            oninput="highlightRiskScoreButton()"
-                                            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-rose-500">
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Factores de protección y medidas acordadas</label>
-                                        <textarea id="hc-proteccion" rows="2" placeholder="Factores protectores, plan de seguridad, red de apoyo..."
-                                            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-rose-500"></textarea>
-                                    </div>
-                                </div>
-
-                                <!-- Contacto de apoyo ante gravedad -->
-                                <div class="bg-white border border-rose-200 rounded-2xl p-4 space-y-3">
-                                    <p class="text-xs font-bold uppercase tracking-wider text-rose-900">
-                                        Contacto de apoyo de confianza / emergencia (por gravedad del caso)
-                                    </p>
-                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                        <div>
-                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nombre del contacto</label>
-                                            <input type="text" id="hc-contacto-nombre" placeholder="Nombre completo"
-                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Vínculo / parentesco</label>
-                                            <input type="text" id="hc-contacto-vinculo" placeholder="Madre, pareja, tutor..."
-                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Teléfono / línea de apoyo</label>
-                                            <input type="text" id="hc-contacto-telefono" placeholder="+57 300 000 0000"
-                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Protocolo / nota de contacto en caso de gravedad</label>
-                                        <textarea id="hc-contacto-protocolo" rows="2" placeholder="Cuándo contactar, autorización o ruta de apoyo/emergencia..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 08. Hipótesis de trabajo y 09. Objetivos iniciales y próxima sesión -->
-                            <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
-                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">08. Hipótesis de trabajo y 09. Objetivos iniciales y próxima sesión</h3>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">08. Hipótesis de trabajo (provisional y por escrito para corregir más adelante)</label>
-                                    <textarea id="hc-hipotesis" rows="2" placeholder="Formulación o hipótesis clínica provisional..."
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">09. Objetivos iniciales</label>
-                                        <textarea id="hc-objetivos" rows="2" placeholder="Qué acordáis y qué harás antes de volver a veros..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Frecuencia acordada</label>
-                                        <input type="text" id="hc-frecuencia" placeholder="Ej. Semanal, quincenal..."
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Próxima cita</label>
-                                        <input type="text" id="hc-proxima-cita" placeholder="Fecha/hora o acuerdo previo"
-                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
-                                    </div>
-                                </div>
-                                <div class="pt-1">
-                                    <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2">
-                                        <input type="checkbox" id="hc-consentimiento" class="w-4 h-4 accent-serena-600 rounded">
-                                        <span class="text-xs font-semibold text-slate-700">Consentimiento informado</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Notas libres + Observación clínica -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Observación clínica general</label>
-                                    <textarea id="hc-observacion" rows="3" placeholder="Apreciación clínica, devolución o síntesis del encuentro..."
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Notas libres</label>
-                                    <textarea id="hc-notas-libres" rows="3" placeholder="Anotaciones libres del profesional..."
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-serena-600"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Notas de evolución a posteriori (sesiones posteriores a la entrevista inicial) -->
-                            <div id="evolucion-posteriori-box" class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4 bg-slate-50/40">
-                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <div>
-                                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">Notas de evolución (a posteriori)</h3>
-                                        <p class="text-[11px] text-slate-500 mt-0.5">Para ir agregando en sesiones posteriores tras la historia clínica inicial; si cambia el motivo, anótalo con fecha sin tachar lo anterior.</p>
-                                    </div>
-                                </div>
-
-                                <div id="evoluciones-list" class="space-y-3">
-                                    <p class="text-sm text-slate-400">Aún no hay notas de evolución agregadas a posteriori.</p>
-                                </div>
-
-                                <div class="border-t border-slate-200 pt-4 space-y-4">
-                                    <p class="text-xs font-bold text-slate-700">Agregar nueva nota de evolución posterior</p>
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <div>
-                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Fecha de sesión</label>
-                                            <input type="date" id="evo-fecha"
-                                                class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Correo electrónico</label>
+                                            <input type="email" id="hc-cliente-email" placeholder="consultante@correo.com"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Sesión posterior</label>
-                                            <input type="text" id="evo-sesion" placeholder="Ej. Sesión 2, Sesión 3..."
-                                                class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Teléfono / WhatsApp</label>
+                                            <input type="text" id="hc-telefono" placeholder="+57 300 000 0000"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Revaloración de riesgo (0–10)</label>
-                                            <input type="number" id="evo-riesgo" min="0" max="10" step="1" placeholder="0 a 10"
-                                                class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Ciudad / Residencia</label>
+                                            <input type="text" id="hc-ciudad" placeholder="Ej. Santa Marta"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Edad</label>
+                                            <input type="text" id="hc-edad" placeholder="Ej. 26 años"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Género</label>
+                                            <select id="hc-genero"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                                <option value="">Seleccionar...</option>
+                                                <option value="Femenino">Femenino</option>
+                                                <option value="Masculino">Masculino</option>
+                                                <option value="No binario">No binario</option>
+                                                <option value="Prefiero no decir">Prefiero no decir</option>
+                                                <option value="Otro">Otro</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Pronombres</label>
+                                            <input type="text" id="hc-pronombres" placeholder="Ej. él/ella/elle"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Horario de sesión</label>
+                                            <select id="hc-hora-sesion"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                                <option value="">Seleccionar horario...</option>
+                                                <option value="08:00 AM">08:00 AM</option>
+                                                <option value="09:00 AM">09:00 AM</option>
+                                                <option value="10:00 AM">10:00 AM</option>
+                                                <option value="11:00 AM">11:00 AM</option>
+                                                <option value="12:00 PM">12:00 PM</option>
+                                                <option value="01:00 PM">01:00 PM</option>
+                                                <option value="02:00 PM">02:00 PM</option>
+                                                <option value="03:00 PM">03:00 PM</option>
+                                                <option value="04:00 PM">04:00 PM</option>
+                                                <option value="05:00 PM">05:00 PM</option>
+                                                <option value="06:00 PM">06:00 PM</option>
+                                                <option value="Cita directa">Cita directa</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo de caso</label>
+                                            <input type="text" id="hc-tipo-caso" placeholder="Ej. individual"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Derivado por</label>
+                                            <input type="text" id="hc-derivado" placeholder="Iniciativa propia, médico, institución..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">N.º de expediente</label>
+                                            <input type="text" id="hc-expediente" placeholder="Ej. EXP-2026-001"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                                         </div>
                                     </div>
+                                </div>
 
+                                <!-- 02 y 03. Motivo de consulta e Historia del problema -->
+                                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">02. Motivo de consulta y 03. Historia del problema</h3>
                                     <div>
-                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Evolución de la sesión</label>
-                                        <textarea id="evo-contenido" rows="3" placeholder="Registra qué ocurrió en la sesión posterior, avances, dificultades o intervenciones..."
-                                            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">02. Motivo de consulta (con sus palabras)</label>
+                                        <textarea id="hc-motivo" rows="2" placeholder="Anota una frase textual del consultante..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
                                     </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">03. Historia del problema (inicio, evolución e intentos previos)</label>
+                                        <textarea id="hc-historia-problema" rows="3" placeholder="Cuándo empezó, cómo ha evolucionado y qué ha intentado hasta ahora..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                </div>
 
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- 04. Antecedentes -->
+                                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">04. Antecedentes</h3>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="ant-psico" class="accent-serena-600 rounded">
+                                            <span>Tratamiento psicológico previo</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="ant-medicacion" class="accent-serena-600 rounded">
+                                            <span>Medicación actual</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="ant-familiares" class="accent-serena-600 rounded">
+                                            <span>Antecedentes familiares</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="ant-psiquiatria" class="accent-serena-600 rounded">
+                                            <span>Seguimiento psiquiátrico</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="ant-hospital" class="accent-serena-600 rounded">
+                                            <span>Hospitalizaciones</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="ant-medica" class="accent-serena-600 rounded">
+                                            <span>Enfermedad médica relevante</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Detalle de antecedentes</label>
+                                        <textarea id="hc-antecedentes-detalle" rows="2" placeholder="Fármacos, dosis, tiempos o antecedentes relevantes..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- 05. Contexto psicosocial -->
+                                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">05. Contexto psicosocial</h3>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <div>
-                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Cambio en motivo de consulta (con fecha)</label>
-                                            <input type="text" id="evo-ajuste-motivo" placeholder="Anótalo con fecha sin borrar el motivo inicial..."
-                                                class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Convivencia</label>
+                                            <textarea id="hc-convivencia" rows="2" placeholder="Con quién vive..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Acuerdos / próxima sesión</label>
-                                            <input type="text" id="evo-proxima" placeholder="Acuerdos o próxima cita..."
-                                                class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Situación laboral o académica</label>
+                                            <textarea id="hc-situacion-lab" rows="2" placeholder="Ocupación, estudios..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Red de apoyo y estresores</label>
+                                            <textarea id="hc-red-estres" rows="2" placeholder="Con quién cuenta y estresores actuales..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 06. Exploración del estado mental -->
+                                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">06. Exploración del estado mental</h3>
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="em-aspecto" class="accent-serena-600 rounded">
+                                            <span>Aspecto cuidado</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="em-orientado" class="accent-serena-600 rounded">
+                                            <span>Orientado</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="em-contacto" class="accent-serena-600 rounded">
+                                            <span>Contacto adecuado</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="em-coherente" class="accent-serena-600 rounded">
+                                            <span>Discurso coherente</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="em-animo-bajo" class="accent-serena-600 rounded">
+                                            <span>Ánimo bajo</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="em-ansiedad" class="accent-serena-600 rounded">
+                                            <span>Ansiedad manifiesta</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="em-enlentecimiento" class="accent-serena-600 rounded">
+                                            <span>Enlentecimiento</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="em-inquietud" class="accent-serena-600 rounded">
+                                            <span>Inquietud psicomotriz</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="em-sueno-alt" class="accent-serena-600 rounded">
+                                            <span>Sueño alterado</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Sueño</label>
+                                            <textarea id="hc-sueno" rows="2" placeholder="Calidad, horas, despertares..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Vigilia</label>
+                                            <textarea id="hc-vigilia" rows="2" placeholder="Nivel de alerta, energía diurna..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Alimentación</label>
+                                            <textarea id="hc-alimentacion" rows="2" placeholder="Apetito, hábitos, cambios..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Discurso</label>
+                                            <textarea id="hc-discurso" rows="2" placeholder="Ritmo, coherencia, tono afectivo..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 07. Valoración de riesgo y red de apoyo -->
+                                <div class="border border-rose-200 bg-rose-50/30 rounded-2xl p-4 sm:p-5 space-y-4">
+                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-rose-800">07. Valoración de riesgo y red de apoyo</h3>
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                                        <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="rk-ideacion" class="accent-rose-600 rounded">
+                                            <span>Ideación autolítica</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="rk-plan" class="accent-rose-600 rounded">
+                                            <span>Plan estructurado</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="rk-intentos" class="accent-rose-600 rounded">
+                                            <span>Intentos previos</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="rk-autolesiones" class="accent-rose-600 rounded">
+                                            <span>Autolesiones</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="rk-sustancias" class="accent-rose-600 rounded">
+                                            <span>Consumo de sustancias</span>
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 bg-white border border-rose-200 rounded-xl px-3 py-2 cursor-pointer">
+                                            <input type="checkbox" id="rk-terceros" class="accent-rose-600 rounded">
+                                            <span>Riesgo hacia terceros</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="bg-white border border-rose-200 rounded-2xl p-3.5 space-y-2">
+                                        <div class="flex items-center justify-between text-[11px] font-bold text-slate-600">
+                                            <span>0 · Sin riesgo</span>
+                                            <span>Riesgo estimado</span>
+                                            <span class="text-rose-800">10 · Riesgo alto</span>
+                                        </div>
+                                        <div class="grid grid-cols-11 gap-1" id="risk-scale-buttons">
+                                            <button type="button" data-score="0" onclick="setRiskScore(0)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">0</button>
+                                            <button type="button" data-score="1" onclick="setRiskScore(1)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">1</button>
+                                            <button type="button" data-score="2" onclick="setRiskScore(2)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">2</button>
+                                            <button type="button" data-score="3" onclick="setRiskScore(3)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">3</button>
+                                            <button type="button" data-score="4" onclick="setRiskScore(4)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">4</button>
+                                            <button type="button" data-score="5" onclick="setRiskScore(5)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">5</button>
+                                            <button type="button" data-score="6" onclick="setRiskScore(6)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">6</button>
+                                            <button type="button" data-score="7" onclick="setRiskScore(7)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">7</button>
+                                            <button type="button" data-score="8" onclick="setRiskScore(8)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">8</button>
+                                            <button type="button" data-score="9" onclick="setRiskScore(9)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">9</button>
+                                            <button type="button" data-score="10" onclick="setRiskScore(10)" class="risk-score-btn py-1.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50">10</button>
                                         </div>
                                     </div>
 
-                                    <div class="flex justify-end">
-                                        <button type="button" id="btn-guardar-evo" onclick="agregarNotaEvolucion()"
-                                            class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition">
-                                            + Agregar nota de evolución
-                                        </button>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Puntaje de riesgo (0–10)</label>
+                                            <input type="number" id="hc-riesgo-puntaje" min="0" max="10" step="1" placeholder="0 a 10"
+                                                oninput="highlightRiskScoreButton()"
+                                                class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-rose-500">
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Factores de protección y medidas acordadas</label>
+                                            <textarea id="hc-proteccion" rows="2" placeholder="Factores protectores, plan de seguridad, red de apoyo..."
+                                                class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-rose-500"></textarea>
+                                        </div>
                                     </div>
+
+                                    <div class="bg-white border border-rose-200 rounded-2xl p-4 space-y-3">
+                                        <p class="text-xs font-bold uppercase tracking-wider text-rose-900">
+                                            Contacto de apoyo de confianza / emergencia (por gravedad del caso)
+                                        </p>
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nombre del contacto</label>
+                                                <input type="text" id="hc-contacto-nombre" placeholder="Nombre completo"
+                                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Vínculo / parentesco</label>
+                                                <input type="text" id="hc-contacto-vinculo" placeholder="Madre, pareja, tutor..."
+                                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Teléfono / línea de apoyo</label>
+                                                <input type="text" id="hc-contacto-telefono" placeholder="+57 300 000 0000"
+                                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Protocolo / nota de contacto en caso de gravedad</label>
+                                            <textarea id="hc-contacto-protocolo" rows="2" placeholder="Cuándo contactar, autorización o ruta de apoyo/emergencia..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-500"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 08 y 09. Hipótesis y Objetivos iniciales -->
+                                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">08. Hipótesis de trabajo y 09. Objetivos iniciales</h3>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">08. Hipótesis de trabajo (provisional)</label>
+                                        <textarea id="hc-hipotesis" rows="2" placeholder="Formulación o hipótesis clínica provisional..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">09. Objetivos iniciales</label>
+                                            <textarea id="hc-objetivos" rows="2" placeholder="Acuerdos iniciales..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Frecuencia acordada</label>
+                                            <input type="text" id="hc-frecuencia" placeholder="Ej. Semanal, quincenal..."
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Próxima cita</label>
+                                            <input type="text" id="hc-proxima-cita" placeholder="Fecha/hora o acuerdo previo"
+                                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                        </div>
+                                    </div>
+                                    <div class="pt-1">
+                                        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2">
+                                            <input type="checkbox" id="hc-consentimiento" class="w-4 h-4 accent-serena-600 rounded">
+                                            <span class="text-xs font-semibold text-slate-700">Consentimiento informado</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Observación clínica y notas libres de la entrevista inicial -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Observación clínica inicial</label>
+                                        <textarea id="hc-observacion" rows="3" placeholder="Apreciación clínica o síntesis de la entrevista inicial..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Notas libres iniciales</label>
+                                        <textarea id="hc-notas-libres" rows="3" placeholder="Anotaciones libres del profesional..."
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end gap-3 pt-2">
+                                    <button type="button" onclick="switchEditorTab('evolucion')"
+                                        class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-4 py-3 rounded-xl text-sm transition">
+                                        Ir a apartado de evolución →
+                                    </button>
+                                    <button type="submit" id="btn-guardar-hc"
+                                        class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow transition">
+                                        Guardar Historia Clínica
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- PESTAÑA 2: APARTADO INDEPENDIENTE DE EVOLUCIÓN (A POSTERIORI) -->
+                        <div id="panel-evolucion-aposteriori" class="hidden bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                            <div class="border-b border-slate-100 pb-4">
+                                <h3 class="text-base font-extrabold text-slate-900">Apartado de evolución (sesiones posteriores)</h3>
+                                <p class="text-xs text-slate-500 mt-1">
+                                    Agrega notas de seguimiento después de haber realizado la primera historia clínica. Si el motivo de consulta cambia, anótalo con fecha sin borrar lo anterior.
+                                </p>
+                            </div>
+
+                            <!-- Formulario para agregar una nueva nota de evolución -->
+                            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                <h4 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">Agregar nueva nota de evolución</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Fecha de sesión</label>
+                                        <input type="date" id="evo-fecha"
+                                            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Sesión posterior</label>
+                                        <input type="text" id="evo-sesion" placeholder="Ej. Sesión 2, Sesión 3..."
+                                            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Revaloración de riesgo (0–10)</label>
+                                        <input type="number" id="evo-riesgo" min="0" max="10" step="1" placeholder="0 a 10"
+                                            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Evolución de la sesión</label>
+                                    <textarea id="evo-contenido" rows="3" placeholder="Registra qué ocurrió en la sesión posterior, avances, dificultades o intervenciones..."
+                                        class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600"></textarea>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Cambio en motivo de consulta (con fecha)</label>
+                                        <input type="text" id="evo-ajuste-motivo" placeholder="Anótalo con fecha sin borrar el motivo inicial..."
+                                            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Acuerdos / próxima sesión</label>
+                                        <input type="text" id="evo-proxima" placeholder="Acuerdos o próxima cita..."
+                                            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end">
+                                    <button type="button" id="btn-guardar-evo" onclick="agregarNotaEvolucion()"
+                                        class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition">
+                                        + Agregar nota de evolución
+                                    </button>
                                 </div>
                             </div>
 
-                            <!-- Pautas de uso clínico -->
+                            <!-- Historial de notas de evolución registradas -->
+                            <div class="space-y-3">
+                                <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Historial de notas de evolución</h4>
+                                <div id="evoluciones-list" class="space-y-3">
+                                    <p class="text-sm text-slate-400 bg-slate-50 border border-slate-200 rounded-2xl p-4">Aún no hay notas de evolución agregadas.</p>
+                                </div>
+                            </div>
+
                             <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 text-xs text-emerald-950 space-y-1">
-                                <p class="font-bold uppercase tracking-wider text-emerald-800">Notas de uso clínico</p>
-                                <p>• Ten la plantilla a la vista, pero no la rellenes entera durante la entrevista: marca y completa al terminar.</p>
+                                <p class="font-bold uppercase tracking-wider text-emerald-800">Pautas de seguimiento</p>
                                 <p>• Si el motivo de consulta cambia en una sesión posterior, no lo taches: anótalo con fecha sin borrar lo anterior.</p>
                                 <p>• La valoración de riesgo se repite periódicamente; no se hace una sola vez.</p>
                             </div>
-
-                            <div class="flex flex-wrap justify-end gap-3 pt-2">
-                                <button type="button" onclick="enviarCorreoConsultanteActual()"
-                                    class="bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-semibold px-4 py-3 rounded-xl text-sm transition">
-                                    Enviar correo al consultante
-                                </button>
-                                <button type="button" onclick="imprimirHistoriaPdf()"
-                                    class="bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 font-semibold px-4 py-3 rounded-xl text-sm transition">
-                                    Descargar / Imprimir PDF
-                                </button>
-                                <button type="submit" id="btn-guardar-hc"
-                                    class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow transition">
-                                    Guardar Historia Clínica
-                                </button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Footer: Isotipo y Logotipo en PNG -->
+    <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-5 mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
             <div class="flex items-center space-x-2.5">
@@ -739,7 +722,7 @@
         </div>
     </footer>
 
-    <!-- Modal: Nueva historia clínica (Agendar horario con comprobante obligatorio vs Cita directa) -->
+    <!-- Modal: Nueva historia clínica -->
     <div id="nueva-hc-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-slate-200 shadow-xl space-y-5 my-8 max-h-[90vh] overflow-y-auto">
             <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
@@ -747,7 +730,7 @@
                     <img src="assets/isotipo.png" alt="Serena Mente" class="w-9 h-9 object-contain shrink-0" onerror="this.style.display='none'">
                     <div>
                         <h2 class="text-xl font-extrabold text-slate-900">Nueva historia clínica</h2>
-                        <p id="modal-modo-desc" class="text-xs text-slate-500 mt-0.5">Elige si vas a agendar en horario (comprobante obligatorio) o registrar una cita directa.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Elige agendar horario (comprobante obligatorio) o cita directa.</p>
                     </div>
                 </div>
                 <button type="button" onclick="closeNuevaHistoriaModal()"
@@ -786,12 +769,12 @@
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Correo electrónico del consultante</label>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Correo electrónico</label>
                         <input type="email" id="new-hc-email" placeholder="consultante@correo.com"
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Teléfono / WhatsApp del consultante</label>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Teléfono / WhatsApp</label>
                         <input type="text" id="new-hc-telefono" placeholder="+57 300 000 0000"
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                     </div>
@@ -842,8 +825,8 @@
                     </div>
                 </div>
 
-                <!-- Comprobante de pago (obligatorio para agendar horario) -->
-                <div id="new-hc-comprobante-box" class="bg-emerald-50/60 border border-emerald-200 rounded-2xl p-4 space-y-2">
+                <!-- Comprobante de pago -->
+                <div id="new-hc-comprobante-box" class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-2">
                     <div class="flex items-center justify-between gap-2">
                         <label id="new-hc-comprobante-label" for="new-hc-comprobante" class="block text-xs font-extrabold uppercase text-emerald-900">
                             Comprobante de pago (obligatorio para agendar) *
@@ -861,7 +844,7 @@
                 </div>
 
                 <div class="bg-rose-50/50 border border-rose-200 rounded-2xl p-3.5 space-y-3">
-                    <p class="text-xs font-bold uppercase text-rose-800">Contacto de apoyo ante gravedad (opcional al crear)</p>
+                    <p class="text-xs font-bold uppercase text-rose-800">Contacto de apoyo ante gravedad (opcional)</p>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <input type="text" id="new-hc-contacto-nombre" placeholder="Nombre del contacto"
                             class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm">
@@ -920,6 +903,7 @@
         let historiasList = [];
         let selectedHistoria = null;
         let currentEvoluciones = [];
+        let activeTab = 'inicial';
 
         document.addEventListener('DOMContentLoaded', async () => {
             const agendaDateInput = document.getElementById('agenda-date');
@@ -939,6 +923,26 @@
                 onAuthenticated(session.user);
             }
         });
+
+        function switchEditorTab(tabName) {
+            activeTab = tabName === 'evolucion' ? 'evolucion' : 'inicial';
+            const btnInicial = document.getElementById('tab-btn-inicial');
+            const btnEvolucion = document.getElementById('tab-btn-evolucion');
+            const panelInicial = document.getElementById('panel-historia-inicial');
+            const panelEvolucion = document.getElementById('panel-evolucion-aposteriori');
+
+            if (activeTab === 'evolucion') {
+                btnInicial.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition';
+                btnEvolucion.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-serena-600 text-white shadow-xs transition flex items-center gap-2';
+                panelInicial.classList.add('hidden');
+                panelEvolucion.classList.remove('hidden');
+            } else {
+                btnInicial.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-serena-600 text-white shadow-xs transition';
+                btnEvolucion.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-2';
+                panelInicial.classList.remove('hidden');
+                panelEvolucion.classList.add('hidden');
+            }
+        }
 
         function syncModalComprobanteRequirement() {
             const modalidad = document.getElementById('new-hc-modalidad')?.value || 'agendar';
@@ -1142,12 +1146,12 @@
             const bar = document.getElementById('session-bar');
             bar.classList.remove('hidden');
             bar.classList.add('flex');
-            document.getElementById('pro-email-label').textContent = `${displayLabel} (${user.email || ''})`;
+            document.getElementById('pro-email-label').textContent = user.email || '';
 
-            const badgeEl = document.getElementById('pro-name-badge');
             const inlineEl = document.getElementById('pro-full-name-inline');
-            if (badgeEl) badgeEl.textContent = displayLabel;
+            const subMetaEl = document.getElementById('pro-sub-meta');
             if (inlineEl) inlineEl.textContent = displayLabel;
+            if (subMetaEl) subMetaEl.textContent = user.email || 'Práctica clínica';
 
             loadHistorias();
         }
@@ -1171,7 +1175,6 @@
             historiasList = data || [];
             renderDayAgenda();
             renderCasesList();
-            renderPagosResumen();
 
             if (selectedHistoria) {
                 const refreshed = historiasList.find(h => h.id === selectedHistoria.id);
@@ -1236,7 +1239,7 @@
             }).join('');
 
             const freeCount = AGENDA_SLOTS.length - occupiedCount;
-            summary.textContent = `${chosenDate} · ${occupiedCount} ocupados y ${freeCount} disponibles (8:00 AM – 6:00 PM) · Comprobante obligatorio al agendar`;
+            summary.textContent = `${chosenDate} · ${occupiedCount} ocupados y ${freeCount} disponibles (8:00 AM – 6:00 PM)`;
         }
 
         function isPagoConfirmado(estadoPago) {
@@ -1244,56 +1247,23 @@
             return e.includes('confirm') || e.includes('pagad');
         }
 
-        function renderPagosResumen() {
-            const listEl = document.getElementById('pagos-resumen-list');
-            const filter = document.getElementById('pagos-filter-select')?.value || 'todos';
-            if (!listEl) return;
-
-            const filtered = historiasList.filter(h => {
-                const confirmado = isPagoConfirmado(h.estado_pago);
-                const tieneComprobante = Boolean(h.comprobante_url);
-                if (filter === 'confirmado') return confirmado;
-                if (filter === 'pendiente') return !confirmado;
-                if (filter === 'con-comprobante') return tieneComprobante;
-                return true;
-            });
-
-            if (!filtered.length) {
-                listEl.innerHTML = '<p class="text-xs text-slate-400">Sin registros para este filtro.</p>';
-                return;
-            }
-
-            listEl.innerHTML = filtered.map(h => {
-                const confirmado = isPagoConfirmado(h.estado_pago);
-                return `
-                    <button type="button" onclick="selectHistoria('${escapeHtml(h.id)}')"
-                        class="w-full text-left p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 transition">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-xs font-bold text-slate-900 truncate">${escapeHtml(h.nombre_consultante || 'Consultante')}</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${confirmado ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                                ${escapeHtml(h.estado_pago || 'Pendiente')}
-                            </span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-0.5 truncate">
-                            ${escapeHtml(h.codigo_caso || 'Sin código')} ${h.comprobante_url ? '· Comprobante adjunto' : '· Sin comprobante'}
-                        </p>
-                    </button>
-                `;
-            }).join('');
-        }
-
         function renderCasesList() {
             const listEl = document.getElementById('cases-list');
             const countBadge = document.getElementById('cases-count-badge');
             const query = (document.getElementById('search-cases-input')?.value || '').trim().toLowerCase();
+            const filter = document.getElementById('cases-filter-select')?.value || 'todos';
 
-            const visibleList = query
-                ? historiasList.filter(h =>
+            const visibleList = historiasList.filter(h => {
+                const matchesQuery = !query ||
                     (h.nombre_consultante || '').toLowerCase().includes(query) ||
                     (h.codigo_caso || '').toLowerCase().includes(query) ||
-                    (h.cliente_email || '').toLowerCase().includes(query)
-                )
-                : historiasList;
+                    (h.cliente_email || '').toLowerCase().includes(query);
+
+                if (!matchesQuery) return false;
+                if (filter === 'comprobante') return Boolean(h.comprobante_url);
+                if (filter === 'pendiente') return !isPagoConfirmado(h.estado_pago);
+                return true;
+            });
 
             if (countBadge) countBadge.textContent = String(visibleList.length);
 
@@ -1305,6 +1275,9 @@
             listEl.innerHTML = visibleList.map(h => {
                 const isSelected = selectedHistoria && selectedHistoria.id === h.id;
                 const pagoConfirmado = isPagoConfirmado(h.estado_pago);
+                const extra = parseExtraClinical(h.detalle_clinico_json || h.datos_clinicos_json || h.notas_clinicas_json);
+                const evoCount = Array.isArray(extra.notas_evolucion) ? extra.notas_evolucion.length : 0;
+
                 return `
                     <button type="button" onclick="selectHistoria('${escapeHtml(h.id)}')"
                         class="w-full text-left p-3.5 rounded-2xl border transition ${isSelected ? 'bg-serena-50 border-serena-500 shadow-sm' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'}">
@@ -1316,6 +1289,9 @@
                         </div>
                         <p class="font-bold text-sm text-slate-900 mt-1 truncate">${escapeHtml(h.nombre_consultante || 'Consultante')}</p>
                         <p class="text-xs text-slate-500 truncate">${escapeHtml(h.fecha_sesion || '')} · ${escapeHtml(normalizeTimeSlot(h.hora_sesion) || h.hora_sesion || 'Cita directa')}</p>
+                        <p class="text-[11px] text-slate-500 mt-1">
+                            ${h.comprobante_url ? 'Comprobante adjunto' : 'Sin comprobante'} · ${evoCount} ${evoCount === 1 ? 'evolución' : 'evoluciones'}
+                        </p>
                     </button>
                 `;
             }).join('');
@@ -1346,16 +1322,18 @@
         function renderEvolucionesList(evoluciones) {
             currentEvoluciones = Array.isArray(evoluciones) ? evoluciones : [];
             const listEl = document.getElementById('evoluciones-list');
+            const badgeEl = document.getElementById('evo-count-badge');
+            if (badgeEl) badgeEl.textContent = String(currentEvoluciones.length);
             if (!listEl) return;
 
             if (!currentEvoluciones.length) {
-                listEl.innerHTML = '<p class="text-sm text-slate-400 bg-white border border-slate-200 rounded-2xl p-4">Aún no hay notas de evolución agregadas a posteriori.</p>';
+                listEl.innerHTML = '<p class="text-sm text-slate-400 bg-slate-50 border border-slate-200 rounded-2xl p-4">Aún no hay notas de evolución agregadas.</p>';
                 return;
             }
 
             listEl.innerHTML = currentEvoluciones.map((ev, idx) => `
-                <article class="bg-white border border-slate-200 rounded-2xl p-4 space-y-2">
-                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                <article class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-2">
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="text-xs font-extrabold text-serena-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
                                 ${escapeHtml(ev.sesion || `Sesión posterior #${currentEvoluciones.length - idx}`)}
@@ -1373,7 +1351,7 @@
                         </button>
                     </div>
                     <p class="text-sm text-slate-800 whitespace-pre-line">${escapeHtml(ev.contenido || '')}</p>
-                    ${ev.ajuste_motivo ? `<p class="text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5"><strong>Motivo / ajuste con fecha:</strong> ${escapeHtml(ev.ajuste_motivo)}</p>` : ''}
+                    ${ev.ajuste_motivo ? `<p class="text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5"><strong>Cambio de motivo con fecha:</strong> ${escapeHtml(ev.ajuste_motivo)}</p>` : ''}
                     ${ev.proxima_cita ? `<p class="text-xs text-slate-600"><strong>Próxima cita / acuerdos:</strong> ${escapeHtml(ev.proxima_cita)}</p>` : ''}
                 </article>
             `).join('');
@@ -1515,7 +1493,7 @@
             previewEl.innerHTML = '';
 
             if (!comprobantePath) {
-                statusEl.textContent = 'Este registro no tiene un comprobante asociado.';
+                statusEl.textContent = 'Este registro no tiene un comprobante adjunto.';
                 return;
             }
 
@@ -1567,7 +1545,6 @@
             selectedHistoria.estado_pago = 'Confirmado';
             updatePagoUI('Confirmado');
             renderCasesList();
-            renderPagosResumen();
             showFeedback('Pago confirmado correctamente.', 'success');
         }
 
@@ -1656,6 +1633,7 @@
             } else {
                 selectedHistoria.detalle_clinico_json = JSON.stringify(extraObj);
             }
+            renderCasesList();
             return true;
         }
 
@@ -1671,7 +1649,7 @@
             const proximaCita = document.getElementById('evo-proxima').value.trim();
 
             if (!contenido) {
-                showFeedback('Escribe la nota de evolución posterior antes de agregarla.', 'error');
+                showFeedback('Escribe la evolución de la sesión posterior antes de agregarla.', 'error');
                 return;
             }
 
@@ -1700,7 +1678,7 @@
                 document.getElementById('evo-contenido').value = '';
                 document.getElementById('evo-ajuste-motivo').value = '';
                 document.getElementById('evo-proxima').value = '';
-                showFeedback('Nota de evolución agregada a posteriori en la historia clínica.', 'success');
+                showFeedback('Nota de evolución agregada en el historial posterior.', 'success');
             }
         }
 
@@ -1845,7 +1823,7 @@
             syncMeetPreview();
             renderDayAgenda();
             renderCasesList();
-            showFeedback('Historia clínica guardada correctamente.', 'success');
+            showFeedback('Historia clínica inicial guardada.', 'success');
         }
 
         function openNuevaHistoriaModal(modalidad = 'agendar', prefillDate = '', prefillSlot = '') {
@@ -2043,10 +2021,7 @@
 
             const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(res.subject)}&body=${encodeURIComponent(res.body)}`;
             window.open(mailtoUrl, '_blank');
-            showFeedback(
-                `Correo preparado para ${email} (código ${codigo}). Configura EmailJS en EMAILJS_CONFIG si deseas envío automático directo sin abrir tu gestor de correo.`,
-                'success'
-            );
+            showFeedback(`Correo preparado para ${email} (código ${codigo}).`, 'success');
         }
 
         async function crearHistoriaDirecta(event) {
@@ -2174,6 +2149,7 @@
             selectedHistoria = createdRow;
             await loadHistorias();
             selectHistoria(createdRow.id);
+            switchEditorTab('inicial');
 
             let correoMsg = '';
             if (debeEnviarCorreo && clienteEmail) {
@@ -2249,7 +2225,7 @@
                     <div class="evo-item">
                         <p><strong>${escapeHtml(ev.sesion || 'Evolución')}</strong> (${escapeHtml(ev.fecha || '')})${ev.riesgo !== '' && ev.riesgo !== undefined ? ` · Riesgo: ${escapeHtml(ev.riesgo)}/10` : ''}</p>
                         <p>${escapeHtml(ev.contenido || '')}</p>
-                        ${ev.ajuste_motivo ? `<p><em>Motivo / ajuste con fecha:</em> ${escapeHtml(ev.ajuste_motivo)}</p>` : ''}
+                        ${ev.ajuste_motivo ? `<p><em>Cambio de motivo con fecha:</em> ${escapeHtml(ev.ajuste_motivo)}</p>` : ''}
                         ${ev.proxima_cita ? `<p><em>Próxima cita:</em> ${escapeHtml(ev.proxima_cita)}</p>` : ''}
                     </div>
                 `).join('')
@@ -2334,11 +2310,11 @@
   <p><strong>Frecuencia acordada:</strong> ${escapeHtml(extra.objetivos_seguimiento?.frecuencia || '—')}</p>
   <p><strong>Próxima cita:</strong> ${escapeHtml(extra.objetivos_seguimiento?.proxima_cita || '—')}</p>
 
-  <h2>Observación clínica y notas libres</h2>
+  <h2>Observación clínica y notas libres iniciales</h2>
   <p><strong>Observación clínica:</strong> ${escapeHtml(document.getElementById('hc-observacion').value || '—')}</p>
   <p><strong>Notas libres:</strong> ${escapeHtml(extra.notas_libres || '—')}</p>
 
-  <h2>Notas de evolución</h2>
+  <h2>Notas de evolución (sesiones posteriores)</h2>
   ${evolucionesHtml}
 </body>
 </html>`;
@@ -2402,7 +2378,6 @@
             selectedHistoria = historiasList[0] || null;
             renderDayAgenda();
             renderCasesList();
-            renderPagosResumen();
 
             if (selectedHistoria) {
                 selectHistoria(selectedHistoria.id);

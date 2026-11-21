@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Portal del Consultante — Serena Mente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        serena: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                            light: '#e0f2fe',
+                            blue: '#0284c7',
+                            darkblue: '#0369a1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <span class="text-lg font-bold bg-gradient-to-r from-serena-700 to-serena-blue bg-clip-text text-transparent">
+                    Serena Mente
+                </span>
+                <span class="text-xs font-semibold bg-sky-100 text-sky-800 px-2.5 py-1 rounded-full">
+                    Portal del Consultante
+                </span>
+            </div>
+            <a href="index.html" class="text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white transition">
+                Volver a Inicio
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+
+        <!-- Intro & Access Form -->
+        <section class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+            <div class="space-y-2">
+                <span class="inline-block text-xs font-bold uppercase tracking-wider text-sky-700 bg-sky-50 px-3 py-1 rounded-full">
+                    Acompañamiento Confidencial
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                    Tu espacio de consulta
+                </h1>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Ingresa el correo con el que agendaste y la clave o código de tu cita para revisar los detalles de tu sesión, confirmar tu consentimiento, dejar un mensaje a tu profesional y acceder a Google Meet.
+                </p>
+            </div>
+
+            <form onsubmit="consultarCita(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div>
+                    <label for="consultante-email" class="block text-xs font-semibold text-slate-700 mb-1">
+                        Correo electrónico registrado
+                    </label>
+                    <input
+                        type="email"
+                        id="consultante-email"
+                        required
+                        placeholder="tu.correo@ejemplo.com"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white focus:border-sky-600"
+                    >
+                </div>
+                <div>
+                    <label for="consultante-codigo" class="block text-xs font-semibold text-slate-700 mb-1">
+                        Clave o código de tu cita
+                    </label>
+                    <input
+                        type="text"
+                        id="consultante-codigo"
+                        required
+                        placeholder="Ej. HC-2026-1234"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm uppercase focus:outline-none focus:bg-white focus:border-sky-600"
+                    >
+                </div>
+                <div class="sm:col-span-2 pt-1">
+                    <button
+                        type="submit"
+                        id="btn-consultar-cita"
+                        class="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white font-semibold px-7 py-3 rounded-xl text-sm shadow-md transition"
+                    >
+                        Ver mi sesión
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Session Result Container -->
+        <section id="sesion-resultado" class="hidden space-y-4">
+            <div id="sesion-contenido"></div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-center py-6 px-4 text-xs space-y-2">
+        <p class="space-x-4">
+            <a href="quienes-somos.html" class="hover:text-white transition">Quiénes Somos</a>
+            <a href="conoce-nuestro-equipo.html" class="hover:text-white transition">Conoce Nuestro Equipo</a>
+            <a href="faq.html" class="hover:text-white transition">Preguntas Frecuentes</a>
+            <a href="contacto.html" class="hover:text-white transition">Contacto</a>
+            <a href="legal.html" class="text-emerald-400 hover:underline font-medium">Términos y Condiciones</a>
+        </p>
+        <p class="text-slate-500">&copy; 2026 Serena Mente — Plataforma de Orientación Psicológica Virtual</p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function isSafeUrl(url) {
+            try {
+                const parsed = new URL(url);
+                return parsed.protocol === 'https:';
+            } catch {
+                return false;
+            }
+        }
+
+        function getMeetUrl(item) {
+            return (item?.enlace_meet || item?.link_meet || '').trim();
+        }
+
+        async function guardarActualizacion(recordId, email, codigoCaso) {
+            const msgInput = document.getElementById(`msg-input-${recordId}`);
+            const consentCheck = document.getElementById(`consent-check-${recordId}`);
+            const statusEl = document.getElementById(`msg-status-${recordId}`);
+
+            const mensaje = (msgInput?.value || '').trim();
+            const consentimiento = Boolean(consentCheck?.checked);
+
+            statusEl.textContent = 'Guardando cambios...';
+            statusEl.className = 'text-xs text-slate-500';
+
+            const { data: updatedOk, error } = await supabaseClient.rpc('actualizar_mensaje_consultante', {
+                p_email: email,
+                p_codigo_caso: codigoCaso,
+                p_mensaje: mensaje,
+                p_consentimiento: consentimiento
+            });
+
+            if (error || !updatedOk) {
+                statusEl.textContent = `No se pudo guardar (${error?.message || 'verifica tu correo y clave de cita'}).`;
+                statusEl.className = 'text-xs text-amber-700 font-medium';
+                return;
+            }
+
+            statusEl.textContent = 'Listo: tu consentimiento y mensaje se guardaron para tu profesional.';
+            statusEl.className = 'text-xs text-emerald-700 font-semibold';
+        }
+
+        async function consultarCita(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('consultante-email').value.trim().toLowerCase();
+            const codigoCaso = document.getElementById('consultante-codigo').value.trim().toUpperCase();
+            const resultSection = document.getElementById('sesion-resultado');
+            const contentEl = document.getElementById('sesion-contenido');
+            const btn = document.getElementById('btn-consultar-cita');
+
+            resultSection.classList.remove('hidden');
+            contentEl.innerHTML = `
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 text-sm text-slate-500 shadow-sm">
+                    Buscando los datos de tu sesión...
+                </div>
+            `;
+
+            btn.disabled = true;
+            btn.textContent = 'Consultando...';
+
+            const { data, error } = await supabaseClient.rpc('consultar_cita_consultante', {
+                p_email: email,
+                p_codigo_caso: codigoCaso
+            });
+
+            btn.disabled = false;
+            btn.textContent = 'Ver mi sesión';
+
+            if (error) {
+                contentEl.innerHTML = `
+                    <div class="bg-amber-50 rounded-3xl border border-amber-200 p-6 text-sm text-amber-800 shadow-sm">
+                        No fue posible consultar tu sesión en este momento (${escapeHtml(error.message)}).
+                    </div>
+                `;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                contentEl.innerHTML = `
+                    <div class="bg-amber-50 rounded-3xl border border-amber-200 p-6 text-sm text-amber-800 shadow-sm space-y-1">
+                        <p class="font-bold">No encontramos una sesión con esos datos.</p>
+                        <p class="text-xs">Revisa que el correo electrónico y la clave de tu cita estén bien escritos.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            contentEl.innerHTML = data.map(item => {
+                const safeCode = escapeHtml(item.codigo_caso || codigoCaso);
+                const safeProName = escapeHtml(item.psicologo_nombre || 'Profesional asignado');
+                const safeProEmail = escapeHtml(item.psicologo_email || 'Por confirmar');
+                const safeTipo = escapeHtml(item.tipo_caso || 'Orientación psicológica');
+                const safeFecha = escapeHtml(item.fecha_sesion || 'Por confirmar');
+                const safeHora = item.hora_sesion ? `· ${escapeHtml(item.hora_sesion)}` : '';
+                const safePago = escapeHtml(item.estado_pago || 'Pendiente');
+                const safeMsg = escapeHtml(item.mensaje_consultante || '');
+                const meetUrl = getMeetUrl(item);
+
+                const meetBlock = (meetUrl && isSafeUrl(meetUrl))
+                    ? `
+                        <a
+                            href="${escapeHtml(meetUrl)}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center justify-center w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-md transition"
+                        >
+                            Unirme a la videollamada (Google Meet)
+                        </a>
+                    `
+                    : `
+                        <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                            El enlace de Google Meet se mostrará aquí cuando tu profesional lo habilite.
+                        </p>
+                    `;
+
+                return `
+                    <div class="bg-white rounded-3xl border border-sky-200 p-6 sm:p-8 shadow-sm space-y-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-4">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Cita encontrada</span>
+                                <h2 class="text-xl font-bold text-slate-900 mt-0.5">Referencia: ${safeCode}</h2>
+                            </div>
+                            <span class="inline-block self-start sm:self-auto px-3 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200">
+                                Estado de pago: ${safePago}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                            <p><strong class="text-slate-900">Psicólogo/a:</strong> ${safeProName}</p>
+                            <p><strong class="text-slate-900">Correo profesional:</strong> ${safeProEmail}</p>
+                            <p><strong class="text-slate-900">Modalidad / Tipo:</strong> ${safeTipo}</p>
+                            <p><strong class="text-slate-900">Fecha y hora:</strong> ${safeFecha} ${safeHora}</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Acceso a tu sesión</p>
+                            ${meetBlock}
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100 space-y-4">
+                            <h3 class="text-sm font-bold text-slate-900">Consentimiento y mensaje previo a la sesión</h3>
+
+                            <label class="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    id="consent-check-${escapeHtml(item.id)}"
+                                    ${item.consentimiento_aceptado ? 'checked' : ''}
+                                    class="mt-0.5 rounded border-slate-300 text-sky-600 focus:ring-sky-600"
+                                >
+                                <span>Confirmo que he leído y acepto el consentimiento informado para orientación psicológica virtual en Serena Mente.</span>
+                            </label>
+
+                            <div>
+                                <label for="msg-input-${escapeHtml(item.id)}" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                    Mensaje para tu psicólogo/a (opcional)
+                                </label>
+                                <textarea
+                                    id="msg-input-${escapeHtml(item.id)}"
+                                    rows="3"
+                                    placeholder="Si deseas compartir cómo te sientes hoy o algún punto importante antes de iniciar, escríbelo aquí..."
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-sm focus:outline-none focus:bg-white focus:border-sky-600"
+                                >${safeMsg}</textarea>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                                <button
+                                    type="button"
+                                    onclick="guardarActualizacion('${escapeHtml(item.id)}', '${escapeHtml(email)}', '${safeCode}')"
+                                    class="bg-sky-700 hover:bg-sky-800 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition"
+                                >
+                                    Guardar consentimiento y mensaje
+                                </button>
+                                <p id="msg-status-${escapeHtml(item.id)}" class="text-xs text-slate-500"></p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

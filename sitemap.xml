@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://serena-mente.github.io/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://serena-mente.github.io/quienes-somos.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://serena-mente.github.io/conoce-nuestro-equipo.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://serena-mente.github.io/faq.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://serena-mente.github.io/contacto.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://serena-mente.github.io/legal.html</loc>
+    <priority>0.5</priority>
+  </url>
+</urlset>

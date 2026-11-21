@@ -31,7 +31,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- Header único y limpio -->
+    <!-- Header con acción única: + Nueva historia clínica -->
     <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
             <a href="index.html" class="flex items-center space-x-2.5 focus:outline-none" aria-label="Serena Mente">
@@ -46,7 +46,7 @@
 
             <div id="session-bar" class="hidden items-center space-x-2.5 text-sm">
                 <span id="pro-email-label" class="text-slate-600 font-medium hidden xl:inline"></span>
-                <button type="button" onclick="openNuevaHistoriaModal('agendar')"
+                <button type="button" onclick="openNuevaHistoriaModal()"
                     class="bg-serena-600 hover:bg-serena-700 text-white px-3.5 py-1.5 rounded-xl font-semibold transition shadow-sm">
                     + Nueva historia clínica
                 </button>
@@ -66,7 +66,7 @@
                 <img src="assets/isotipo.png" alt="Serena Mente" class="w-10 h-10 object-contain shrink-0" onerror="this.style.display='none'">
                 <img src="assets/logotipo.png" alt="Serena Mente" class="h-7 w-auto object-contain" onerror="this.style.display='none'">
             </div>
-            <p class="text-sm text-slate-500 mt-1">Inicia sesión para gestionar agenda, comprobantes, historia clínica y notas de evolución.</p>
+            <p class="text-sm text-slate-500 mt-1">Inicia sesión para gestionar agenda, comprobantes, historia clínica y evolución.</p>
 
             <form id="pro-login-form" onsubmit="loginPro(event)" class="space-y-4 mt-6">
                 <div>
@@ -89,7 +89,7 @@
 
         <!-- Dashboard View -->
         <section id="dashboard-section" class="hidden space-y-6">
-            <!-- Barra superior sin repetir el nombre del profesional -->
+            <!-- Barra superior -->
             <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <img src="assets/isotipo.png" alt="Serena Mente" class="w-10 h-10 object-contain shrink-0" onerror="this.style.display='none'">
@@ -108,7 +108,7 @@
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Agenda (8:00 AM – 6:00 PM)</h2>
-                        <p id="agenda-summary" class="text-xs text-slate-500 mt-0.5">Comprobante obligatorio al agendar en horario; cita directa para registro sin cobro previo.</p>
+                        <p id="agenda-summary" class="text-xs text-slate-500 mt-0.5">Comprobante de pago obligatorio en cada registro.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <label for="agenda-date" class="text-xs font-semibold text-slate-700 uppercase">Fecha</label>
@@ -129,22 +129,18 @@
                             <option value="05:00 PM">05:00 PM</option>
                             <option value="06:00 PM">06:00 PM</option>
                         </select>
-                        <button type="button" onclick="openNuevaHistoriaModal('agendar', document.getElementById('agenda-date').value, document.getElementById('agenda-quick-slot').value)"
+                        <button type="button" onclick="openNuevaHistoriaModal(document.getElementById('agenda-date').value, document.getElementById('agenda-quick-slot').value)"
                             class="bg-serena-600 hover:bg-serena-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition shadow-xs">
-                            Agendar horario
-                        </button>
-                        <button type="button" onclick="openNuevaHistoriaModal('directa', document.getElementById('agenda-date').value, document.getElementById('agenda-quick-slot').value)"
-                            class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition shadow-xs">
-                            Cita directa
+                            + Nueva historia clínica
                         </button>
                     </div>
                 </div>
                 <div id="agenda-slots-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5"></div>
             </div>
 
-            <!-- Estructura de Consultantes + Detalle del Caso (Historia Clínica Inicial + Apartado de Evolución) -->
+            <!-- Estructura de Consultantes + Detalle del Caso -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <!-- Columna izquierda: Lista compacta de consultantes -->
+                <!-- Columna izquierda: Consultantes -->
                 <div class="lg:col-span-4 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
                     <div class="flex items-center justify-between gap-2">
                         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-600">Consultantes</h2>
@@ -166,15 +162,15 @@
                     </div>
                 </div>
 
-                <!-- Columna derecha: Selector entre Historia Clínica Inicial y Apartado de Evolución -->
+                <!-- Columna derecha: Historia Clínica Inicial y Apartado de Evolución -->
                 <div id="editor-container" class="lg:col-span-8 space-y-6">
                     <div id="empty-editor" class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm text-center py-16 text-slate-400 space-y-3">
                         <p class="text-base font-medium text-slate-600">Selecciona un consultante o crea una historia clínica</p>
-                        <p class="text-sm max-w-md mx-auto">Al registrar la primera historia clínica, podrás abrir su apartado de evolución para agregar notas de sesiones posteriores.</p>
+                        <p class="text-sm max-w-md mx-auto">Cada registro incluye su comprobante de pago y su apartado de evolución para agregar notas posteriores.</p>
                     </div>
 
                     <div id="active-editor" class="hidden space-y-6">
-                        <!-- Encabezado único del consultante y acciones principales -->
+                        <!-- Encabezado del consultante -->
                         <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
                             <div class="flex flex-wrap items-start justify-between gap-4">
                                 <div>
@@ -208,7 +204,7 @@
                                 </div>
                             </div>
 
-                            <!-- Pestañas claras: Historia Clínica Inicial vs Apartado de Evolución -->
+                            <!-- Pestañas: Historia Clínica Inicial vs Apartado de Evolución -->
                             <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
                                 <button type="button" id="tab-btn-inicial" onclick="switchEditorTab('inicial')"
                                     class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-serena-600 text-white shadow-xs transition">
@@ -316,7 +312,6 @@
                                                 <option value="04:00 PM">04:00 PM</option>
                                                 <option value="05:00 PM">05:00 PM</option>
                                                 <option value="06:00 PM">06:00 PM</option>
-                                                <option value="Cita directa">Cita directa</option>
                                             </select>
                                         </div>
                                         <div>
@@ -630,7 +625,7 @@
                             </form>
                         </div>
 
-                        <!-- PESTAÑA 2: APARTADO INDEPENDIENTE DE EVOLUCIÓN (A POSTERIORI) -->
+                        <!-- PESTAÑA 2: APARTADO INDEPENDIENTE DE EVOLUCIÓN -->
                         <div id="panel-evolucion-aposteriori" class="hidden bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                             <div class="border-b border-slate-100 pb-4">
                                 <h3 class="text-base font-extrabold text-slate-900">Apartado de evolución (sesiones posteriores)</h3>
@@ -639,7 +634,6 @@
                                 </p>
                             </div>
 
-                            <!-- Formulario para agregar una nueva nota de evolución -->
                             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
                                 <h4 class="text-xs font-extrabold uppercase tracking-wider text-serena-700">Agregar nueva nota de evolución</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -687,7 +681,6 @@
                                 </div>
                             </div>
 
-                            <!-- Historial de notas de evolución registradas -->
                             <div class="space-y-3">
                                 <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Historial de notas de evolución</h4>
                                 <div id="evoluciones-list" class="space-y-3">
@@ -722,7 +715,7 @@
         </div>
     </footer>
 
-    <!-- Modal: Nueva historia clínica -->
+    <!-- Modal: Nueva historia clínica (con comprobante obligatorio y solo "Nombre del consultante") -->
     <div id="nueva-hc-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-slate-200 shadow-xl space-y-5 my-8 max-h-[90vh] overflow-y-auto">
             <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
@@ -730,7 +723,7 @@
                     <img src="assets/isotipo.png" alt="Serena Mente" class="w-9 h-9 object-contain shrink-0" onerror="this.style.display='none'">
                     <div>
                         <h2 class="text-xl font-extrabold text-slate-900">Nueva historia clínica</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Elige agendar horario (comprobante obligatorio) o cita directa.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">El comprobante de pago es obligatorio para registrar.</p>
                     </div>
                 </div>
                 <button type="button" onclick="closeNuevaHistoriaModal()"
@@ -742,12 +735,9 @@
             <form id="nueva-hc-form" onsubmit="crearHistoriaDirecta(event)" class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Modalidad de registro *</label>
-                        <select id="new-hc-modalidad" onchange="syncModalComprobanteRequirement()"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-semibold focus:outline-none focus:border-serena-600">
-                            <option value="agendar">Agendar horario (comprobante obligatorio)</option>
-                            <option value="directa">Cita directa (sin agendamiento previo)</option>
-                        </select>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nombre del consultante *</label>
+                        <input type="text" id="new-hc-nombre" required placeholder="Nombre completo del consultante"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tipo de caso *</label>
@@ -757,11 +747,6 @@
                             <option value="organizacional">Organizacional</option>
                             <option value="juridico">Jurídico</option>
                         </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nombre o código del consultante *</label>
-                        <input type="text" id="new-hc-nombre" required placeholder="Nombre completo o código"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-serena-600">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Código de caso (opcional)</label>
@@ -820,20 +805,19 @@
                             <option value="04:00 PM">04:00 PM</option>
                             <option value="05:00 PM">05:00 PM</option>
                             <option value="06:00 PM">06:00 PM</option>
-                            <option value="Cita directa">Cita directa</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Comprobante de pago -->
-                <div id="new-hc-comprobante-box" class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-2">
+                <!-- Comprobante de pago siempre obligatorio -->
+                <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-2">
                     <div class="flex items-center justify-between gap-2">
-                        <label id="new-hc-comprobante-label" for="new-hc-comprobante" class="block text-xs font-extrabold uppercase text-emerald-900">
-                            Comprobante de pago (obligatorio para agendar) *
+                        <label for="new-hc-comprobante" class="block text-xs font-extrabold uppercase text-emerald-900">
+                            Comprobante de pago *
                         </label>
                         <span class="text-[11px] text-emerald-800">Imagen o PDF</span>
                     </div>
-                    <input type="file" id="new-hc-comprobante" accept="image/*,application/pdf"
+                    <input type="file" id="new-hc-comprobante" required accept="image/*,application/pdf"
                         class="w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-100 file:text-emerald-900 hover:file:bg-emerald-200">
                 </div>
 
@@ -916,8 +900,6 @@
                 evoDateInput.value = getTodayIsoDate();
             }
 
-            syncModalComprobanteRequirement();
-
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session?.user) {
                 onAuthenticated(session.user);
@@ -941,25 +923,6 @@
                 btnEvolucion.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-2';
                 panelInicial.classList.remove('hidden');
                 panelEvolucion.classList.add('hidden');
-            }
-        }
-
-        function syncModalComprobanteRequirement() {
-            const modalidad = document.getElementById('new-hc-modalidad')?.value || 'agendar';
-            const label = document.getElementById('new-hc-comprobante-label');
-            const box = document.getElementById('new-hc-comprobante-box');
-            const horaSel = document.getElementById('new-hc-hora');
-            if (!label || !box) return;
-
-            if (modalidad === 'agendar') {
-                label.textContent = 'Comprobante de pago (obligatorio para agendar) *';
-                box.className = 'bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 space-y-2';
-                if (horaSel && horaSel.value === 'Cita directa') {
-                    horaSel.value = '09:00 AM';
-                }
-            } else {
-                label.textContent = 'Comprobante de pago (opcional en cita directa)';
-                box.className = 'bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2';
             }
         }
 
@@ -1227,13 +1190,13 @@
                 }
 
                 return `
-                    <button type="button" onclick="openNuevaHistoriaModal('agendar', '${escapeHtml(chosenDate)}', '${escapeHtml(slot)}')"
+                    <button type="button" onclick="openNuevaHistoriaModal('${escapeHtml(chosenDate)}', '${escapeHtml(slot)}')"
                         class="text-left p-2.5 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 hover:bg-emerald-50/60 hover:border-emerald-300 flex flex-col justify-between transition">
                         <div class="flex items-center justify-between gap-1">
                             <span class="text-xs font-semibold text-slate-500">${escapeHtml(slot)}</span>
                             <span class="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Libre</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1.5">Disponible · Agendar</p>
+                        <p class="text-[11px] text-slate-400 mt-1.5">Disponible</p>
                     </button>
                 `;
             }).join('');
@@ -1288,7 +1251,7 @@
                             </span>
                         </div>
                         <p class="font-bold text-sm text-slate-900 mt-1 truncate">${escapeHtml(h.nombre_consultante || 'Consultante')}</p>
-                        <p class="text-xs text-slate-500 truncate">${escapeHtml(h.fecha_sesion || '')} · ${escapeHtml(normalizeTimeSlot(h.hora_sesion) || h.hora_sesion || 'Cita directa')}</p>
+                        <p class="text-xs text-slate-500 truncate">${escapeHtml(h.fecha_sesion || '')} · ${escapeHtml(normalizeTimeSlot(h.hora_sesion) || h.hora_sesion || '')}</p>
                         <p class="text-[11px] text-slate-500 mt-1">
                             ${h.comprobante_url ? 'Comprobante adjunto' : 'Sin comprobante'} · ${evoCount} ${evoCount === 1 ? 'evolución' : 'evoluciones'}
                         </p>
@@ -1826,22 +1789,16 @@
             showFeedback('Historia clínica inicial guardada.', 'success');
         }
 
-        function openNuevaHistoriaModal(modalidad = 'agendar', prefillDate = '', prefillSlot = '') {
+        function openNuevaHistoriaModal(prefillDate = '', prefillSlot = '') {
             if (!currentUser) return;
             document.getElementById('nueva-hc-error').classList.add('hidden');
-            const modSel = document.getElementById('new-hc-modalidad');
-            if (modSel) modSel.value = modalidad === 'directa' ? 'directa' : 'agendar';
-
             const fechaInput = document.getElementById('new-hc-fecha');
             if (fechaInput) {
                 fechaInput.value = prefillDate || fechaInput.value || getTodayIsoDate();
             }
             if (prefillSlot) {
                 setSelectValueWithOption('new-hc-hora', prefillSlot);
-            } else if (modalidad === 'directa') {
-                setSelectValueWithOption('new-hc-hora', 'Cita directa');
             }
-            syncModalComprobanteRequirement();
             document.getElementById('nueva-hc-modal').classList.remove('hidden');
         }
 
@@ -2028,7 +1985,6 @@
             event.preventDefault();
             if (!currentUser) return;
 
-            const modalidad = document.getElementById('new-hc-modalidad').value || 'agendar';
             const nombre = document.getElementById('new-hc-nombre').value.trim();
             const fileInput = document.getElementById('new-hc-comprobante');
             const receiptFile = fileInput?.files?.[0] || null;
@@ -2036,49 +1992,45 @@
             const btn = document.getElementById('btn-crear-hc-directa');
 
             if (!nombre) {
-                errBox.textContent = 'Ingresa el nombre o código del consultante.';
+                errBox.textContent = 'Ingresa el nombre del consultante.';
                 errBox.classList.remove('hidden');
                 return;
             }
 
-            if (modalidad === 'agendar' && !receiptFile) {
-                errBox.textContent = 'El comprobante de pago es obligatorio para agendar en horario.';
+            if (!receiptFile) {
+                errBox.textContent = 'El comprobante de pago es obligatorio.';
                 errBox.classList.remove('hidden');
                 return;
             }
 
             errBox.classList.add('hidden');
             btn.disabled = true;
-            btn.textContent = receiptFile ? 'Subiendo comprobante...' : 'Guardando...';
+            btn.textContent = 'Subiendo comprobante...';
 
             const tipoCaso = document.getElementById('new-hc-tipo-caso').value || 'individual';
             const codigoInput = document.getElementById('new-hc-codigo').value.trim();
             const codigoGenerado = codigoInput || `HC-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
 
-            let comprobantePath = null;
-            if (receiptFile) {
-                const upRes = await uploadReceiptFile(receiptFile, codigoGenerado);
-                if (upRes.error || !upRes.path) {
-                    btn.disabled = false;
-                    btn.textContent = 'Guardar y abrir historia clínica';
-                    errBox.textContent = `No se pudo subir el comprobante: ${upRes.error?.message || 'Error de almacenamiento'}`;
-                    errBox.classList.remove('hidden');
-                    return;
-                }
-                comprobantePath = upRes.path;
+            const upRes = await uploadReceiptFile(receiptFile, codigoGenerado);
+            if (upRes.error || !upRes.path) {
+                btn.disabled = false;
+                btn.textContent = 'Guardar y abrir historia clínica';
+                errBox.textContent = `No se pudo subir el comprobante: ${upRes.error?.message || 'Error de almacenamiento'}`;
+                errBox.classList.remove('hidden');
+                return;
             }
 
+            const comprobantePath = upRes.path;
             const clienteEmail = document.getElementById('new-hc-email').value.trim() || null;
             const telefono = document.getElementById('new-hc-telefono').value.trim() || null;
             const ciudad = document.getElementById('new-hc-ciudad').value.trim() || null;
             const fechaSesion = document.getElementById('new-hc-fecha').value || getTodayIsoDate();
-            const horaSesion = document.getElementById('new-hc-hora').value || (modalidad === 'directa' ? 'Cita directa' : '09:00 AM');
+            const horaSesion = document.getElementById('new-hc-hora').value || '09:00 AM';
             const debeEnviarCorreo = document.getElementById('new-hc-enviar-correo').checked;
             const nowIso = new Date().toISOString();
 
             const extraInicial = {
                 tipo_caso: tipoCaso,
-                modalidad_registro: modalidad,
                 contacto_consultante: {
                     email: clienteEmail || '',
                     telefono: telefono || '',
@@ -2119,7 +2071,7 @@
                 fecha_sesion: fechaSesion,
                 hora_sesion: horaSesion,
                 comprobante_url: comprobantePath,
-                estado_pago: comprobantePath ? 'Pendiente' : 'Cita directa',
+                estado_pago: 'Pendiente',
                 consentimiento_aceptado: false,
                 observacion_clinica: extraInicial.motivo_consulta || null,
                 actualizado_en: nowIso
@@ -2144,7 +2096,6 @@
             }
 
             document.getElementById('nueva-hc-form').reset();
-            syncModalComprobanteRequirement();
             closeNuevaHistoriaModal();
             selectedHistoria = createdRow;
             await loadHistorias();

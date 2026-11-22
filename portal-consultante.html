@@ -30,6 +30,7 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -330,6 +331,161 @@
             return `${baseText}\n\nReferencia de cita: ${codigoCaso}\nCorreo registrado: ${email}\nFecha y hora de firma: ${new Date().toLocaleString('es-CO')}`;
         }
 
+        async function loadLogoBase64() {
+            if (!isSafeUrl(BRAND_LOGO_URL)) return null;
+            try {
+                const resp = await fetch(BRAND_LOGO_URL);
+                if (!resp.ok) return null;
+                const blob = await resp.blob();
+                return await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = () => resolve(null);
+                    reader.readAsDataURL(blob);
+                });
+            } catch (_) {
+                return null;
+            }
+        }
+
+        async function generarConsentimientoPdfBase64(payload) {
+            const jsPdfCtor = window.jspdf?.jsPDF;
+            if (!jsPdfCtor) return null;
+
+            const doc = new jsPdfCtor({ unit: 'pt', format: 'a4' });
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 42;
+            const contentWidth = pageWidth - margin * 2;
+            let y = 40;
+
+            function ensureSpace(needed) {
+                if (y + needed > pageHeight - 40) {
+                    doc.addPage();
+                    y = 42;
+                }
+            }
+
+            const logoDataUrl = await loadLogoBase64();
+            if (logoDataUrl) {
+                try {
+                    const imgFormat = logoDataUrl.includes('image/jpeg') ? 'JPEG' : 'PNG';
+                    doc.addImage(logoDataUrl, imgFormat, margin, y, 130, 34);
+                } catch (_) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(15);
+                    doc.setTextColor(6, 78, 59);
+                    doc.text('Serena Mente', margin, y + 20);
+                }
+            } else {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(15);
+                doc.setTextColor(6, 78, 59);
+                doc.text('Serena Mente', margin, y + 20);
+            }
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.setTextColor(100, 116, 139);
+            doc.text(`Ref: ${payload.codigoCaso || payload.appointment_reference || ''}`, pageWidth - margin, y + 14, { align: 'right' });
+            doc.text(`Fecha: ${new Date().toLocaleString('es-CO')}`, pageWidth - margin, y + 27, { align: 'right' });
+
+            y += 50;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(13);
+            doc.setTextColor(4, 120, 87);
+            doc.text('CONSENTIMIENTO INFORMADO FIRMADO', margin, y);
+
+            y += 16;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9.5);
+            doc.setTextColor(71, 85, 105);
+            const subtitleLines = doc.splitTextToSize(
+                'Constancia de lectura, aceptación y firma en modalidad de atención psicológica virtual en Serena Mente.',
+                contentWidth
+            );
+            doc.text(subtitleLines, margin, y);
+            y += subtitleLines.length * 13 + 10;
+
+            const infoRows = [
+                ['Referencia de cita', payload.codigoCaso || payload.appointment_reference || 'N/A'],
+                ['Consultante', payload.patient_full_name || 'N/A'],
+                ['Documento', payload.patient_document || 'N/A'],
+                ['Correo consultante', payload.patient_email || 'N/A'],
+                ['Teléfono consultante', payload.patient_phone || 'No indicado'],
+                ['Edad / Fecha nacimiento', `${payload.patient_age || 'N/A'} años (${payload.patient_birthdate || 'N/A'})`],
+                ['Ciudad / Dirección', `${payload.patient_city || 'N/A'} · ${payload.patient_address || 'N/A'}`],
+                ['Contacto de emergencia', `${payload.emergency_contact_name || 'N/A'} (${payload.emergency_contact_relationship || 'N/A'}) · ${payload.emergency_contact_phone || 'N/A'}`],
+                ['Profesional asignado', payload.psychologistName || 'Profesional asignado'],
+                ['Menor de edad', payload.esMenor ? 'Sí' : 'No']
+            ];
+
+            if (payload.esMenor) {
+                infoRows.push(
+                    ['Acudiente / Representante', `${payload.guardianName || 'N/A'} · Doc: ${payload.guardianDoc || 'N/A'}`],
+                    ['Parentesco / Teléfono acudiente', `${payload.guardianRelationship || 'N/A'} · ${payload.guardianPhone || 'N/A'}`]
+                );
+            }
+
+            doc.setFillColor(248, 250, 252);
+            doc.setDrawColor(203, 213, 225);
+            const boxHeight = infoRows.length * 16 + 14;
+            ensureSpace(boxHeight + 12);
+            doc.roundedRect(margin, y, contentWidth, boxHeight, 6, 6, 'FD');
+
+            let rowY = y + 16;
+            infoRows.forEach(([label, val]) => {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(9.5);
+                doc.setTextColor(15, 23, 42);
+                doc.text(`${label}:`, margin + 12, rowY);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(51, 65, 85);
+                const valText = doc.splitTextToSize(String(val), contentWidth - 165)[0] || '';
+                doc.text(valText, margin + 152, rowY);
+                rowY += 16;
+            });
+
+            y += boxHeight + 18;
+
+            const signatures = [
+                { title: 'Firma en trazo del consultante', dataUrl: payload.signature_data_url },
+                ...(payload.esMenor && payload.guardianSignatureUrl
+                    ? [{ title: 'Firma en trazo del padre, madre o representante legal', dataUrl: payload.guardianSignatureUrl }]
+                    : []),
+                ...(payload.esMenor && payload.minorAssentSignatureUrl
+                    ? [{ title: 'Firma / asentimiento del niño, niña o adolescente', dataUrl: payload.minorAssentSignatureUrl }]
+                    : [])
+            ];
+
+            signatures.forEach((sig) => {
+                if (!sig.dataUrl) return;
+                ensureSpace(105);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.setTextColor(15, 23, 42);
+                doc.text(sig.title, margin, y);
+                y += 8;
+
+                doc.setDrawColor(203, 213, 225);
+                doc.setFillColor(255, 255, 255);
+                doc.roundedRect(margin, y, 220, 72, 6, 6, 'FD');
+                try {
+                    doc.addImage(sig.dataUrl, 'PNG', margin + 8, y + 6, 204, 60);
+                } catch (_) {}
+                y += 86;
+            });
+
+            const dataUri = doc.output('datauristring');
+            const base64 = dataUri.split(',')[1] || '';
+            const safeRef = String(payload.codigoCaso || 'CONSENTIMIENTO').replace(/[^a-zA-Z0-9_-]/g, '_');
+            return {
+                base64,
+                filename: `Consentimiento_Informado_${safeRef}.pdf`
+            };
+        }
+
         function buildConsentEmailHtml(payload) {
             const safeLogo = isSafeUrl(BRAND_LOGO_URL)
                 ? `<img src="${escapeHtml(BRAND_LOGO_URL)}" alt="Serena Mente" style="max-height: 44px; width: auto; display: block; border: 0;">`
@@ -359,18 +515,6 @@
                 .map((r) => `<p style="margin: 5px 0;"><strong>${escapeHtml(r.label)}:</strong> ${escapeHtml(r.value)}</p>`)
                 .join('');
 
-            const signatureImg = payload.signature_data_url
-                ? `<div style="margin-top: 14px;"><p style="margin: 0 0 6px 0; font-weight: bold;">Firma en trazo del consultante:</p><img src="${payload.signature_data_url}" alt="Firma consultante" style="max-width: 280px; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; background: #ffffff;"></div>`
-                : '';
-
-            const guardianSigImg = payload.esMenor && payload.guardianSignatureUrl
-                ? `<div style="margin-top: 12px;"><p style="margin: 0 0 6px 0; font-weight: bold;">Firma en trazo del padre, madre o representante legal:</p><img src="${payload.guardianSignatureUrl}" alt="Firma acudiente" style="max-width: 280px; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; background: #ffffff;"></div>`
-                : '';
-
-            const minorSigImg = payload.esMenor && payload.minorAssentSignatureUrl
-                ? `<div style="margin-top: 12px;"><p style="margin: 0 0 6px 0; font-weight: bold;">Firma / asentimiento del niño, niña o adolescente:</p><img src="${payload.minorAssentSignatureUrl}" alt="Firma asentimiento" style="max-width: 280px; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; background: #ffffff;"></div>`
-                : '';
-
             return `
                 <div style="background-color: #f0fdf4; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #0f172a;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border: 1px solid #bbf7d0; border-radius: 16px; overflow: hidden;">
@@ -382,18 +526,15 @@
                         <tr>
                             <td style="padding: 24px; line-height: 1.6; font-size: 14px;">
                                 <h2 style="margin: 0 0 6px 0; font-size: 18px; color: #047857;">Consentimiento informado firmado</h2>
-                                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">Registro de aceptación y firma en el Portal del Consultante de Serena Mente.</p>
+                                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">Adjuntamos el documento en formato PDF con la constancia de aceptación y las firmas registradas en Serena Mente.</p>
                                 <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
                                     ${rowsHtml}
                                 </div>
-                                ${signatureImg}
-                                ${guardianSigImg}
-                                ${minorSigImg}
                             </td>
                         </tr>
                         <tr>
                             <td style="padding: 14px 24px; background-color: #064e3b; color: #dcfce7; font-size: 12px;">
-                                Serena Mente · Constancia de consentimiento informado
+                                Serena Mente · Constancia de consentimiento informado en PDF
                             </td>
                         </tr>
                     </table>
@@ -401,7 +542,7 @@
             `;
         }
 
-        async function postToAppsScript({ toEmail, replyTo, subject, htmlBody }) {
+        async function postToAppsScript({ toEmail, replyTo, subject, htmlBody, pdfBase64, pdfFilename }) {
             if (!toEmail || !APPS_SCRIPT_URL) {
                 return { sent: false, reason: 'Destinatario o URL de Apps Script faltante' };
             }
@@ -417,7 +558,9 @@
                         to_email: toEmail,
                         reply_to: replyTo || '',
                         subject: subject,
-                        html_body: htmlBody
+                        html_body: htmlBody,
+                        pdf_base64: pdfBase64 || '',
+                        pdf_filename: pdfFilename || 'Consentimiento_Informado.pdf'
                     })
                 });
 
@@ -426,12 +569,13 @@
                 try {
                     parsed = JSON.parse(rawText);
                 } catch (_) {
-                    parsed = { raw: rawText };
+                    parsed = {};
                 }
 
-                if (!response.ok || parsed?.ok === false) {
-                    return { sent: false, reason: parsed?.error || parsed?.raw || `HTTP ${response.status}` };
+                if (parsed && parsed.ok === false) {
+                    return { sent: false, reason: parsed.error || 'Error reportado por Apps Script' };
                 }
+
                 return { sent: true };
             } catch (err) {
                 console.error('Error enviando a Google Apps Script:', err);
@@ -442,6 +586,7 @@
         async function enviarConsentimientoPorCorreo(payload) {
             const htmlBody = buildConsentEmailHtml(payload);
             const subject = `Consentimiento informado firmado (${payload.codigoCaso}) — Serena Mente`;
+            const pdfDoc = await generarConsentimientoPdfBase64(payload);
 
             const recipients = [
                 { to: payload.patient_email, replyTo: COORDINACION_EMAIL },
@@ -453,7 +598,9 @@
                     toEmail: r.to,
                     replyTo: r.replyTo,
                     subject: subject,
-                    htmlBody: htmlBody
+                    htmlBody: htmlBody,
+                    pdfBase64: pdfDoc?.base64 || '',
+                    pdfFilename: pdfDoc?.filename || `Consentimiento_Informado_${payload.codigoCaso}.pdf`
                 }))
             );
 
@@ -529,7 +676,7 @@
                 }
             }
 
-            statusEl.textContent = 'Guardando consentimiento informado y enviando constancia...';
+            statusEl.textContent = 'Guardando consentimiento informado y generando PDF...';
             statusEl.className = 'text-xs text-slate-500';
 
             const { error: rpcError } = await supabaseClient.rpc('actualizar_mensaje_consultante', {
@@ -603,16 +750,16 @@
             });
 
             if (insertError) {
-                statusEl.textContent = `Consentimiento marcado y correo ${mailResult.sent ? 'enviado' : 'pendiente'}; revisa la tabla informed_consents (${insertError.message}).`;
+                statusEl.textContent = `Consentimiento marcado y PDF enviado a ${email} y a ${COORDINACION_EMAIL}; revisa la tabla informed_consents (${insertError.message}).`;
                 statusEl.className = 'text-xs text-amber-700 font-medium';
                 return;
             }
 
             if (mailResult.sent) {
-                statusEl.textContent = `Listo: consentimiento guardado y enviado a ${email} y a ${COORDINACION_EMAIL}.`;
+                statusEl.textContent = `Listo: consentimiento guardado y PDF enviado a ${email} y a ${COORDINACION_EMAIL}.`;
                 statusEl.className = 'text-xs text-serena-700 font-semibold';
             } else {
-                statusEl.textContent = 'Consentimiento guardado, pero no se pudo confirmar el envío de correo a ambos destinatarios.';
+                statusEl.textContent = 'Consentimiento guardado, pero hubo un error de red al enviar el correo.';
                 statusEl.className = 'text-xs text-amber-700 font-medium';
             }
         }

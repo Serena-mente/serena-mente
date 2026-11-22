@@ -223,6 +223,9 @@
         }
 
         function toggleConsentimientoPanel(recordId, forceOpen = null) {
+            const citaActual = window.citasCargadas?.[String(recordId)];
+            if (citaActual?.consentimiento_aceptado) return;
+
             const panel = document.getElementById(`consent-panel-${recordId}`);
             const btnText = document.getElementById(`consent-toggle-label-${recordId}`);
             if (!panel) return;
@@ -237,6 +240,22 @@
             if (shouldOpen) {
                 initSignaturePad(recordId);
                 evaluarMinoridad(recordId);
+            }
+        }
+
+        function bloquearConsentimientoYaEnviado(recordId) {
+            const citaActual = window.citasCargadas?.[String(recordId)];
+            if (citaActual) {
+                citaActual.consentimiento_aceptado = true;
+            }
+
+            const formBox = document.getElementById(`consent-form-box-${recordId}`);
+            const completedBox = document.getElementById(`consent-completed-box-${recordId}`);
+            if (formBox) {
+                formBox.classList.add('hidden');
+            }
+            if (completedBox) {
+                completedBox.classList.remove('hidden');
             }
         }
 
@@ -327,7 +346,24 @@
 
         function obtenerTextoIntegroConsentimiento(recordId, codigoCaso, email) {
             const docEl = document.getElementById(`ci-documento-integro-${recordId}`);
-            const baseText = docEl ? docEl.innerText.trim() : '';
+            if (!docEl) {
+                return `Referencia de cita: ${codigoCaso}\nCorreo registrado: ${email}\nFecha y hora de firma: ${new Date().toLocaleString('es-CO')}`;
+            }
+
+            const clone = docEl.cloneNode(true);
+            const inputs = clone.querySelectorAll('input, select, textarea');
+            inputs.forEach((el) => {
+                const liveEl = document.getElementById(el.id);
+                const val = liveEl ? liveEl.value : el.value;
+                const span = document.createElement('span');
+                span.textContent = val ? ` [${val}] ` : ' [No diligenciado] ';
+                el.replaceWith(span);
+            });
+
+            const baseText = clone.innerText
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+
             return `${baseText}\n\nReferencia de cita: ${codigoCaso}\nCorreo registrado: ${email}\nFecha y hora de firma: ${new Date().toLocaleString('es-CO')}`;
         }
 
@@ -449,6 +485,37 @@
 
             y += boxHeight + 18;
 
+            const fullText = String(payload.consent_document_html || '').trim();
+            if (fullText) {
+                ensureSpace(24);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.setTextColor(15, 23, 42);
+                doc.text('DOCUMENTO COMPLETO DEL CONSENTIMIENTO INFORMADO', margin, y);
+                y += 14;
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8.8);
+                doc.setTextColor(51, 65, 85);
+
+                const paragraphs = fullText.split('\n');
+                paragraphs.forEach((para) => {
+                    const trimmed = para.trim();
+                    if (!trimmed) {
+                        y += 6;
+                        return;
+                    }
+                    const lines = doc.splitTextToSize(trimmed, contentWidth);
+                    lines.forEach((line) => {
+                        ensureSpace(12);
+                        doc.text(line, margin, y);
+                        y += 11.5;
+                    });
+                    y += 3;
+                });
+                y += 10;
+            }
+
             const signatures = [
                 { title: 'Firma en trazo del consultante', dataUrl: payload.signature_data_url },
                 ...(payload.esMenor && payload.guardianSignatureUrl
@@ -515,6 +582,10 @@
                 .map((r) => `<p style="margin: 5px 0;"><strong>${escapeHtml(r.label)}:</strong> ${escapeHtml(r.value)}</p>`)
                 .join('');
 
+            const fullTextHtml = payload.consent_document_html
+                ? `<div style="margin-top: 16px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; font-size: 12px; color: #334155; white-space: pre-line;">${escapeHtml(payload.consent_document_html)}</div>`
+                : '';
+
             return `
                 <div style="background-color: #f0fdf4; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #0f172a;">
                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border: 1px solid #bbf7d0; border-radius: 16px; overflow: hidden;">
@@ -526,15 +597,16 @@
                         <tr>
                             <td style="padding: 24px; line-height: 1.6; font-size: 14px;">
                                 <h2 style="margin: 0 0 6px 0; font-size: 18px; color: #047857;">Consentimiento informado firmado</h2>
-                                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">Adjuntamos el documento en formato PDF con la constancia de aceptación y las firmas registradas en Serena Mente.</p>
+                                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">Adjuntamos el documento completo en formato PDF con el consentimiento informado, los datos registrados y las firmas.</p>
                                 <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
                                     ${rowsHtml}
                                 </div>
+                                ${fullTextHtml}
                             </td>
                         </tr>
                         <tr>
                             <td style="padding: 14px 24px; background-color: #064e3b; color: #dcfce7; font-size: 12px;">
-                                Serena Mente · Constancia de consentimiento informado en PDF
+                                Serena Mente · Constancia completa de consentimiento informado en PDF
                             </td>
                         </tr>
                     </table>
@@ -611,8 +683,16 @@
         }
 
         async function guardarConsentimientoFirmado(recordId, email, codigoCaso) {
-            const consentCheck = document.getElementById(`consent-check-${recordId}`);
+            const citaActual = window.citasCargadas?.[String(recordId)] || {};
             const statusEl = document.getElementById(`consent-status-${recordId}`);
+            const saveBtn = document.getElementById(`btn-guardar-consentimiento-${recordId}`);
+
+            if (citaActual.consentimiento_aceptado) {
+                bloquearConsentimientoYaEnviado(recordId);
+                return;
+            }
+
+            const consentCheck = document.getElementById(`consent-check-${recordId}`);
             const consentimiento = Boolean(consentCheck?.checked);
 
             if (!consentimiento) {
@@ -676,6 +756,10 @@
                 }
             }
 
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Enviando...';
+            }
             statusEl.textContent = 'Guardando consentimiento informado y generando PDF...';
             statusEl.className = 'text-xs text-slate-500';
 
@@ -687,12 +771,15 @@
             });
 
             if (rpcError) {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Guardar consentimiento informado';
+                }
                 statusEl.textContent = `No se pudo actualizar el estado del consentimiento (${rpcError.message}).`;
                 statusEl.className = 'text-xs text-amber-700 font-medium';
                 return;
             }
 
-            const citaActual = window.citasCargadas?.[String(recordId)] || {};
             const signatureDataUrl = pad.toDataUrl();
             const guardianSignatureUrl = esMenor ? signaturePads[`acudiente-${recordId}`]?.toDataUrl() : null;
             const minorAssentSignatureUrl = esMenor && signaturePads[`menor-${recordId}`] && !signaturePads[`menor-${recordId}`].isEmpty()
@@ -750,15 +837,22 @@
             });
 
             if (insertError) {
-                statusEl.textContent = `Consentimiento marcado y PDF enviado a ${email} y a ${COORDINACION_EMAIL}; revisa la tabla informed_consents (${insertError.message}).`;
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Guardar consentimiento informado';
+                }
+                statusEl.textContent = `Consentimiento enviado; revisa el registro en base de datos (${insertError.message}).`;
                 statusEl.className = 'text-xs text-amber-700 font-medium';
                 return;
             }
 
             if (mailResult.sent) {
-                statusEl.textContent = `Listo: consentimiento guardado y PDF enviado a ${email} y a ${COORDINACION_EMAIL}.`;
-                statusEl.className = 'text-xs text-serena-700 font-semibold';
+                bloquearConsentimientoYaEnviado(recordId);
             } else {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Guardar consentimiento informado';
+                }
                 statusEl.textContent = 'Consentimiento guardado, pero hubo un error de red al enviar el correo.';
                 statusEl.className = 'text-xs text-amber-700 font-medium';
             }
@@ -829,6 +923,7 @@
                     ? 'bg-emerald-100 text-serena-900 border-emerald-300'
                     : 'bg-emerald-50 text-serena-700 border-emerald-200';
                 const meetUrl = getMeetUrl(item);
+                const yaFirmado = Boolean(item.consentimiento_aceptado);
 
                 const meetBlock = (meetUrl && isSafeUrl(meetUrl))
                     ? `
@@ -877,323 +972,332 @@
                         <div class="pt-4 border-t border-slate-100 space-y-4">
                             <div class="flex flex-wrap items-center justify-between gap-2">
                                 <h3 class="text-sm font-bold text-slate-900">Consentimiento informado</h3>
-                                <button
-                                    type="button"
-                                    onclick="toggleConsentimientoPanel('${safeId}')"
-                                    class="text-xs font-semibold text-serena-700 hover:text-serena-900 underline"
-                                >
-                                    <span id="consent-toggle-label-${safeId}">Desplegar y firmar consentimiento informado</span>
-                                </button>
                             </div>
 
-                            <label class="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3.5">
-                                <input
-                                    type="checkbox"
-                                    id="consent-check-${safeId}"
-                                    ${item.consentimiento_aceptado ? 'checked' : ''}
-                                    onchange="if(this.checked){ toggleConsentimientoPanel('${safeId}', true); }"
-                                    class="mt-0.5 w-4 h-4 accent-serena-600 rounded"
-                                >
-                                <span>Confirmo que he leído y acepto el consentimiento informado para la prestación de servicios de atención psicológica en modalidad virtual en Serena Mente.</span>
-                            </label>
+                            <div id="consent-completed-box-${safeId}" class="${yaFirmado ? '' : 'hidden '}bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-xs sm:text-sm text-serena-900 font-medium">
+                                Consentimiento informado firmado y enviado. Ya no es necesario realizar otro envío para esta cita.
+                            </div>
 
-                            <div id="consent-panel-${safeId}" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-5">
-                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
-                                    <div class="flex items-center gap-3">
-                                        <img src="assets/imagotipo.png" alt="Serena Mente" class="h-9 w-auto object-contain" onerror="this.style.display='none'">
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span id="badge-menor-${safeId}" class="hidden text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full">
-                                            Menor de edad detectado
-                                        </span>
-                                        <span class="text-xs font-semibold text-slate-500">Ref: ${safeCode}</span>
-                                    </div>
+                            <div id="consent-form-box-${safeId}" class="${yaFirmado ? 'hidden ' : ''}space-y-4">
+                                <div class="flex justify-end">
+                                    <button
+                                        type="button"
+                                        onclick="toggleConsentimientoPanel('${safeId}')"
+                                        class="text-xs font-semibold text-serena-700 hover:text-serena-900 underline"
+                                    >
+                                        <span id="consent-toggle-label-${safeId}">Desplegar y firmar consentimiento informado</span>
+                                    </button>
                                 </div>
 
-                                <div id="ci-documento-integro-${safeId}" class="max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl p-5 text-xs text-slate-700 space-y-4 leading-relaxed">
-                                    <div class="space-y-1">
-                                        <p class="font-bold text-sm text-slate-900">CONSENTIMIENTO INFORMADO PARA LA PRESTACIÓN DE SERVICIOS DE ATENCIÓN PSICOLÓGICA EN MODALIDAD VIRTUAL</p>
-                                        <p>Documento de información, aceptación y autorización para la atención psicológica mediante tecnologías de la información y la comunicación.</p>
+                                <label class="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                                    <input
+                                        type="checkbox"
+                                        id="consent-check-${safeId}"
+                                        onchange="if(this.checked){ toggleConsentimientoPanel('${safeId}', true); }"
+                                        class="mt-0.5 w-4 h-4 accent-serena-600 rounded"
+                                    >
+                                    <span>Confirmo que he leído y acepto el consentimiento informado para la prestación de servicios de atención psicológica en modalidad virtual en Serena Mente.</span>
+                                </label>
+
+                                <div id="consent-panel-${safeId}" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-5">
+                                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                                        <div class="flex items-center gap-3">
+                                            <img src="assets/imagotipo.png" alt="Serena Mente" class="h-9 w-auto object-contain" onerror="this.style.display='none'">
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span id="badge-menor-${safeId}" class="hidden text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full">
+                                                Menor de edad detectado
+                                            </span>
+                                            <span class="text-xs font-semibold text-slate-500">Ref: ${safeCode}</span>
+                                        </div>
+                                    </div>
+
+                                    <div id="ci-documento-integro-${safeId}" class="max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl p-5 text-xs text-slate-700 space-y-4 leading-relaxed">
+                                        <div class="space-y-1">
+                                            <p class="font-bold text-sm text-slate-900">CONSENTIMIENTO INFORMADO PARA LA PRESTACIÓN DE SERVICIOS DE ATENCIÓN PSICOLÓGICA EN MODALIDAD VIRTUAL</p>
+                                            <p>Documento de información, aceptación y autorización para la atención psicológica mediante tecnologías de la información y la comunicación.</p>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <p class="font-bold text-slate-900">1. DATOS DE IDENTIFICACIÓN</p>
+                                            <p class="font-semibold text-slate-800">DATOS DEL PROFESIONAL DE PSICOLOGÍA</p>
+                                            <p>Nombre completo: ${safeProName}</p>
+                                            <p>Tipo y número de documento: Por confirmar</p>
+                                            <p>Tarjeta profesional: Por confirmar</p>
+                                            <p>Registro en RETHUS, cuando corresponda: Por confirmar</p>
+                                            <p>Prestador o institución, si aplica: Serena Mente</p>
+                                            <p>Correo electrónico: ${safeProEmail}</p>
+                                            <p>Número de contacto: Por confirmar</p>
+                                            <p>Dirección profesional: Modalidad virtual</p>
+
+                                            <p class="font-semibold text-slate-800 pt-2">DATOS DEL CONSULTANTE</p>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nombre completo *</label>
+                                                    <input type="text" id="ci-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                    <div>
+                                                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipo de documento *</label>
+                                                        <select id="ci-tipo-doc-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs">
+                                                            <option value="">Selecciona</option>
+                                                            <option value="CC">Cédula de Ciudadanía (CC)</option>
+                                                            <option value="TI">Tarjeta de Identidad (TI)</option>
+                                                            <option value="CE">Cédula de Extranjería (CE)</option>
+                                                            <option value="PA">Pasaporte (PA)</option>
+                                                            <option value="RC">Registro Civil (RC)</option>
+                                                            <option value="PPT">PPT</option>
+                                                            <option value="PEP">PEP</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de documento *</label>
+                                                        <input type="text" id="ci-num-doc-${safeId}" placeholder="Número" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Fecha de nacimiento</label>
+                                                    <input type="date" id="ci-fnac-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Edad</label>
+                                                    <input type="number" min="0" max="120" id="ci-edad-${safeId}" oninput="evaluarMinoridad('${safeId}')" placeholder="Edad" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Correo electrónico</label>
+                                                    <input type="text" value="${escapeHtml(email)}" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-600">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de contacto</label>
+                                                    <input type="text" id="ci-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Ciudad y departamento de residencia</label>
+                                                    <input type="text" id="ci-ciudad-${safeId}" placeholder="Ciudad y departamento de residencia" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dirección o ubicación habitual</label>
+                                                    <input type="text" id="ci-dir-${safeId}" placeholder="Dirección o ubicación habitual" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                            </div>
+
+                                            <p class="font-semibold text-slate-800 pt-2">CONTACTO DE EMERGENCIA</p>
+                                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nombre completo</label>
+                                                    <input type="text" id="ci-emerg-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Parentesco o relación</label>
+                                                    <input type="text" id="ci-emerg-parentesco-${safeId}" placeholder="Parentesco o relación" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de contacto</label>
+                                                    <input type="text" id="ci-emerg-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">2. FUNDAMENTO LEGAL Y NORMATIVO</p>
+                                            <p>El presente consentimiento informado se fundamenta en la legislación colombiana vigente, especialmente en las disposiciones que regulan el ejercicio profesional de la psicología, el derecho a la salud, la prestación de servicios mediante tecnologías de la información y la comunicación, la confidencialidad, la protección de datos personales y el manejo de la historia clínica.</p>
+                                            <p>Se consideran, entre otras, las siguientes disposiciones:</p>
+                                            <p>2.1. Constitución Política de Colombia de 1991: Artículo 15 (protege el derecho a la intimidad personal y familiar, al buen nombre y al conocimiento, actualización y rectificación de la información personal) y Artículo 49 (reconoce la salud como un servicio público a cargo del Estado y establece garantías para el acceso a los servicios de promoción, protección y recuperación de la salud).</p>
+                                            <p>2.2. Ley 1090 de 2006: Reglamenta el ejercicio de la profesión de Psicología y establece el Código Deontológico y Bioético del psicólogo en Colombia. Contempla los principios de responsabilidad, competencia profesional, respeto por la dignidad humana, confidencialidad, secreto profesional y deberes frente a los usuarios.</p>
+                                            <p>2.3. Ley 1419 de 2010: Establece los lineamientos para el desarrollo de la telesalud en Colombia y promueve el uso de las tecnologías de la información y la comunicación para mejorar el acceso a los servicios de salud.</p>
+                                            <p>2.4. Ley 1581 de 2012: Establece el régimen general de protección de datos personales y las disposiciones aplicables al tratamiento de datos sensibles, incluyendo información relacionada con la salud y la vida personal de los consultantes.</p>
+                                            <p>2.5. Decreto 1074 de 2015: Reglamenta disposiciones relacionadas con la protección de datos personales y desarrolla aspectos del régimen de autorización, tratamiento y responsabilidad en el manejo de información personal.</p>
+                                            <p>2.6. Ley 1616 de 2013: Establece disposiciones para garantizar el ejercicio pleno del derecho a la salud mental de la población colombiana, mediante acciones de promoción, prevención, diagnóstico, tratamiento y rehabilitación.</p>
+                                            <p>2.7. Ley 1751 de 2015: Regula el derecho fundamental a la salud y establece garantías relacionadas con el acceso oportuno, continuo, integral y de calidad a los servicios de salud.</p>
+                                            <p>2.8. Ley 2460 de 2025: Modifica y fortalece disposiciones de la Ley 1616 de 2013 en materia de salud mental, promoción, prevención, atención integral y garantía de derechos en salud mental.</p>
+                                            <p>2.9. Ley 527 de 1999: Regula el reconocimiento jurídico de los mensajes de datos, el comercio electrónico y las firmas digitales, aspectos relevantes para el uso de medios electrónicos en la documentación y aceptación de procedimientos.</p>
+                                            <p>2.10. Resolución 1995 de 1999: Establece las normas para el manejo, diligenciamiento, conservación, custodia y confidencialidad de la historia clínica.</p>
+                                            <p>2.11. Resolución 3100 de 2019 y sus modificaciones: Establece los procedimientos y condiciones de inscripción de los prestadores de servicios de salud y de habilitación de los servicios de salud en Colombia.</p>
+                                            <p>2.12. Resolución 1644 del 31 de julio de 2026: Establece los requisitos y condiciones para el desarrollo de actividades de telesalud y la prestación de servicios de salud en modalidad de telemedicina en el Sistema General de Seguridad Social en Salud. Esta resolución derogó la Resolución 2654 de 2019 y contempla disposiciones sobre consentimiento informado, privacidad, confidencialidad, protección de datos personales, responsabilidades de las partes y procedimientos ante fallas tecnológicas y emergencias.</p>
+                                            <p>Las anteriores disposiciones se aplicarán de acuerdo con su ámbito de aplicación y con las características del servicio efectivamente prestado.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">3. OBJETO Y DESCRIPCIÓN DEL SERVICIO</p>
+                                            <p>Manifiesto que he recibido información clara, suficiente y comprensible sobre la prestación de servicios de atención psicológica en modalidad virtual, también denominada telepsicología. Esta modalidad consiste en la prestación de servicios de atención psicológica mediante el uso de tecnologías de la información y la comunicación, que permiten la interacción entre el profesional de psicología y el consultante sin necesidad de compartir un mismo espacio físico. La atención psicológica podrá comprender entrevistas psicológicas, evaluación y valoración psicológica, orientación y asesoramiento psicológico, acompañamiento e intervención psicoterapéutica, seguimiento de procesos psicológicos, psicoeducación, intervenciones para la promoción de la salud mental y el bienestar emocional, y remisión a otros profesionales o servicios especializados cuando sea necesario, conforme a las competencias, conocimientos científicos, principios éticos y disposiciones legales vigentes.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">4. CARACTERÍSTICAS Y CONDICIONES DE LA ATENCIÓN VIRTUAL</p>
+                                            <p>Declaro que comprendo y acepto que: (1) las sesiones se realizarán mediante plataformas digitales de videoconferencia o herramientas tecnológicas autorizadas para tal finalidad; (2) la plataforma se informará en la sesión/cita; (3) las sesiones tendrán la duración acordada; (4) la frecuencia será acordada entre el profesional y el consultante; (5) es necesario contar con conexión estable a internet y dispositivo con cámara y micrófono; (6) me comprometo a conectarme puntualmente; (7) procuraré disponer de un espacio privado, tranquilo y libre de interrupciones; (8) informaré al profesional si no puedo garantizar mi privacidad o seguridad; (9) me comprometo a informar mi ubicación cuando resulte necesario para gestionar una eventual emergencia; y (10) el profesional podrá recomendar atención presencial, remisión o valoración especializada cuando considere que la modalidad virtual no es adecuada.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">5. BENEFICIOS Y POSIBLES LIMITACIONES DE LA ATENCIÓN VIRTUAL</p>
+                                            <p>Comprendo que la atención psicológica virtual facilita el acceso, reduce barreras geográficas y desplazamientos, favorece la continuidad del proceso, permite atención desde distintos lugares y facilita el seguimiento. Asimismo, comprendo limitaciones y riesgos como fallas o interrupciones de conexión o plataformas, limitaciones para observar expresiones no verbales, dificultades para intervenir directamente en crisis, riesgos de privacidad y seguridad digital y limitaciones para valoraciones o procedimientos que requieren presencialidad.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">6. CONFIDENCIALIDAD Y SECRETO PROFESIONAL</p>
+                                            <p>La información suministrada durante las sesiones y los registros derivados están protegidos por el deber de confidencialidad y secreto profesional conforme a la Ley 1090 de 2006 y normas aplicables. No será divulgada a terceros sin autorización del consultante, salvo en las excepciones legales aplicables (obligación legal, requerimiento de autoridad competente o riesgo grave para la vida o integridad del consultante o de terceras personas), limitándose a lo estrictamente necesario.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">7. PROTECCIÓN DE DATOS PERSONALES Y MANEJO DE LA HISTORIA CLÍNICA</p>
+                                            <p>Los datos personales y sensibles (salud, antecedentes personales, familiares, emocionales, psicológicos y sociales) se tratan conforme a la Ley 1581 de 2012 y normativa vigente para identificación, prestación y seguimiento del servicio, historia clínica, registro de intervenciones, gestión administrativa, obligaciones legales y remisiones. El consultante puede ejercer sus derechos de conocer, actualizar, rectificar, suprimir cuando proceda y revocar la autorización en los términos legales, sin que ello implique la eliminación de la historia clínica sujeta a custodia legal.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">8. SEGURIDAD Y PRIVACIDAD DE LOS MEDIOS TECNOLÓGICOS</p>
+                                            <p>Reconozco los riesgos inherentes a los medios digitales (acceso no autorizado, interceptación, fallas de plataforma, presencia de terceros en el espacio físico o pérdida temporal de información). Me comprometo a usar dispositivos personales o de confianza, evitar redes públicas cuando sea posible, no compartir enlaces de acceso, proteger mis cuentas y dispositivos e informar si terceros escuchan o participan.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">9. GRABACIÓN Y REGISTRO DE LAS SESIONES</p>
+                                            <p>Las sesiones psicológicas no serán grabadas en audio o video de manera automática. Si existiera una finalidad profesional, académica, investigativa o asistencial que justifique una grabación, deberá informarse previamente y solicitar autorización expresa, específica e independiente, sin que la negativa implique pérdida automática del derecho a la atención. Los registros clínicos se realizarán conforme a la normatividad vigente.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">10. PROCEDIMIENTO ANTE FALLAS TECNOLÓGICAS</p>
+                                            <p>Ante dificultades técnicas: (1) se intentará restablecer la comunicación en la plataforma; (2) si no es posible, se establecerá contacto mediante el número telefónico registrado; (3) si la interrupción impide desarrollar adecuadamente la sesión, se acordará su reprogramación; y (4) si compromete la seguridad o continuidad, el profesional podrá recomendar una modalidad alternativa.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">11. PROCEDIMIENTO ANTE SITUACIONES DE CRISIS O EMERGENCIA</p>
+                                            <p>La atención virtual tiene limitaciones para responder directamente a situaciones que requieren intervención presencial inmediata. Ante crisis emocional grave, riesgo suicida, autolesión, violencia o riesgo grave, el profesional podrá realizar valoración inicial del riesgo dentro de sus competencias, orientar a urgencias, recomendar activar servicios de emergencia, contactar al contacto de emergencia cuando resulte necesario y legalmente procedente y gestionar o recomendar remisión. En emergencia inmediata se debe acudir a urgencias o comunicarse a la línea 123.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">12. DERECHOS DEL CONSULTANTE</p>
+                                            <p>Derecho a atención digna, respetuosa y sin discriminación; información clara y suficiente; conocer objetivos, alcances y limitaciones; formular preguntas y aclaraciones; aceptar o rechazar procedimientos; retirar el consentimiento para la atención virtual en cualquier momento; conocer límites de confidencialidad y tratamiento de datos; solicitar información sobre su historia clínica y ejercer derechos legales; y recibir orientación sobre alternativas de atención.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">13. RESPONSABILIDADES DEL CONSULTANTE</p>
+                                            <p>Suministrar información veraz, completa y suficiente; participar voluntariamente; respetar horarios y acuerdos; informar situaciones que afecten el desarrollo de la atención; procurar un espacio privado y seguro; informar oportunamente crisis o riesgo; mantener actualizados sus datos; no grabar ni divulgar sesiones sin autorización; informar presencia de terceros; y seguir recomendaciones de remisión o atención presencial cuando sean necesarias.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">14. RESPONSABILIDADES DEL PROFESIONAL DE PSICOLOGÍA</p>
+                                            <p>Actuar conforme a los principios éticos, científicos y deontológicos de la psicología; atender dentro de los límites de su competencia; respetar autonomía, dignidad e integridad; informar características y limitaciones de la modalidad virtual; proteger confidencialidad y registros; aplicar medidas razonables de seguridad; documentar actuaciones; identificar situaciones de remisión o presencialidad; orientar ante riesgo o emergencia; y respetar el derecho a aceptar, rechazar o retirar el consentimiento.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">15. CONDICIONES ADMINISTRATIVAS Y ORGANIZACIÓN DE LAS SESIONES</p>
+                                            <p>Las condiciones de programación, duración, honorarios, cancelaciones y reprogramaciones son informadas y acordadas previamente entre el profesional y el consultante, sin limitar sus derechos ni impedir la orientación necesaria ante situaciones de urgencia.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">16. VOLUNTARIEDAD Y REVOCATORIA DEL CONSENTIMIENTO</p>
+                                            <p>La participación es libre, voluntaria y consciente. El consultante puede formular preguntas, manifestar desacuerdos, rechazar intervenciones o retirar su consentimiento para la atención virtual en cualquier momento sin sanciones ni represalias, sin perjuicio de la obligación legal de custodia de la historia clínica y registros previos, pudiendo recibir orientación sobre alternativas presenciales o remisión.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">17. DECLARACIÓN DE COMPRENSIÓN Y ACEPTACIÓN</p>
+                                            <p>Manifiesto que he recibido información clara, suficiente y comprensible sobre la atención psicológica virtual; comprendo objetivos, beneficios, riesgos y limitaciones; he sido informado sobre confidencialidad, secreto profesional y sus límites legales; conozco las condiciones de protección de datos personales y el procedimiento ante fallas tecnológicas y emergencias; he podido formular preguntas resueltas satisfactoriamente; comprendo que puedo retirar mi consentimiento en cualquier momento; y acepto libre y voluntariamente recibir atención psicológica en modalidad virtual.</p>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <p class="font-bold text-slate-900">18. FIRMAS</p>
+                                            <p>Fecha y hora de cita: ${safeFecha} ${safeHora} · Referencia: ${safeCode}</p>
+                                            <p>Profesional: ${safeProName} · Consultante: se registra con los datos y firma en trazo diligenciados a continuación.</p>
+                                        </div>
                                     </div>
 
                                     <div class="space-y-2">
-                                        <p class="font-bold text-slate-900">1. DATOS DE IDENTIFICACIÓN</p>
-                                        <p class="font-semibold text-slate-800">DATOS DEL PROFESIONAL DE PSICOLOGÍA</p>
-                                        <p>Nombre completo: ${safeProName}</p>
-                                        <p>Tipo y número de documento: Por confirmar</p>
-                                        <p>Tarjeta profesional: Por confirmar</p>
-                                        <p>Registro en RETHUS, cuando corresponda: Por confirmar</p>
-                                        <p>Prestador o institución, si aplica: Serena Mente</p>
-                                        <p>Correo electrónico: ${safeProEmail}</p>
-                                        <p>Número de contacto: Por confirmar</p>
-                                        <p>Dirección profesional: Modalidad virtual</p>
-
-                                        <p class="font-semibold text-slate-800 pt-2">DATOS DEL CONSULTANTE</p>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                            <div>
-                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nombre completo *</label>
-                                                <input type="text" id="ci-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                            </div>
-                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                                <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipo de documento *</label>
-                                                    <select id="ci-tipo-doc-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs">
-                                                        <option value="">Selecciona</option>
-                                                        <option value="CC">Cédula de Ciudadanía (CC)</option>
-                                                        <option value="TI">Tarjeta de Identidad (TI)</option>
-                                                        <option value="CE">Cédula de Extranjería (CE)</option>
-                                                        <option value="PA">Pasaporte (PA)</option>
-                                                        <option value="RC">Registro Civil (RC)</option>
-                                                        <option value="PPT">PPT</option>
-                                                        <option value="PEP">PEP</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de documento *</label>
-                                                    <input type="text" id="ci-num-doc-${safeId}" placeholder="Número" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Fecha de nacimiento</label>
-                                                <input type="date" id="ci-fnac-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Edad</label>
-                                                <input type="number" min="0" max="120" id="ci-edad-${safeId}" oninput="evaluarMinoridad('${safeId}')" placeholder="Edad" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Correo electrónico</label>
-                                                <input type="text" value="${escapeHtml(email)}" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-600">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de contacto</label>
-                                                <input type="text" id="ci-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Ciudad y departamento de residencia</label>
-                                                <input type="text" id="ci-ciudad-${safeId}" placeholder="Ciudad y departamento de residencia" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dirección o ubicación habitual</label>
-                                                <input type="text" id="ci-dir-${safeId}" placeholder="Dirección o ubicación habitual" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                            </div>
-                                        </div>
-
-                                        <p class="font-semibold text-slate-800 pt-2">CONTACTO DE EMERGENCIA</p>
-                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                                            <div>
-                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nombre completo</label>
-                                                <input type="text" id="ci-emerg-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Parentesco o relación</label>
-                                                <input type="text" id="ci-emerg-parentesco-${safeId}" placeholder="Parentesco o relación" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de contacto</label>
-                                                <input type="text" id="ci-emerg-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">2. FUNDAMENTO LEGAL Y NORMATIVO</p>
-                                        <p>El presente consentimiento informado se fundamenta en la legislación colombiana vigente, especialmente en las disposiciones que regulan el ejercicio profesional de la psicología, el derecho a la salud, la prestación de servicios mediante tecnologías de la información y la comunicación, la confidencialidad, la protección de datos personales y el manejo de la historia clínica.</p>
-                                        <p>Se consideran, entre otras, las siguientes disposiciones:</p>
-                                        <p>2.1. Constitución Política de Colombia de 1991: Artículo 15 (protege el derecho a la intimidad personal y familiar, al buen nombre y al conocimiento, actualización y rectificación de la información personal) y Artículo 49 (reconoce la salud como un servicio público a cargo del Estado y establece garantías para el acceso a los servicios de promoción, protección y recuperación de la salud).</p>
-                                        <p>2.2. Ley 1090 de 2006: Reglamenta el ejercicio de la profesión de Psicología y establece el Código Deontológico y Bioético del psicólogo en Colombia. Contempla los principios de responsabilidad, competencia profesional, respeto por la dignidad humana, confidencialidad, secreto profesional y deberes frente a los usuarios.</p>
-                                        <p>2.3. Ley 1419 de 2010: Establece los lineamientos para el desarrollo de la telesalud en Colombia y promueve el uso de las tecnologías de la información y la comunicación para mejorar el acceso a los servicios de salud.</p>
-                                        <p>2.4. Ley 1581 de 2012: Establece el régimen general de protección de datos personales y las disposiciones aplicables al tratamiento de datos sensibles, incluyendo información relacionada con la salud y la vida personal de los consultantes.</p>
-                                        <p>2.5. Decreto 1074 de 2015: Reglamenta disposiciones relacionadas con la protección de datos personales y desarrolla aspectos del régimen de autorización, tratamiento y responsabilidad en el manejo de información personal.</p>
-                                        <p>2.6. Ley 1616 de 2013: Establece disposiciones para garantizar el ejercicio pleno del derecho a la salud mental de la población colombiana, mediante acciones de promoción, prevención, diagnóstico, tratamiento y rehabilitación.</p>
-                                        <p>2.7. Ley 1751 de 2015: Regula el derecho fundamental a la salud y establece garantías relacionadas con el acceso oportuno, continuo, integral y de calidad a los servicios de salud.</p>
-                                        <p>2.8. Ley 2460 de 2025: Modifica y fortalece disposiciones de la Ley 1616 de 2013 en materia de salud mental, promoción, prevención, atención integral y garantía de derechos en salud mental.</p>
-                                        <p>2.9. Ley 527 de 1999: Regula el reconocimiento jurídico de los mensajes de datos, el comercio electrónico y las firmas digitales, aspectos relevantes para el uso de medios electrónicos en la documentación y aceptación de procedimientos.</p>
-                                        <p>2.10. Resolución 1995 de 1999: Establece las normas para el manejo, diligenciamiento, conservación, custodia y confidencialidad de la historia clínica.</p>
-                                        <p>2.11. Resolución 3100 de 2019 y sus modificaciones: Establece los procedimientos y condiciones de inscripción de los prestadores de servicios de salud y de habilitación de los servicios de salud en Colombia.</p>
-                                        <p>2.12. Resolución 1644 del 31 de julio de 2026: Establece los requisitos y condiciones para el desarrollo de actividades de telesalud y la prestación de servicios de salud en modalidad de telemedicina en el Sistema General de Seguridad Social en Salud. Esta resolución derogó la Resolución 2654 de 2019 y contempla disposiciones sobre consentimiento informado, privacidad, confidencialidad, protección de datos personales, responsabilidades de las partes y procedimientos ante fallas tecnológicas y emergencias.</p>
-                                        <p>Las anteriores disposiciones se aplicarán de acuerdo con su ámbito de aplicación y con las características del servicio efectivamente prestado.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">3. OBJETO Y DESCRIPCIÓN DEL SERVICIO</p>
-                                        <p>Manifiesto que he recibido información clara, suficiente y comprensible sobre la prestación de servicios de atención psicológica en modalidad virtual, también denominada telepsicología. Esta modalidad consiste en la prestación de servicios de atención psicológica mediante el uso de tecnologías de la información y la comunicación, que permiten la interacción entre el profesional de psicología y el consultante sin necesidad de compartir un mismo espacio físico. La atención psicológica podrá comprender entrevistas psicológicas, evaluación y valoración psicológica, orientación y asesoramiento psicológico, acompañamiento e intervención psicoterapéutica, seguimiento de procesos psicológicos, psicoeducación, intervenciones para la promoción de la salud mental y el bienestar emocional, y remisión a otros profesionales o servicios especializados cuando sea necesario, conforme a las competencias, conocimientos científicos, principios éticos y disposiciones legales vigentes.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">4. CARACTERÍSTICAS Y CONDICIONES DE LA ATENCIÓN VIRTUAL</p>
-                                        <p>Declaro que comprendo y acepto que: (1) las sesiones se realizarán mediante plataformas digitales de videoconferencia o herramientas tecnológicas autorizadas para tal finalidad; (2) la plataforma se informará en la sesión/cita; (3) las sesiones tendrán la duración acordada; (4) la frecuencia será acordada entre el profesional y el consultante; (5) es necesario contar con conexión estable a internet y dispositivo con cámara y micrófono; (6) me comprometo a conectarme puntualmente; (7) procuraré disponer de un espacio privado, tranquilo y libre de interrupciones; (8) informaré al profesional si no puedo garantizar mi privacidad o seguridad; (9) me comprometo a informar mi ubicación cuando resulte necesario para gestionar una eventual emergencia; y (10) el profesional podrá recomendar atención presencial, remisión o valoración especializada cuando considere que la modalidad virtual no es adecuada.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">5. BENEFICIOS Y POSIBLES LIMITACIONES DE LA ATENCIÓN VIRTUAL</p>
-                                        <p>Comprendo que la atención psicológica virtual facilita el acceso, reduce barreras geográficas y desplazamientos, favorece la continuidad del proceso, permite atención desde distintos lugares y facilita el seguimiento. Asimismo, comprendo limitaciones y riesgos como fallas o interrupciones de conexión o plataformas, limitaciones para observar expresiones no verbales, dificultades para intervenir directamente en crisis, riesgos de privacidad y seguridad digital y limitaciones para valoraciones o procedimientos que requieren presencialidad.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">6. CONFIDENCIALIDAD Y SECRETO PROFESIONAL</p>
-                                        <p>La información suministrada durante las sesiones y los registros derivados están protegidos por el deber de confidencialidad y secreto profesional conforme a la Ley 1090 de 2006 y normas aplicables. No será divulgada a terceros sin autorización del consultante, salvo en las excepciones legales aplicables (obligación legal, requerimiento de autoridad competente o riesgo grave para la vida o integridad del consultante o de terceras personas), limitándose a lo estrictamente necesario.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">7. PROTECCIÓN DE DATOS PERSONALES Y MANEJO DE LA HISTORIA CLÍNICA</p>
-                                        <p>Los datos personales y sensibles (salud, antecedentes personales, familiares, emocionales, psicológicos y sociales) se tratan conforme a la Ley 1581 de 2012 y normativa vigente para identificación, prestación y seguimiento del servicio, historia clínica, registro de intervenciones, gestión administrativa, obligaciones legales y remisiones. El consultante puede ejercer sus derechos de conocer, actualizar, rectificar, suprimir cuando proceda y revocar la autorización en los términos legales, sin que ello implique la eliminación de la historia clínica sujeta a custodia legal.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">8. SEGURIDAD Y PRIVACIDAD DE LOS MEDIOS TECNOLÓGICOS</p>
-                                        <p>Reconozco los riesgos inherentes a los medios digitales (acceso no autorizado, interceptación, fallas de plataforma, presencia de terceros en el espacio físico o pérdida temporal de información). Me comprometo a usar dispositivos personales o de confianza, evitar redes públicas cuando sea posible, no compartir enlaces de acceso, proteger mis cuentas y dispositivos e informar si terceros escuchan o participan.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">9. GRABACIÓN Y REGISTRO DE LAS SESIONES</p>
-                                        <p>Las sesiones psicológicas no serán grabadas en audio o video de manera automática. Si existiera una finalidad profesional, académica, investigativa o asistencial que justifique una grabación, deberá informarse previamente y solicitar autorización expresa, específica e independiente, sin que la negativa implique pérdida automática del derecho a la atención. Los registros clínicos se realizarán conforme a la normatividad vigente.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">10. PROCEDIMIENTO ANTE FALLAS TECNOLÓGICAS</p>
-                                        <p>Ante dificultades técnicas: (1) se intentará restablecer la comunicación en la plataforma; (2) si no es posible, se establecerá contacto mediante el número telefónico registrado; (3) si la interrupción impide desarrollar adecuadamente la sesión, se acordará su reprogramación; y (4) si compromete la seguridad o continuidad, el profesional podrá recomendar una modalidad alternativa.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">11. PROCEDIMIENTO ANTE SITUACIONES DE CRISIS O EMERGENCIA</p>
-                                        <p>La atención virtual tiene limitaciones para responder directamente a situaciones que requieren intervención presencial inmediata. Ante crisis emocional grave, riesgo suicida, autolesión, violencia o riesgo grave, el profesional podrá realizar valoración inicial del riesgo dentro de sus competencias, orientar a urgencias, recomendar activar servicios de emergencia, contactar al contacto de emergencia cuando resulte necesario y legalmente procedente y gestionar o recomendar remisión. En emergencia inmediata se debe acudir a urgencias o comunicarse a la línea 123.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">12. DERECHOS DEL CONSULTANTE</p>
-                                        <p>Derecho a atención digna, respetuosa y sin discriminación; información clara y suficiente; conocer objetivos, alcances y limitaciones; formular preguntas y aclaraciones; aceptar o rechazar procedimientos; retirar el consentimiento para la atención virtual en cualquier momento; conocer límites de confidencialidad y tratamiento de datos; solicitar información sobre su historia clínica y ejercer derechos legales; y recibir orientación sobre alternativas de atención.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">13. RESPONSABILIDADES DEL CONSULTANTE</p>
-                                        <p>Suministrar información veraz, completa y suficiente; participar voluntariamente; respetar horarios y acuerdos; informar situaciones que afecten el desarrollo de la atención; procurar un espacio privado y seguro; informar oportunamente crisis o riesgo; mantener actualizados sus datos; no grabar ni divulgar sesiones sin autorización; informar presencia de terceros; y seguir recomendaciones de remisión o atención presencial cuando sean necesarias.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">14. RESPONSABILIDADES DEL PROFESIONAL DE PSICOLOGÍA</p>
-                                        <p>Actuar conforme a los principios éticos, científicos y deontológicos de la psicología; atender dentro de los límites de su competencia; respetar autonomía, dignidad e integridad; informar características y limitaciones de la modalidad virtual; proteger confidencialidad y registros; aplicar medidas razonables de seguridad; documentar actuaciones; identificar situaciones de remisión o presencialidad; orientar ante riesgo o emergencia; y respetar el derecho a aceptar, rechazar o retirar el consentimiento.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">15. CONDICIONES ADMINISTRATIVAS Y ORGANIZACIÓN DE LAS SESIONES</p>
-                                        <p>Las condiciones de programación, duración, honorarios, cancelaciones y reprogramaciones son informadas y acordadas previamente entre el profesional y el consultante, sin limitar sus derechos ni impedir la orientación necesaria ante situaciones de urgencia.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">16. VOLUNTARIEDAD Y REVOCATORIA DEL CONSENTIMIENTO</p>
-                                        <p>La participación es libre, voluntaria y consciente. El consultante puede formular preguntas, manifestar desacuerdos, rechazar intervenciones o retirar su consentimiento para la atención virtual en cualquier momento sin sanciones ni represalias, sin perjuicio de la obligación legal de custodia de la historia clínica y registros previos, pudiendo recibir orientación sobre alternativas presenciales o remisión.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">17. DECLARACIÓN DE COMPRENSIÓN Y ACEPTACIÓN</p>
-                                        <p>Manifiesto que he recibido información clara, suficiente y comprensible sobre la atención psicológica virtual; comprendo objetivos, beneficios, riesgos y limitaciones; he sido informado sobre confidencialidad, secreto profesional y sus límites legales; conozco las condiciones de protección de datos personales y el procedimiento ante fallas tecnológicas y emergencias; he podido formular preguntas resueltas satisfactoriamente; comprendo que puedo retirar mi consentimiento en cualquier momento; y acepto libre y voluntariamente recibir atención psicológica en modalidad virtual.</p>
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <p class="font-bold text-slate-900">18. FIRMAS</p>
-                                        <p>Fecha y hora de cita: ${safeFecha} ${safeHora} · Referencia: ${safeCode}</p>
-                                        <p>Profesional: ${safeProName} · Consultante: se registra con los datos y firma en trazo diligenciados a continuación.</p>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <div class="flex items-center justify-between">
-                                        <label class="block text-xs font-semibold text-slate-700">
-                                            Firma en trazo del consultante *
-                                        </label>
-                                        <button
-                                            type="button"
-                                            onclick="limpiarFirma('${safeId}')"
-                                            class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
-                                        >
-                                            Limpiar firma
-                                        </button>
-                                    </div>
-                                    <canvas
-                                        id="firma-canvas-${safeId}"
-                                        class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
-                                    ></canvas>
-                                </div>
-
-                                <div id="bloque-menores-${safeId}" class="hidden bg-amber-50/70 border border-amber-200 rounded-2xl p-4 sm:p-5 space-y-4">
-                                    <div class="space-y-1">
-                                        <p class="text-xs font-bold uppercase tracking-wider text-amber-900">
-                                            Atención a niños, niñas y adolescentes (NNA)
-                                        </p>
-                                        <p class="text-xs text-slate-700 leading-relaxed">
-                                            Al identificarse una persona menor de 18 años, se requiere la autorización de su padre, madre o representante legal, además del espacio de participación/asentimiento del menor de acuerdo con su edad y desarrollo.
-                                        </p>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                                        <div>
-                                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Nombre completo padre, madre o representante legal *</label>
-                                            <input type="text" id="ci-acudiente-nombre-${safeId}" placeholder="Nombre del acudiente" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                        </div>
-                                        <div>
-                                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Documento del padre, madre o representante legal *</label>
-                                            <input type="text" id="ci-acudiente-doc-${safeId}" placeholder="Tipo y número de documento" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                        </div>
-                                        <div>
-                                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Parentesco o calidad de representante</label>
-                                            <input type="text" id="ci-acudiente-parentesco-${safeId}" placeholder="Ej. Madre / Padre / Representante legal" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                        </div>
-                                        <div>
-                                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Teléfono del padre, madre o representante</label>
-                                            <input type="text" id="ci-acudiente-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
-                                        </div>
-                                    </div>
-
-                                    <div class="space-y-1.5">
                                         <div class="flex items-center justify-between">
-                                            <label class="block text-xs font-semibold text-slate-800">
-                                                Firma en trazo del padre, madre o representante legal *
+                                            <label class="block text-xs font-semibold text-slate-700">
+                                                Firma en trazo del consultante *
                                             </label>
                                             <button
                                                 type="button"
-                                                onclick="limpiarFirma('acudiente-${safeId}')"
+                                                onclick="limpiarFirma('${safeId}')"
                                                 class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
                                             >
-                                                Limpiar firma acudiente
+                                                Limpiar firma
                                             </button>
                                         </div>
                                         <canvas
-                                            id="firma-canvas-acudiente-${safeId}"
+                                            id="firma-canvas-${safeId}"
                                             class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
                                         ></canvas>
                                     </div>
 
-                                    <div class="space-y-1.5 pt-2 border-t border-amber-200/80">
-                                        <div class="flex items-center justify-between">
-                                            <label class="block text-xs font-semibold text-slate-800">
-                                                Firma / asentimiento en trazo del niño, niña o adolescente
-                                            </label>
-                                            <button
-                                                type="button"
-                                                onclick="limpiarFirma('menor-${safeId}')"
-                                                class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
-                                            >
-                                                Limpiar firma menor
-                                            </button>
+                                    <div id="bloque-menores-${safeId}" class="hidden bg-amber-50/70 border border-amber-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                        <div class="space-y-1">
+                                            <p class="text-xs font-bold uppercase tracking-wider text-amber-900">
+                                                Atención a niños, niñas y adolescentes (NNA)
+                                            </p>
+                                            <p class="text-xs text-slate-700 leading-relaxed">
+                                                Al identificarse una persona menor de 18 años, se requiere la autorización de su padre, madre o representante legal, además del espacio de participación/asentimiento del menor de acuerdo con su edad y desarrollo.
+                                            </p>
                                         </div>
-                                        <canvas
-                                            id="firma-canvas-menor-${safeId}"
-                                            class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
-                                        ></canvas>
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Nombre completo padre, madre o representante legal *</label>
+                                                <input type="text" id="ci-acudiente-nombre-${safeId}" placeholder="Nombre del acudiente" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Documento del padre, madre o representante legal *</label>
+                                                <input type="text" id="ci-acudiente-doc-${safeId}" placeholder="Tipo y número de documento" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Parentesco o calidad de representante</label>
+                                                <input type="text" id="ci-acudiente-parentesco-${safeId}" placeholder="Ej. Madre / Padre / Representante legal" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Teléfono del padre, madre o representante</label>
+                                                <input type="text" id="ci-acudiente-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-1.5">
+                                            <div class="flex items-center justify-between">
+                                                <label class="block text-xs font-semibold text-slate-800">
+                                                    Firma en trazo del padre, madre o representante legal *
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onclick="limpiarFirma('acudiente-${safeId}')"
+                                                    class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
+                                                >
+                                                    Limpiar firma acudiente
+                                                </button>
+                                            </div>
+                                            <canvas
+                                                id="firma-canvas-acudiente-${safeId}"
+                                                class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
+                                            ></canvas>
+                                        </div>
+
+                                        <div class="space-y-1.5 pt-2 border-t border-amber-200/80">
+                                            <div class="flex items-center justify-between">
+                                                <label class="block text-xs font-semibold text-slate-800">
+                                                    Firma / asentimiento en trazo del niño, niña o adolescente
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onclick="limpiarFirma('menor-${safeId}')"
+                                                    class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
+                                                >
+                                                    Limpiar firma menor
+                                                </button>
+                                            </div>
+                                            <canvas
+                                                id="firma-canvas-menor-${safeId}"
+                                                class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
+                                            ></canvas>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                                <button
-                                    type="button"
-                                    onclick="guardarConsentimientoFirmado('${safeId}', '${escapeHtml(email)}', '${safeCode}')"
-                                    class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition"
-                                >
-                                    Guardar consentimiento informado
-                                </button>
-                                <p id="consent-status-${safeId}" class="text-xs text-slate-500"></p>
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <button
+                                        type="button"
+                                        id="btn-guardar-consentimiento-${safeId}"
+                                        onclick="guardarConsentimientoFirmado('${safeId}', '${escapeHtml(email)}', '${safeCode}')"
+                                        class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition disabled:opacity-60"
+                                    >
+                                        Guardar consentimiento informado
+                                    </button>
+                                    <p id="consent-status-${safeId}" class="text-xs text-slate-500"></p>
+                                </div>
                             </div>
                         </div>
                     </div>

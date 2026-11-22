@@ -182,8 +182,13 @@
     <script>
         const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
-        const SERENA_EMAIL_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/send-serena-email`;
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // PEGA AQUI LA URL /exec DE TU APLICACION WEB EN GOOGLE APPS SCRIPT:
+        const APPS_SCRIPT_MAIL_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT_EXEC';
+
+        // URL publica de tu logo/isotipo/imagotipo en tu subdominio (ej. https://tu-subdominio/assets/imagotipo.png)
+        const BRAND_LOGO_URL = new URL('assets/imagotipo.png', window.location.href).href;
 
         const CONTACT_TABLE = 'mensajes_contacto';
         const DESTINO_CORREO = 'serenelyserenamente@gmail.com';
@@ -225,30 +230,56 @@
             return { saved: true };
         }
 
-        async function sendContactViaEdgeFunction({ name, email, message }) {
-            const htmlBody = `
-                <div style="font-family: Arial, sans-serif; color: #10263D; max-width: 640px; margin: 0 auto; line-height: 1.5;">
-                    <h2 style="color: #07976B; margin-bottom: 8px;">Nuevo mensaje de contacto — Serena Mente</h2>
-                    <p style="margin-top: 0; color: #475569;">Se ha recibido una consulta desde el formulario de contacto del portal.</p>
-                    <div style="background: #F5FAF8; border: 1px solid #D9F5E8; border-radius: 12px; padding: 16px; margin: 16px 0;">
-                        <p style="margin: 4px 0;"><strong>Nombre completo:</strong> ${escapeHtml(name)}</p>
-                        <p style="margin: 4px 0;"><strong>Correo electrónico:</strong> ${escapeHtml(email)}</p>
-                        <p style="margin: 8px 0 4px;"><strong>Mensaje:</strong></p>
-                        <p style="margin: 0; white-space: pre-wrap;">${escapeHtml(message)}</p>
-                    </div>
+        function buildContactHtmlEmail({ name, email, message }) {
+            const safeLogo = /^https?:\/\/[^\s]+$/i.test(BRAND_LOGO_URL)
+                ? `<img src="${escapeHtml(BRAND_LOGO_URL)}" alt="Serena Mente" style="max-height: 44px; width: auto; display: block; border: 0;">`
+                : `<span style="font-size: 18px; font-weight: 800; color: #10263D;">Serena <span style="color: #07976B;">Mente</span></span>`;
+
+            return `
+                <div style="background-color: #F5FAF8; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #10263D;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border: 1px solid #D9F5E8; border-radius: 16px; overflow: hidden;">
+                        <tr>
+                            <td style="padding: 20px 24px; background-color: #F5FAF8; border-bottom: 1px solid #D9F5E8;">
+                                ${safeLogo}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 24px; line-height: 1.6; font-size: 14px;">
+                                <h2 style="margin: 0 0 8px 0; font-size: 18px; color: #07976B;">Nuevo mensaje de contacto — Serena Mente</h2>
+                                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">Se ha recibido una consulta desde el formulario de contacto del portal.</p>
+                                <div style="background-color: #F5FAF8; border: 1px solid #D9F5E8; border-radius: 12px; padding: 16px;">
+                                    <p style="margin: 4px 0;"><strong>Nombre completo:</strong> ${escapeHtml(name)}</p>
+                                    <p style="margin: 4px 0;"><strong>Correo electrónico:</strong> ${escapeHtml(email)}</p>
+                                    <p style="margin: 10px 0 4px 0;"><strong>Mensaje:</strong></p>
+                                    <p style="margin: 0; white-space: pre-wrap;">${escapeHtml(message)}</p>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 14px 24px; background-color: #10263D; color: #D9F5E8; font-size: 12px;">
+                                Serena Mente · Coordinación y atención al usuario
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             `;
+        }
+
+        async function sendContactViaAppsScript({ name, email, message }) {
+            if (!APPS_SCRIPT_MAIL_URL || APPS_SCRIPT_MAIL_URL.includes('PEGA_AQUI_')) {
+                return { sent: false, reason: 'Falta configurar APPS_SCRIPT_MAIL_URL en contacto.html' };
+            }
+
+            const htmlBody = buildContactHtmlEmail({ name, email, message });
 
             try {
-                const response = await fetch(SERENA_EMAIL_FUNCTION_URL, {
+                const response = await fetch(APPS_SCRIPT_MAIL_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        'Content-Type': 'text/plain;charset=utf-8'
                     },
                     body: JSON.stringify({
-                        tipo: 'notificacion_general',
+                        tipo: 'contacto',
                         to_email: DESTINO_CORREO,
                         reply_to: email,
                         subject: `Nuevo mensaje de contacto: ${name} | Serena Mente`,
@@ -256,10 +287,17 @@
                     })
                 });
 
-                const data = await response.json().catch(() => ({}));
+                const rawText = await response.text();
+                let data = {};
+                try {
+                    data = JSON.parse(rawText);
+                } catch (_) {
+                    data = { raw: rawText };
+                }
+
                 if (!response.ok || data?.ok === false) {
-                    const detail = data?.error || `HTTP ${response.status}`;
-                    console.error('Error enviando mensaje de contacto vía Edge Function:', detail);
+                    const detail = data?.error || data?.message || data?.raw || `HTTP ${response.status}`;
+                    console.error('Error enviando mensaje de contacto por Apps Script:', detail);
                     return { sent: false, reason: detail };
                 }
 
@@ -288,7 +326,7 @@
 
             const [dbResult, emailResult] = await Promise.all([
                 saveContactToSupabase({ name, email, message }),
-                sendContactViaEdgeFunction({ name, email, message })
+                sendContactViaAppsScript({ name, email, message })
             ]);
 
             submitBtn.disabled = false;

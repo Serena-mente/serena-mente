@@ -1904,17 +1904,6 @@
             return { data: null, error: lastError };
         }
 
-        function buildGmailComposeUrl({ email, subject, body }) {
-            const params = new URLSearchParams({
-                view: 'cm',
-                fs: '1',
-                to: email,
-                su: subject,
-                body: body
-            });
-            return `https://mail.google.com/mail/?${params.toString()}`;
-        }
-
         async function registrarCorreoEnBitacora({ historiaId = null, codigoCaso = '', destinatarioEmail, asunto, canal, estado }) {
             if (!currentUser || !destinatarioEmail) return;
 
@@ -1939,7 +1928,7 @@
 
         async function notificarConsultantePorCorreo({ codigo, nombre, email, fecha, hora, tipoCaso, linkMeet, historiaId = null }) {
             if (!email) {
-                return { sent: false, reason: 'no_email' };
+                return { sent: false, reason: 'no_email', error: 'Sin correo registrado' };
             }
 
             const subject = `Confirmación y número de historia clínica (${codigo}) — Serena Mente`;
@@ -1978,12 +1967,15 @@
             `;
 
             try {
+                const { data: sessionData } = await supabaseClient.auth.getSession();
+                const accessToken = sessionData?.session?.access_token || SUPABASE_ANON_KEY;
+
                 const response = await fetch(SERENA_EMAIL_FUNCTION_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        'Authorization': `Bearer ${accessToken}`
                     },
                     body: JSON.stringify({
                         tipo: 'notificacion_general',
@@ -1994,9 +1986,22 @@
                     })
                 });
 
-                const data = await response.json().catch(() => ({}));
-                if (!response.ok || data?.ok === false) {
-                    throw new Error(data?.error || `HTTP ${response.status}`);
+                const rawText = await response.text();
+                let parsed = {};
+                try { parsed = JSON.parse(rawText); } catch (_) { parsed = { raw: rawText }; }
+
+                if (!response.ok || parsed?.ok === false) {
+                    const detail = parsed?.error || parsed?.message || parsed?.raw || `HTTP ${response.status}`;
+                    console.error('Error send-serena-email:', response.status, parsed);
+                    await registrarCorreoEnBitacora({
+                        historiaId,
+                        codigoCaso: codigo,
+                        destinatarioEmail: email,
+                        asunto: subject,
+                        canal: 'edge_function',
+                        estado: `error_${response.status}`
+                    });
+                    return { sent: false, mode: 'edge_error', error: detail, subject, body: bodyText, email };
                 }
 
                 await registrarCorreoEnBitacora({
@@ -2004,30 +2009,20 @@
                     codigoCaso: codigo,
                     destinatarioEmail: email,
                     asunto: subject,
-                    canal: 'edge_function_resend',
+                    canal: 'edge_function',
                     estado: 'enviado'
                 });
 
                 return { sent: true, mode: 'edge_function', subject, body: bodyText, email };
             } catch (err) {
-                const gmailUrl = buildGmailComposeUrl({ email, subject, body: bodyText });
-                await registrarCorreoEnBitacora({
-                    historiaId,
-                    codigoCaso: codigo,
-                    destinatarioEmail: email,
-                    asunto: subject,
-                    canal: 'gmail_web',
-                    estado: 'respaldo_gmail'
-                });
-
+                console.error('Excepción en fetch send-serena-email:', err);
                 return {
                     sent: false,
-                    mode: 'gmail_fallback',
-                    error: err?.message || 'Error al enviar correo',
+                    mode: 'network_error',
+                    error: err?.message || 'Error de red al llamar a send-serena-email',
                     subject,
                     body: bodyText,
-                    email,
-                    gmailUrl
+                    email
                 };
             }
         }
@@ -2063,13 +2058,7 @@
                 return;
             }
 
-            const gmailUrl = res.gmailUrl || buildGmailComposeUrl({
-                email,
-                subject: res.subject,
-                body: res.body
-            });
-            window.open(gmailUrl, '_blank', 'noopener,noreferrer');
-            showFeedback(`No se pudo enviar automáticamente (${res.error || 'revisar servicio'}); se abrió Gmail para ${email} y quedó registrado en bitácora.`, 'error');
+            showFeedback(`No se pudo enviar el correo a ${email}: ${res.error || 'Error desconocido'}`, 'error');
         }
 
         async function crearHistoriaDirecta(event) {
@@ -2208,13 +2197,7 @@
                 if (mailRes.sent) {
                     correoMsg = ` Se envió el correo a ${clienteEmail}.`;
                 } else {
-                    const gmailUrl = mailRes.gmailUrl || buildGmailComposeUrl({
-                        email: clienteEmail,
-                        subject: mailRes.subject,
-                        body: mailRes.body
-                    });
-                    window.open(gmailUrl, '_blank', 'noopener,noreferrer');
-                    correoMsg = ` No se pudo enviar automáticamente; se abrió Gmail para ${clienteEmail}.`;
+                    correoMsg = ` No se pudo enviar el correo a ${clienteEmail}: ${mailRes.error || 'Error desconocido'}.`;
                 }
             }
 

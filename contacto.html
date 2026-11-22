@@ -184,10 +184,7 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // PEGA AQUI LA URL /exec DE TU APLICACION WEB EN GOOGLE APPS SCRIPT:
-        const APPS_SCRIPT_MAIL_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT_EXEC';
-
-        // URL publica de tu logo/isotipo/imagotipo en tu subdominio (ej. https://tu-subdominio/assets/imagotipo.png)
+        const APPS_SCRIPT_MAIL_URL = 'https://script.google.com/macros/s/AKfycbxnWHr0obvFZHd929V4kTJk20Vq-yCfV9ekj62ohk5rL9B4pp1rkhCck7kz3Tsy_ks2/exec';
         const BRAND_LOGO_URL = new URL('assets/imagotipo.png', window.location.href).href;
 
         const CONTACT_TABLE = 'mensajes_contacto';

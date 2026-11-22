@@ -1,1077 +1,1058 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Serena Mente · Portal del Consultante</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #F5FAF8;
-      color: #10263D;
-    }
-    .brand-gradient {
-      background: linear-gradient(135deg, #078E99 0%, #07976B 100%);
-    }
-    .brand-btn {
-      background: linear-gradient(135deg, #078E99 0%, #07976B 100%);
-      color: #ffffff;
-    }
-    .brand-btn:hover {
-      background: linear-gradient(135deg, #10263D 0%, #078E99 100%);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Portal del Consultante — Serena Mente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        serena: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                            light: '#e0f2fe',
+                            blue: '#0284c7',
+                            darkblue: '#0369a1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .firma-canvas {
+            touch-action: none;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-[#F5FAF8] text-[#10263D]">
-
-  <!-- Barra superior -->
-  <header class="bg-white border-b border-[#D9F5E8] sticky top-0 z-30 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-      <div class="flex items-center space-x-3 min-w-0">
-        <a href="index.html" class="flex items-center space-x-2.5 shrink-0">
-          <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-8 w-auto object-contain" />
-          <span class="font-extrabold text-base sm:text-lg tracking-tight text-[#10263D]">
-            Serena <span class="text-[#07976B]">Mente</span>
-          </span>
-        </a>
-        <span class="hidden sm:inline-block text-xs font-semibold px-2.5 py-1 rounded-full bg-[#D9F5E8] text-[#10263D]">
-          Portal del Consultante
-        </span>
-      </div>
-
-      <div class="flex items-center space-x-2 sm:space-x-3">
-        <span id="user-badge" class="hidden md:inline-block text-xs font-medium text-[#10263D]/75 bg-[#F5FAF8] border border-[#D9F5E8] px-3 py-1.5 rounded-full truncate max-w-[230px]"></span>
-        <a href="index.html" class="text-xs sm:text-sm font-semibold text-[#10263D] hover:text-[#078E99] px-3 py-1.5 rounded-lg border border-[#D9F5E8] bg-white">
-          Inicio
-        </a>
-        <button id="btn-logout" onclick="handleLogout()" class="hidden text-xs sm:text-sm font-semibold text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg border border-red-200 bg-white">
-          Cerrar sesión
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Toast de notificaciones -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden max-w-sm bg-[#10263D] text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-xl border border-[#078E99]/40"></div>
-
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-    <!-- Vista 1: Acceso / Registro de Consultante -->
-    <section id="auth-section" class="max-w-md mx-auto bg-white rounded-3xl border border-[#D9F5E8] shadow-sm p-6 sm:p-8 space-y-6">
-      <div class="flex items-center space-x-3">
-        <img src="assets/isotipo.png" alt="Serena Mente" class="h-11 w-auto object-contain" />
-        <div>
-          <h1 class="text-xl font-extrabold text-[#10263D]">Portal del Consultante</h1>
-          <p class="text-xs text-[#10263D]/70">Ingresa o crea tu cuenta para gestionar tus citas y comprobantes.</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-2 bg-[#F5FAF8] p-1 rounded-2xl border border-[#D9F5E8]">
-        <button id="tab-login" type="button" onclick="switchAuthTab('login')" class="py-2 text-xs font-bold rounded-xl bg-white text-[#10263D] shadow-sm">
-          Iniciar sesión
-        </button>
-        <button id="tab-register" type="button" onclick="switchAuthTab('register')" class="py-2 text-xs font-bold rounded-xl text-[#10263D]/70 hover:text-[#10263D]">
-          Crear cuenta
-        </button>
-      </div>
-
-      <!-- Formulario Login -->
-      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-[#10263D] mb-1">Correo electrónico</label>
-          <input id="login-email" type="email" required placeholder="tu@correo.com" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-[#10263D] mb-1">Contraseña</label>
-          <input id="login-password" type="password" required placeholder="••••••••" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
-        </div>
-        <button type="submit" id="btn-login-submit" class="w-full brand-btn font-semibold py-2.5 rounded-xl text-sm shadow-sm transition">
-          Ingresar al portal
-        </button>
-      </form>
-
-      <!-- Formulario Registro -->
-      <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-        <div>
-          <label class="block text-xs font-semibold text-[#10263D] mb-1">Nombre completo</label>
-          <input id="reg-name" type="text" required placeholder="Tu nombre y apellido" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-[#10263D] mb-1">Correo electrónico</label>
-          <input id="reg-email" type="email" required placeholder="tu@correo.com" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-[#10263D] mb-1">Teléfono / WhatsApp (opcional)</label>
-          <input id="reg-phone" type="tel" placeholder="300 000 0000" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-[#10263D] mb-1">Contraseña</label>
-          <input id="reg-password" type="password" minlength="6" required placeholder="Mínimo 6 caracteres" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
-        </div>
-        <button type="submit" id="btn-register-submit" class="w-full brand-btn font-semibold py-2.5 rounded-xl text-sm shadow-sm transition">
-          Registrarme como consultante
-        </button>
-      </form>
-    </section>
-
-    <!-- Vista 2: Panel del Consultante Autenticado -->
-    <section id="portal-section" class="hidden space-y-8">
-
-      <!-- Bienvenida y resumen -->
-      <div class="bg-white rounded-3xl border border-[#D9F5E8] p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p class="text-xs font-semibold text-[#07976B] uppercase tracking-wider">Espacio personal</p>
-          <h1 id="welcome-title" class="text-2xl font-extrabold text-[#10263D] mt-1">Hola, Consultante</h1>
-          <p id="welcome-subtitle" class="text-xs sm:text-sm text-[#10263D]/70 mt-1">Gestiona tus reservas, adjunta comprobantes de pago y revisa tus sesiones.</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button type="button" onclick="refreshPortalData()" class="text-xs font-semibold px-4 py-2.5 rounded-xl bg-[#F5FAF8] hover:bg-[#D9F5E8] text-[#10263D] border border-[#D9F5E8] transition">
-            Actualizar datos
-          </button>
-        </div>
-      </div>
-
-      <!-- Grilla principal: Agendar cita + Comprobante de pago -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-
-        <!-- Tarjeta 1: Agendar nueva orientación -->
-        <div class="bg-white rounded-3xl border border-[#D9F5E8] p-6 sm:p-8 shadow-sm space-y-5">
-          <div>
-            <h2 class="text-lg font-extrabold text-[#10263D]">Agendar orientación psicológica</h2>
-            <p class="text-xs text-[#10263D]/70 mt-1">Selecciona profesional, fecha, horario disponible y modalidad.</p>
-          </div>
-
-          <form id="booking-form" onsubmit="handleBookingSubmit(event)" class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-[#10263D] mb-1">Profesional</label>
-              <select id="booking-psychologist" required onchange="onBookingFilterChange()" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
-                <option value="">Cargando profesionales...</option>
-              </select>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-[#10263D] mb-1">Fecha</label>
-                <input id="booking-date" type="date" required onchange="onBookingFilterChange()" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-[#10263D] mb-1">Modalidad</label>
-                <select id="booking-modality" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
-                  <option value="Virtual (Meet / Zoom)">Virtual (Meet / Zoom)</option>
-                  <option value="Presencial">Presencial</option>
-                  <option value="Telefónica / WhatsApp">Telefónica / WhatsApp</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-[#10263D] mb-1">Horario disponible</label>
-              <select id="booking-slot" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
-                <option value="">Selecciona profesional y fecha primero</option>
-              </select>
-              <p id="slot-hint" class="text-[11px] text-[#10263D]/60 mt-1">Se muestran horarios habilitados por el profesional que aún no están reservados.</p>
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-[#10263D] mb-1">Motivo breve de consulta (opcional)</label>
-              <textarea id="booking-notes" rows="2" placeholder="Describe brevemente en qué te gustaría recibir orientación..." class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-[#078E99]"></textarea>
-            </div>
-
-            <button type="submit" id="btn-booking-submit" class="w-full brand-btn font-semibold py-3 rounded-xl text-sm shadow-sm transition">
-              Confirmar reserva de cita
-            </button>
-          </form>
-        </div>
-
-        <!-- Tarjeta 2: Subir comprobante de pago -->
-        <div class="bg-white rounded-3xl border border-[#D9F5E8] p-6 sm:p-8 shadow-sm space-y-5">
-          <div>
-            <h2 class="text-lg font-extrabold text-[#10263D]">Enviar comprobante de pago</h2>
-            <p class="text-xs text-[#10263D]/70 mt-1">Asocia tu comprobante a una cita para que el equipo valide el pago.</p>
-          </div>
-
-          <div class="bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl p-4 text-xs space-y-1">
-            <p class="font-bold text-[#10263D]">Datos de transferencia / coordinación</p>
-            <p class="text-[#10263D]/75">Correo de coordinación: <span class="font-semibold text-[#078E99]">serenelyserenamente@gmail.com</span></p>
-            <p class="text-[#10263D]/75">WhatsApp de soporte: <span class="font-semibold">322 500 0756</span></p>
-          </div>
-
-          <form id="receipt-form" onsubmit="handleReceiptSubmit(event)" class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-[#10263D] mb-1">Cita asociada</label>
-              <select id="receipt-appointment" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
-                <option value="">Selecciona una de tus citas</option>
-              </select>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-[#10263D] mb-1">Referencia / N° transacción</label>
-                <input id="receipt-ref" type="text" required placeholder="Ej. TRF-984512" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-[#10263D] mb-1">Valor pagado (COP)</label>
-                <input id="receipt-amount" type="number" min="1000" step="500" required placeholder="Ej. 80000" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-[#10263D] mb-1">Archivo de comprobante (Imagen o PDF)</label>
-              <input id="receipt-file" type="file" accept="image/*,application/pdf" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3 py-2 text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#D9F5E8] file:text-[#10263D] hover:file:bg-[#07976B] hover:file:text-white" />
-            </div>
-
-            <button type="submit" id="btn-receipt-submit" class="w-full brand-btn font-semibold py-3 rounded-xl text-sm shadow-sm transition">
-              Subir comprobante y notificar
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <!-- Listado de citas del consultante -->
-      <div class="bg-white rounded-3xl border border-[#D9F5E8] p-6 sm:p-8 shadow-sm space-y-5">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div>
-            <h2 class="text-lg font-extrabold text-[#10263D]">Mis citas programadas</h2>
-            <p class="text-xs text-[#10263D]/70">Consulta el estado de tu reserva, comprobante, recordatorios o solicita reprogramación/cancelación.</p>
-          </div>
-        </div>
-
-        <div id="appointments-list" class="space-y-4">
-          <p class="text-sm text-[#10263D]/60">Cargando tus citas...</p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal Reprogramar / Cancelar Cita -->
-  <div id="manage-modal" class="fixed inset-0 z-50 hidden bg-[#10263D]/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border border-[#D9F5E8] max-w-md w-full p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 id="modal-title" class="text-lg font-extrabold text-[#10263D]">Gestionar cita</h3>
-        <button type="button" onclick="closeManageModal()" class="text-sm font-bold text-[#10263D]/60 hover:text-[#10263D]">✕</button>
-      </div>
-
-      <form id="manage-form" onsubmit="handleManageAppointmentSubmit(event)" class="space-y-4">
-        <input type="hidden" id="manage-appt-id" />
-        <input type="hidden" id="manage-action-type" />
-
-        <div id="reschedule-fields" class="space-y-3 hidden">
-          <div>
-            <label class="block text-xs font-semibold text-[#10263D] mb-1">Nueva fecha</label>
-            <input id="manage-new-date" type="date" onchange="loadRescheduleSlots()" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-[#10263D] mb-1">Nuevo horario disponible</label>
-            <select id="manage-new-slot" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm">
-              <option value="">Selecciona fecha</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label id="manage-reason-label" class="block text-xs font-semibold text-[#10263D] mb-1">Motivo</label>
-          <textarea id="manage-reason" rows="3" required placeholder="Indica el motivo del cambio o cancelación..." class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm"></textarea>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="closeManageModal()" class="px-4 py-2 rounded-xl text-xs font-semibold border border-[#D9F5E8] text-[#10263D]">
-            Volver
-          </button>
-          <button type="submit" id="btn-manage-submit" class="px-4 py-2 rounded-xl text-xs font-semibold brand-btn">
-            Guardar cambio
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const APPS_SCRIPT_CONSULTANTE_URL = 'https://script.google.com/macros/s/AKfycbz3WTs2d84VbqYonD2rysX1TyRkC00DE68VXwLrVVSRSqyXfU2zMdmeiiizB6z3JGvK/exec';
-    const BRAND_LOGO_URL = new URL('assets/imagotipo.png', window.location.href).href;
-
-    const RECEIPTS_BUCKET = 'comprobantes-pago';
-    const COORDINACION_EMAIL = 'serenelyserenamente@gmail.com';
-
-    let currentUser = null;
-    let currentProfile = null;
-    let psychologistsList = [];
-    let allAppointmentsForFilters = [];
-    let myAppointments = [];
-    let availabilityRows = [];
-
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function showToast(message, isError = false) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = `fixed bottom-5 right-5 z-50 max-w-sm text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-xl border ${
-        isError ? 'bg-red-900 border-red-400/40' : 'bg-[#10263D] border-[#078E99]/40'
-      }`;
-      toast.classList.remove('hidden');
-      clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 4200);
-    }
-
-    function switchAuthTab(tab) {
-      const isLogin = tab === 'login';
-      document.getElementById('login-form').classList.toggle('hidden', !isLogin);
-      document.getElementById('register-form').classList.toggle('hidden', isLogin);
-      document.getElementById('tab-login').className = isLogin
-        ? 'py-2 text-xs font-bold rounded-xl bg-white text-[#10263D] shadow-sm'
-        : 'py-2 text-xs font-bold rounded-xl text-[#10263D]/70 hover:text-[#10263D]';
-      document.getElementById('tab-register').className = !isLogin
-        ? 'py-2 text-xs font-bold rounded-xl bg-white text-[#10263D] shadow-sm'
-        : 'py-2 text-xs font-bold rounded-xl text-[#10263D]/70 hover:text-[#10263D]';
-    }
-
-    async function handleLogin(event) {
-      event.preventDefault();
-      const btn = document.getElementById('btn-login-submit');
-      const email = document.getElementById('login-email').value.trim().toLowerCase();
-      const password = document.getElementById('login-password').value;
-
-      btn.disabled = true;
-      btn.textContent = 'Ingresando...';
-
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-      btn.disabled = false;
-      btn.textContent = 'Ingresar al portal';
-
-      if (error) {
-        showToast(error.message || 'No se pudo iniciar sesión.', true);
-        return;
-      }
-
-      currentUser = data.user;
-      await enterPortal();
-    }
-
-    async function handleRegister(event) {
-      event.preventDefault();
-      const btn = document.getElementById('btn-register-submit');
-      const fullName = document.getElementById('reg-name').value.trim();
-      const email = document.getElementById('reg-email').value.trim().toLowerCase();
-      const phone = document.getElementById('reg-phone').value.trim();
-      const password = document.getElementById('reg-password').value;
-
-      btn.disabled = true;
-      btn.textContent = 'Creando cuenta...';
-
-      const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            phone: phone,
-            role: 'consultante'
-          }
-        }
-      });
-
-      btn.disabled = false;
-      btn.textContent = 'Registrarme como consultante';
-
-      if (error) {
-        showToast(error.message || 'No se pudo completar el registro.', true);
-        return;
-      }
-
-      if (data.user) {
-        await supabaseClient.from('profiles').upsert({
-          id: data.user.id,
-          email: email,
-          full_name: fullName,
-          phone: phone || null,
-          role: 'consultante'
-        }, { onConflict: 'id' });
-      }
-
-      if (data.session) {
-        currentUser = data.user;
-        showToast('Cuenta creada con éxito.');
-        await enterPortal();
-      } else {
-        showToast('Revisa tu correo para confirmar tu cuenta y luego inicia sesión.');
-        switchAuthTab('login');
-      }
-    }
-
-    async function handleLogout() {
-      await supabaseClient.auth.signOut();
-      currentUser = null;
-      currentProfile = null;
-      document.getElementById('portal-section').classList.add('hidden');
-      document.getElementById('auth-section').classList.remove('hidden');
-      document.getElementById('btn-logout').classList.add('hidden');
-      document.getElementById('user-badge').classList.add('hidden');
-      showToast('Sesión cerrada.');
-    }
-
-    async function enterPortal() {
-      if (!currentUser) return;
-
-      const { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUser.id)
-        .maybeSingle();
-
-      currentProfile = profile || {
-        id: currentUser.id,
-        email: currentUser.email,
-        full_name: currentUser.user_metadata?.full_name || currentUser.email.split('@')[0],
-        phone: currentUser.user_metadata?.phone || ''
-      };
-
-      document.getElementById('auth-section').classList.add('hidden');
-      document.getElementById('portal-section').classList.remove('hidden');
-      document.getElementById('btn-logout').classList.remove('hidden');
-
-      const displayName = currentProfile.full_name || currentUser.email;
-      document.getElementById('user-badge').textContent = displayName;
-      document.getElementById('user-badge').classList.remove('hidden');
-      document.getElementById('welcome-title').textContent = `Hola, ${displayName}`;
-      document.getElementById('welcome-subtitle').textContent = `Correo registrado: ${currentUser.email}`;
-
-      const todayStr = new Date().toISOString().split('T')[0];
-      document.getElementById('booking-date').min = todayStr;
-      document.getElementById('manage-new-date').min = todayStr;
-
-      await refreshPortalData();
-    }
-
-    function buildBrandedHtmlEmail({ title, subtitle, rows }) {
-      const safeLogo = /^https?:\/\/[^\s]+$/i.test(BRAND_LOGO_URL)
-        ? `<img src="${escapeHtml(BRAND_LOGO_URL)}" alt="Serena Mente" style="max-height: 44px; width: auto; display: block; border: 0;">`
-        : `<span style="font-size: 18px; font-weight: 800; color: #10263D;">Serena <span style="color: #07976B;">Mente</span></span>`;
-
-      const detailsHtml = (rows || [])
-        .map((r) => `<p style="margin: 5px 0;"><strong>${escapeHtml(r.label)}:</strong> ${escapeHtml(r.value)}</p>`)
-        .join('');
-
-      return `
-        <div style="background-color: #F5FAF8; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #10263D;">
-          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border: 1px solid #D9F5E8; border-radius: 16px; overflow: hidden;">
-            <tr>
-              <td style="padding: 20px 24px; background-color: #F5FAF8; border-bottom: 1px solid #D9F5E8;">
-                ${safeLogo}
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 24px; line-height: 1.6; font-size: 14px;">
-                <h2 style="margin: 0 0 6px 0; font-size: 18px; color: #07976B;">${escapeHtml(title)}</h2>
-                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">${escapeHtml(subtitle || '')}</p>
-                <div style="background-color: #F5FAF8; border: 1px solid #D9F5E8; border-radius: 12px; padding: 16px;">
-                  ${detailsHtml}
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 14px 24px; background-color: #10263D; color: #D9F5E8; font-size: 12px;">
-                Serena Mente · Plataforma de orientación psicológica virtual
-              </td>
-            </tr>
-          </table>
-        </div>
-      `;
-    }
-
-    async function sendMailViaAppsScript({ toEmail, subject, title, subtitle, rows, replyTo = '' }) {
-      if (!APPS_SCRIPT_CONSULTANTE_URL || APPS_SCRIPT_CONSULTANTE_URL.includes('PEGA_AQUI_')) {
-        console.warn('Falta configurar APPS_SCRIPT_CONSULTANTE_URL en portal-consultante.html');
-        return { sent: false, reason: 'URL de Apps Script no configurada' };
-      }
-
-      if (!toEmail) return { sent: false, reason: 'Sin destinatario' };
-
-      const htmlBody = buildBrandedHtmlEmail({ title, subtitle, rows });
-
-      try {
-        const response = await fetch(APPS_SCRIPT_CONSULTANTE_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8'
-          },
-          body: JSON.stringify({
-            modulo: 'portal_consultante',
-            to_email: toEmail,
-            reply_to: replyTo || '',
-            subject: subject,
-            html_body: htmlBody
-          })
-        });
-
-        const rawText = await response.text();
-        let data = {};
-        try {
-          data = JSON.parse(rawText);
-        } catch (_) {
-          data = { raw: rawText };
-        }
-
-        if (!response.ok || data?.ok === false) {
-          const detail = data?.error || data?.message || data?.raw || `HTTP ${response.status}`;
-          console.error('Error enviando correo desde portal consultante:', detail);
-          return { sent: false, reason: detail };
-        }
-
-        return { sent: true };
-      } catch (err) {
-        console.error('Error de red al enviar correo en portal consultante:', err);
-        return { sent: false, reason: err?.message || 'Error de red' };
-      }
-    }
-
-    async function refreshPortalData() {
-      await Promise.all([
-        loadPsychologistsAndAvailability(),
-        loadMyAppointments()
-      ]);
-      renderAvailableSlots('booking-psychologist', 'booking-date', 'booking-slot');
-      populateReceiptAppointmentSelect();
-    }
-
-    async function loadPsychologistsAndAvailability() {
-      const { data: psychs } = await supabaseClient
-        .from('profiles')
-        .select('id, full_name, email, specialty')
-        .eq('role', 'psicologo')
-        .order('full_name', { ascending: true });
-
-      psychologistsList = psychs || [];
-
-      const selectEl = document.getElementById('booking-psychologist');
-      const prevVal = selectEl.value;
-      if (!psychologistsList.length) {
-        selectEl.innerHTML = '<option value="">No hay profesionales disponibles por el momento</option>';
-      } else {
-        selectEl.innerHTML = '<option value="">Selecciona un profesional</option>' + psychologistsList.map((p) => {
-          const label = p.specialty ? `${p.full_name} — ${p.specialty}` : p.full_name;
-          return `<option value="${escapeHtml(p.id)}">${escapeHtml(label)}</option>`;
-        }).join('');
-        if (prevVal && psychologistsList.some((p) => p.id === prevVal)) {
-          selectEl.value = prevVal;
-        }
-      }
-
-      const { data: avail } = await supabaseClient
-        .from('availability_slots')
-        .select('*')
-        .eq('is_active', true);
-
-      availabilityRows = avail || [];
-
-      const { data: booked } = await supabaseClient
-        .from('appointments')
-        .select('psychologist_id, appointment_date, start_time, status')
-        .neq('status', 'cancelada');
-
-      allAppointmentsForFilters = booked || [];
-    }
-
-    function getDayOfWeekFromDateStr(dateStr) {
-      if (!dateStr) return null;
-      const [y, m, d] = dateStr.split('-').map(Number);
-      const dt = new Date(Date.UTC(y, m - 1, d));
-      return dt.getUTCDay();
-    }
-
-    function getAvailableSlotsFor(psychologistId, dateStr, targetSelectId) {
-      const select = document.getElementById(targetSelectId);
-      if (!psychologistId || !dateStr) {
-        select.innerHTML = '<option value="">Selecciona profesional y fecha</option>';
-        return;
-      }
-
-      const dayOfWeek = getDayOfWeekFromDateStr(dateStr);
-      const matchingSlots = availabilityRows.filter((slot) => {
-        const samePsych = slot.psychologist_id === psychologistId;
-        const sameDay = Number(slot.day_of_week) === Number(dayOfWeek);
-        const withinRange = (!slot.valid_from || dateStr >= slot.valid_from) &&
-                            (!slot.valid_until || dateStr <= slot.valid_until);
-        return samePsych && sameDay && withinRange;
-      });
-
-      const takenTimes = new Set(
-        allAppointmentsForFilters
-          .filter((a) => a.psychologist_id === psychologistId && a.appointment_date === dateStr && a.status !== 'cancelada')
-          .map((a) => String(a.start_time || '').slice(0, 5))
-      );
-
-      const freeSlots = matchingSlots
-        .map((s) => String(s.start_time || '').slice(0, 5))
-        .filter((t) => t && !takenTimes.has(t))
-        .sort();
-
-      if (!freeSlots.length) {
-        select.innerHTML = '<option value="">Sin horarios disponibles para esa fecha</option>';
-        return;
-      }
-
-      select.innerHTML = '<option value="">Selecciona un horario</option>' +
-        freeSlots.map((t) => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
-    }
-
-    function renderAvailableSlots(psychSelectId, dateInputId, slotSelectId) {
-      const psychId = document.getElementById(psychSelectId).value;
-      const dateStr = document.getElementById(dateInputId).value;
-      getAvailableSlotsFor(psychId, dateStr, slotSelectId);
-    }
-
-    function onBookingFilterChange() {
-      renderAvailableSlots('booking-psychologist', 'booking-date', 'booking-slot');
-    }
-
-    async function handleBookingSubmit(event) {
-      event.preventDefault();
-      if (!currentUser) return;
-
-      const btn = document.getElementById('btn-booking-submit');
-      const psychologistId = document.getElementById('booking-psychologist').value;
-      const appointmentDate = document.getElementById('booking-date').value;
-      const modality = document.getElementById('booking-modality').value;
-      const startTime = document.getElementById('booking-slot').value;
-      const notes = document.getElementById('booking-notes').value.trim();
-
-      if (!psychologistId || !appointmentDate || !startTime) {
-        showToast('Selecciona profesional, fecha y horario disponible.', true);
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = 'Agendando...';
-
-      const psychObj = psychologistsList.find((p) => p.id === psychologistId);
-      const consultanteName = currentProfile?.full_name || currentUser.email;
-      const consultanteEmail = currentProfile?.email || currentUser.email;
-
-      const { data: created, error } = await supabaseClient
-        .from('appointments')
-        .insert([{
-          client_id: currentUser.id,
-          client_name: consultanteName,
-          client_email: consultanteEmail,
-          psychologist_id: psychologistId,
-          psychologist_name: psychObj?.full_name || 'Profesional Serena Mente',
-          appointment_date: appointmentDate,
-          start_time: startTime,
-          modality: modality,
-          notes: notes || null,
-          status: 'pendiente_pago'
-        }])
-        .select()
-        .single();
-
-      btn.disabled = false;
-      btn.textContent = 'Confirmar reserva de cita';
-
-      if (error) {
-        showToast(error.message || 'No se pudo agendar la cita.', true);
-        return;
-      }
-
-      document.getElementById('booking-form').reset();
-      await refreshPortalData();
-      showToast('Cita reservada. Recuerda subir tu comprobante de pago.');
-
-      const emailRows = [
-        { label: 'Consultante', value: consultanteName },
-        { label: 'Correo consultante', value: consultanteEmail },
-        { label: 'Profesional', value: created.psychologist_name },
-        { label: 'Fecha', value: appointmentDate },
-        { label: 'Hora', value: startTime },
-        { label: 'Modalidad', value: modality },
-        { label: 'Estado inicial', value: 'Pendiente de comprobante / validación' }
-      ];
-
-      await Promise.all([
-        sendMailViaAppsScript({
-          toEmail: consultanteEmail,
-          subject: `Confirmación de reserva (${appointmentDate} ${startTime}) — Serena Mente`,
-          title: 'Reserva registrada en Serena Mente',
-          subtitle: 'Hemos recibido tu solicitud de orientación psicológica. Sube tu comprobante en el portal para completar la validación.',
-          rows: emailRows,
-          replyTo: COORDINACION_EMAIL
-        }),
-        sendMailViaAppsScript({
-          toEmail: COORDINACION_EMAIL,
-          subject: `Nueva reserva de cita: ${consultanteName} (${appointmentDate} ${startTime})`,
-          title: 'Nueva reserva registrada en el portal',
-          subtitle: 'Un consultante ha agendado una nueva orientación.',
-          rows: emailRows,
-          replyTo: consultanteEmail
-        })
-      ]);
-    }
-
-    async function loadMyAppointments() {
-      const { data, error } = await supabaseClient
-        .from('appointments')
-        .select('*')
-        .eq('client_id', currentUser.id)
-        .order('appointment_date', { ascending: true })
-        .order('start_time', { ascending: true });
-
-      const container = document.getElementById('appointments-list');
-      if (error) {
-        container.innerHTML = `<p class="text-sm text-red-700">Error cargando citas: ${escapeHtml(error.message)}</p>`;
-        return;
-      }
-
-      myAppointments = data || [];
-      if (!myAppointments.length) {
-        container.innerHTML = '<p class="text-sm text-[#10263D]/60">Aún no tienes citas agendadas.</p>';
-        return;
-      }
-
-      const badgeMap = {
-        pendiente_pago: 'bg-amber-100 text-amber-900 border-amber-200',
-        en_revision_pago: 'bg-sky-100 text-sky-900 border-sky-200',
-        confirmada: 'bg-emerald-100 text-emerald-900 border-emerald-200',
-        reprogramacion_solicitada: 'bg-purple-100 text-purple-900 border-purple-200',
-        cancelada: 'bg-red-100 text-red-900 border-red-200',
-        completada: 'bg-slate-200 text-slate-800 border-slate-300'
-      };
-
-      container.innerHTML = myAppointments.map((appt) => {
-        const statusKey = appt.status || 'pendiente_pago';
-        const badgeClass = badgeMap[statusKey] || 'bg-[#D9F5E8] text-[#10263D] border-[#D9F5E8]';
-        const canManage = !['cancelada', 'completada'].includes(statusKey);
-
-        return `
-          <div class="border border-[#D9F5E8] bg-[#F5FAF8] rounded-2xl p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div class="space-y-1">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-extrabold text-[#10263D]">${escapeHtml(appt.psychologist_name || 'Profesional')}</span>
-                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${badgeClass}">
-                  ${escapeHtml(statusKey.replaceAll('_', ' '))}
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="flex items-center space-x-2.5 focus:outline-none" aria-label="Serena Mente">
+                    <img src="assets/imagotipo.png" alt="Serena Mente"
+                        onerror="this.style.display='none'; document.getElementById('header-logo-fallback').classList.remove('hidden');"
+                        class="h-9 w-auto object-contain">
+                    <span id="header-logo-fallback" class="hidden flex items-center gap-2">
+                        <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-8 w-8 object-contain" onerror="this.style.display='none'">
+                    </span>
+                </a>
+                <span class="text-xs font-semibold bg-emerald-50 text-serena-700 border border-emerald-200 px-2.5 py-1 rounded-full">
+                    Portal del Consultante
                 </span>
-              </div>
-              <p class="text-xs text-[#10263D]/80 font-medium">
-                Fecha: <span class="font-bold">${escapeHtml(appt.appointment_date)}</span> · Hora: <span class="font-bold">${escapeHtml(String(appt.start_time || '').slice(0, 5))}</span> · Modalidad: ${escapeHtml(appt.modality || 'Virtual')}
-              </p>
-              ${appt.payment_reference ? `<p class="text-xs text-[#078E99] font-semibold">Comprobante ref: ${escapeHtml(appt.payment_reference)} (${appt.payment_amount ? `$${Number(appt.payment_amount).toLocaleString('es-CO')}` : 'registrado'})</p>` : ''}
-              ${appt.meeting_link && statusKey === 'confirmada' ? `<p class="text-xs text-[#07976B] font-semibold">Enlace de sesión: <a href="${escapeHtml(appt.meeting_link)}" target="_blank" rel="noopener" class="underline">${escapeHtml(appt.meeting_link)}</a></p>` : ''}
+            </div>
+            <a href="index.html" class="text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white transition">
+                Volver a Inicio
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+
+        <!-- Intro & Access Form -->
+        <section class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+            <div class="flex items-center gap-3">
+                <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="w-11 h-11 object-contain shrink-0" onerror="this.style.display='none'">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                        Tu espacio de consulta
+                    </h1>
+                </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
-              <button type="button" onclick="sendReminderEmail('${escapeHtml(appt.id)}')" class="text-xs font-semibold px-3 py-2 rounded-xl bg-white hover:bg-[#D9F5E8] text-[#10263D] border border-[#D9F5E8] transition">
-                Enviar recordatorio al correo
-              </button>
-              ${canManage ? `
-                <button type="button" onclick="openManageModal('${escapeHtml(appt.id)}', 'reprogramar')" class="text-xs font-semibold px-3 py-2 rounded-xl bg-white hover:bg-[#D9F5E8] text-[#078E99] border border-[#D9F5E8] transition">
-                  Reprogramar
-                </button>
-                <button type="button" onclick="openManageModal('${escapeHtml(appt.id)}', 'cancelar')" class="text-xs font-semibold px-3 py-2 rounded-xl bg-white hover:bg-red-50 text-red-700 border border-red-200 transition">
-                  Cancelar
-                </button>
-              ` : ''}
+            <p class="text-sm text-slate-600 leading-relaxed">
+                Ingresa el correo con el que agendaste y la clave o código de tu cita para revisar los detalles de tu sesión, firmar tu consentimiento informado y acceder a tu videollamada.
+            </p>
+
+            <form onsubmit="consultarCita(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div>
+                    <label for="consultante-email" class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                        Correo electrónico registrado
+                    </label>
+                    <input
+                        type="email"
+                        id="consultante-email"
+                        required
+                        placeholder="tu.correo@ejemplo.com"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white focus:border-serena-600"
+                    >
+                </div>
+                <div>
+                    <label for="consultante-codigo" class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                        Clave o código de tu cita
+                    </label>
+                    <input
+                        type="text"
+                        id="consultante-codigo"
+                        required
+                        placeholder="Ej. HC-2026-1234"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm uppercase focus:outline-none focus:bg-white focus:border-serena-600"
+                    >
+                </div>
+                <div class="sm:col-span-2 pt-1">
+                    <button
+                        type="submit"
+                        id="btn-consultar-cita"
+                        class="w-full sm:w-auto bg-serena-600 hover:bg-serena-700 text-white font-semibold px-7 py-3 rounded-xl text-sm shadow-sm transition"
+                    >
+                        Ver mi sesión
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Session Result Container -->
+        <section id="sesion-resultado" class="hidden space-y-4">
+            <div id="sesion-contenido"></div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-5 mt-12">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <div class="flex items-center space-x-2.5">
+                <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="w-7 h-7 object-contain shrink-0" onerror="this.style.display='none'">
             </div>
-          </div>
-        `;
-      }).join('');
-    }
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a href="quienes-somos.html" class="hover:text-serena-700 transition">Quiénes Somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-serena-700 transition">Conoce Nuestro Equipo</a>
+                <a href="faq.html" class="hover:text-serena-700 transition">Preguntas Frecuentes</a>
+                <a href="contacto.html" class="hover:text-serena-700 transition">Contacto</a>
+                <a href="legal.html" class="text-serena-700 hover:underline font-semibold">Términos y Condiciones</a>
+            </div>
+        </div>
+    </footer>
 
-    function populateReceiptAppointmentSelect() {
-      const select = document.getElementById('receipt-appointment');
-      const eligible = myAppointments.filter((a) => !['cancelada', 'completada'].includes(a.status));
+    <script>
+        const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3WTs2d84VbqYonD2rysX1TyRkC00DE68VXwLrVVSRSqyXfU2zMdmeiiizB6z3JGvK/exec';
+        const COORDINACION_EMAIL = 'serenelyserenamente@gmail.com';
+        const BRAND_LOGO_URL = new URL('assets/imagotipo.png', window.location.href).href;
 
-      if (!eligible.length) {
-        select.innerHTML = '<option value="">No tienes citas activas pendientes de comprobante</option>';
-        return;
-      }
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const signaturePads = {};
+        window.citasCargadas = {};
 
-      select.innerHTML = '<option value="">Selecciona una cita</option>' + eligible.map((a) => {
-        const timeStr = String(a.start_time || '').slice(0, 5);
-        return `<option value="${escapeHtml(a.id)}">${escapeHtml(a.appointment_date)} · ${escapeHtml(timeStr)} — ${escapeHtml(a.psychologist_name || 'Profesional')}</option>`;
-      }).join('');
-    }
-
-    async function handleReceiptSubmit(event) {
-      event.preventDefault();
-      if (!currentUser) return;
-
-      const btn = document.getElementById('btn-receipt-submit');
-      const appointmentId = document.getElementById('receipt-appointment').value;
-      const reference = document.getElementById('receipt-ref').value.trim();
-      const amount = Number(document.getElementById('receipt-amount').value);
-      const fileInput = document.getElementById('receipt-file');
-      const file = fileInput.files && fileInput.files[0];
-
-      if (!appointmentId || !reference || !amount || !file) {
-        showToast('Completa todos los campos y adjunta tu comprobante.', true);
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = 'Subiendo comprobante...';
-
-      const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const filePath = `${currentUser.id}/${appointmentId}/${Date.now()}_${cleanFileName}`;
-
-      const { error: uploadError } = await supabaseClient.storage
-        .from(RECEIPTS_BUCKET)
-        .upload(filePath, file, { upsert: false });
-
-      if (uploadError) {
-        btn.disabled = false;
-        btn.textContent = 'Subir comprobante y notificar';
-        showToast(`Error al subir archivo: ${uploadError.message}`, true);
-        return;
-      }
-
-      const { data: publicUrlData } = supabaseClient.storage
-        .from(RECEIPTS_BUCKET)
-        .getPublicUrl(filePath);
-
-      const receiptUrl = publicUrlData?.publicUrl || filePath;
-
-      const { error: updateError } = await supabaseClient
-        .from('appointments')
-        .update({
-          payment_reference: reference,
-          payment_amount: amount,
-          payment_receipt_url: receiptUrl,
-          status: 'en_revision_pago'
-        })
-        .eq('id', appointmentId)
-        .eq('client_id', currentUser.id);
-
-      btn.disabled = false;
-      btn.textContent = 'Subir comprobante y notificar';
-
-      if (updateError) {
-        showToast(`Error actualizando cita: ${updateError.message}`, true);
-        return;
-      }
-
-      const appt = myAppointments.find((a) => a.id === appointmentId);
-      const consultanteName = currentProfile?.full_name || currentUser.email;
-      const consultanteEmail = currentProfile?.email || currentUser.email;
-
-      document.getElementById('receipt-form').reset();
-      await refreshPortalData();
-      showToast('Comprobante enviado. Queda en revisión de pago.');
-
-      const rows = [
-        { label: 'Consultante', value: consultanteName },
-        { label: 'Correo consultante', value: consultanteEmail },
-        { label: 'Cita', value: appt ? `${appt.appointment_date} (${String(appt.start_time || '').slice(0, 5)})` : appointmentId },
-        { label: 'Referencia', value: reference },
-        { label: 'Valor (COP)', value: `$${amount.toLocaleString('es-CO')}` },
-        { label: 'Archivo', value: receiptUrl }
-      ];
-
-      await Promise.all([
-        sendMailViaAppsScript({
-          toEmail: consultanteEmail,
-          subject: `Comprobante recibido (Ref: ${reference}) — Serena Mente`,
-          title: 'Comprobante de pago en revisión',
-          subtitle: 'Hemos recibido tu comprobante y lo estamos validando.',
-          rows,
-          replyTo: COORDINACION_EMAIL
-        }),
-        sendMailViaAppsScript({
-          toEmail: COORDINACION_EMAIL,
-          subject: `Nuevo comprobante de pago: ${consultanteName} (Ref: ${reference})`,
-          title: 'Comprobante de pago pendiente de validación',
-          subtitle: 'Un consultante ha subido un comprobante de pago en el portal.',
-          rows,
-          replyTo: consultanteEmail
-        })
-      ]);
-    }
-
-    function openManageModal(appointmentId, actionType) {
-      const appt = myAppointments.find((a) => a.id === appointmentId);
-      if (!appt) return;
-
-      document.getElementById('manage-appt-id').value = appointmentId;
-      document.getElementById('manage-action-type').value = actionType;
-      document.getElementById('manage-reason').value = '';
-
-      const isReschedule = actionType === 'reprogramar';
-      document.getElementById('modal-title').textContent = isReschedule ? 'Solicitar reprogramación' : 'Cancelar cita';
-      document.getElementById('reschedule-fields').classList.toggle('hidden', !isReschedule);
-      document.getElementById('manage-reason-label').textContent = isReschedule
-        ? 'Motivo de la reprogramación'
-        : 'Motivo de la cancelación';
-
-      if (isReschedule) {
-        document.getElementById('manage-new-date').value = '';
-        document.getElementById('manage-new-slot').innerHTML = '<option value="">Selecciona nueva fecha</option>';
-        document.getElementById('manage-new-date').dataset.psychId = appt.psychologist_id || '';
-      }
-
-      document.getElementById('manage-modal').classList.remove('hidden');
-    }
-
-    function closeManageModal() {
-      document.getElementById('manage-modal').classList.add('hidden');
-    }
-
-    function loadRescheduleSlots() {
-      const dateInput = document.getElementById('manage-new-date');
-      const psychId = dateInput.dataset.psychId;
-      const dateStr = dateInput.value;
-      getAvailableSlotsFor(psychId, dateStr, 'manage-new-slot');
-    }
-
-    async function handleManageAppointmentSubmit(event) {
-      event.preventDefault();
-      const apptId = document.getElementById('manage-appt-id').value;
-      const actionType = document.getElementById('manage-action-type').value;
-      const reason = document.getElementById('manage-reason').value.trim();
-      const btn = document.getElementById('btn-manage-submit');
-
-      const appt = myAppointments.find((a) => a.id === apptId);
-      if (!appt) return;
-
-      btn.disabled = true;
-      btn.textContent = 'Procesando...';
-
-      let updatePayload = {};
-      let newDate = appt.appointment_date;
-      let newTime = String(appt.start_time || '').slice(0, 5);
-
-      if (actionType === 'reprogramar') {
-        newDate = document.getElementById('manage-new-date').value;
-        newTime = document.getElementById('manage-new-slot').value;
-        if (!newDate || !newTime) {
-          btn.disabled = false;
-          btn.textContent = 'Guardar cambio';
-          showToast('Selecciona nueva fecha y horario disponible.', true);
-          return;
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
-        updatePayload = {
-          appointment_date: newDate,
-          start_time: newTime,
-          reschedule_reason: reason,
-          status: 'reprogramacion_solicitada'
-        };
-      } else {
-        updatePayload = {
-          cancel_reason: reason,
-          status: 'cancelada'
-        };
-      }
 
-      const { error } = await supabaseClient
-        .from('appointments')
-        .update(updatePayload)
-        .eq('id', apptId)
-        .eq('client_id', currentUser.id);
+        function isSafeUrl(url) {
+            try {
+                const parsed = new URL(url);
+                return parsed.protocol === 'https:';
+            } catch {
+                return false;
+            }
+        }
 
-      btn.disabled = false;
-      btn.textContent = 'Guardar cambio';
+        function getMeetUrl(item) {
+            return (item?.enlace_meet || item?.link_meet || '').trim();
+        }
 
-      if (error) {
-        showToast(error.message || 'No se pudo actualizar la cita.', true);
-        return;
-      }
+        function calcularEdadDesdeFecha(fechaStr) {
+            if (!fechaStr) return null;
+            const fecha = new Date(`${fechaStr}T00:00:00`);
+            if (Number.isNaN(fecha.getTime())) return null;
+            const hoy = new Date();
+            let edad = hoy.getFullYear() - fecha.getFullYear();
+            const mesDiff = hoy.getMonth() - fecha.getMonth();
+            if (mesDiff < 0 || (mesDiff === 0 && hoy.getDate() < fecha.getDate())) {
+                edad--;
+            }
+            return edad >= 0 ? edad : null;
+        }
 
-      closeManageModal();
-      await refreshPortalData();
-      showToast(actionType === 'reprogramar' ? 'Solicitud de reprogramación enviada.' : 'Cita cancelada.');
+        function evaluarMinoridad(recordId) {
+            const fechaInput = document.getElementById(`ci-fnac-${recordId}`);
+            const edadInput = document.getElementById(`ci-edad-${recordId}`);
+            const tipoDocSelect = document.getElementById(`ci-tipo-doc-${recordId}`);
+            const menorBox = document.getElementById(`bloque-menores-${recordId}`);
+            const badgeMenor = document.getElementById(`badge-menor-${recordId}`);
 
-      const consultanteName = currentProfile?.full_name || currentUser.email;
-      const consultanteEmail = currentProfile?.email || currentUser.email;
+            let edad = null;
+            if (fechaInput?.value) {
+                edad = calcularEdadDesdeFecha(fechaInput.value);
+                if (edad !== null && edadInput) {
+                    edadInput.value = String(edad);
+                }
+            } else if (edadInput?.value !== '') {
+                const parsedEdad = parseInt(edadInput.value, 10);
+                if (!Number.isNaN(parsedEdad) && parsedEdad >= 0) {
+                    edad = parsedEdad;
+                }
+            }
 
-      const rows = actionType === 'reprogramar'
-        ? [
-            { label: 'Consultante', value: consultanteName },
-            { label: 'Profesional', value: appt.psychologist_name || 'Profesional' },
-            { label: 'Fecha/hora anterior', value: `${appt.appointment_date} (${String(appt.start_time || '').slice(0, 5)})` },
-            { label: 'Nueva fecha/hora solicitada', value: `${newDate} (${newTime})` },
-            { label: 'Motivo', value: reason }
-          ]
-        : [
-            { label: 'Consultante', value: consultanteName },
-            { label: 'Profesional', value: appt.psychologist_name || 'Profesional' },
-            { label: 'Fecha/hora cancelada', value: `${appt.appointment_date} (${String(appt.start_time || '').slice(0, 5)})` },
-            { label: 'Motivo', value: reason }
-          ];
+            const docMenor = ['TI', 'RC'].includes(tipoDocSelect?.value || '');
+            const esMenor = (edad !== null && edad < 18) || (edad === null && docMenor);
 
-      await Promise.all([
-        sendMailViaAppsScript({
-          toEmail: consultanteEmail,
-          subject: actionType === 'reprogramar'
-            ? `Reprogramación solicitada (${newDate} ${newTime}) — Serena Mente`
-            : `Cancelación de cita (${appt.appointment_date}) — Serena Mente`,
-          title: actionType === 'reprogramar' ? 'Solicitud de reprogramación registrada' : 'Cita cancelada',
-          subtitle: 'Se ha registrado el cambio en tu cita.',
-          rows,
-          replyTo: COORDINACION_EMAIL
-        }),
-        sendMailViaAppsScript({
-          toEmail: COORDINACION_EMAIL,
-          subject: actionType === 'reprogramar'
-            ? `Solicitud de reprogramación: ${consultanteName}`
-            : `Cita cancelada por consultante: ${consultanteName}`,
-          title: actionType === 'reprogramar' ? 'Reprogramación solicitada' : 'Cita cancelada',
-          subtitle: 'Actualización realizada desde el Portal del Consultante.',
-          rows,
-          replyTo: consultanteEmail
-        })
-      ]);
-    }
+            if (menorBox) {
+                menorBox.classList.toggle('hidden', !esMenor);
+            }
+            if (badgeMenor) {
+                badgeMenor.classList.toggle('hidden', !esMenor);
+            }
+            if (esMenor) {
+                initSignaturePad(`acudiente-${recordId}`);
+                initSignaturePad(`menor-${recordId}`);
+            }
+        }
 
-    async function sendReminderEmail(appointmentId) {
-      const appt = myAppointments.find((a) => a.id === appointmentId);
-      if (!appt) return;
+        function toggleConsentimientoPanel(recordId, forceOpen = null) {
+            const panel = document.getElementById(`consent-panel-${recordId}`);
+            const btnText = document.getElementById(`consent-toggle-label-${recordId}`);
+            if (!panel) return;
 
-      const consultanteName = currentProfile?.full_name || currentUser.email;
-      const consultanteEmail = currentProfile?.email || currentUser.email;
-      const timeStr = String(appt.start_time || '').slice(0, 5);
+            const shouldOpen = forceOpen !== null ? forceOpen : panel.classList.contains('hidden');
+            panel.classList.toggle('hidden', !shouldOpen);
+            if (btnText) {
+                btnText.textContent = shouldOpen
+                    ? 'Ocultar consentimiento informado'
+                    : 'Desplegar y firmar consentimiento informado';
+            }
+            if (shouldOpen) {
+                initSignaturePad(recordId);
+                evaluarMinoridad(recordId);
+            }
+        }
 
-      const result = await sendMailViaAppsScript({
-        toEmail: consultanteEmail,
-        subject: `Recordatorio de orientación: ${appt.appointment_date} a las ${timeStr} — Serena Mente`,
-        title: 'Recordatorio de tu orientación psicológica',
-        subtitle: 'Aquí tienes los datos de tu cita programada:',
-        rows: [
-          { label: 'Consultante', value: consultanteName },
-          { label: 'Profesional', value: appt.psychologist_name || 'Profesional Serena Mente' },
-          { label: 'Fecha', value: appt.appointment_date },
-          { label: 'Hora', value: timeStr },
-          { label: 'Modalidad', value: appt.modality || 'Virtual' },
-          { label: 'Estado', value: (appt.status || '').replaceAll('_', ' ') }
-        ],
-        replyTo: COORDINACION_EMAIL
-      });
+        function initSignaturePad(padKey) {
+            const canvas = document.getElementById(`firma-canvas-${padKey}`);
+            if (!canvas) return;
 
-      if (result.sent) {
-        showToast('Recordatorio enviado a tu correo.');
-      } else {
-        showToast('No se pudo enviar el recordatorio. Revisa la configuración del correo.', true);
-      }
-    }
+            if (signaturePads[padKey]?.initialized) {
+                return;
+            }
 
-    (async function init() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session && session.user) {
-        currentUser = session.user;
-        await enterPortal();
-      }
-    })();
-  </script>
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const width = Math.max(rect.width || 480, 260);
+            const height = 150;
+
+            canvas.width = width * ratio;
+            canvas.height = height * ratio;
+            ctx.scale(ratio, ratio);
+            ctx.lineWidth = 2.2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#0f172a';
+
+            let drawing = false;
+            let hasDrawn = false;
+
+            function getPoint(e) {
+                const r = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: clientX - r.left,
+                    y: clientY - r.top
+                };
+            }
+
+            function startDraw(e) {
+                e.preventDefault();
+                drawing = true;
+                const pt = getPoint(e);
+                ctx.beginPath();
+                ctx.moveTo(pt.x, pt.y);
+            }
+
+            function draw(e) {
+                if (!drawing) return;
+                e.preventDefault();
+                const pt = getPoint(e);
+                ctx.lineTo(pt.x, pt.y);
+                ctx.stroke();
+                hasDrawn = true;
+            }
+
+            function stopDraw() {
+                if (!drawing) return;
+                drawing = false;
+                ctx.closePath();
+            }
+
+            canvas.addEventListener('pointerdown', startDraw);
+            canvas.addEventListener('pointermove', draw);
+            window.addEventListener('pointerup', stopDraw);
+
+            signaturePads[padKey] = {
+                initialized: true,
+                canvas,
+                ctx,
+                width,
+                height,
+                isEmpty: () => !hasDrawn,
+                clear: () => {
+                    ctx.save();
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.restore();
+                    hasDrawn = false;
+                },
+                toDataUrl: () => canvas.toDataURL('image/png')
+            };
+        }
+
+        function limpiarFirma(padKey) {
+            initSignaturePad(padKey);
+            signaturePads[padKey]?.clear();
+        }
+
+        function obtenerTextoIntegroConsentimiento(recordId, codigoCaso, email) {
+            const docEl = document.getElementById(`ci-documento-integro-${recordId}`);
+            const baseText = docEl ? docEl.innerText.trim() : '';
+            return `${baseText}\n\nReferencia de cita: ${codigoCaso}\nCorreo registrado: ${email}\nFecha y hora de firma: ${new Date().toLocaleString('es-CO')}`;
+        }
+
+        function buildConsentEmailHtml(payload) {
+            const safeLogo = isSafeUrl(BRAND_LOGO_URL)
+                ? `<img src="${escapeHtml(BRAND_LOGO_URL)}" alt="Serena Mente" style="max-height: 44px; width: auto; display: block; border: 0;">`
+                : `<span style="font-size: 18px; font-weight: 800; color: #064e3b;">Serena Mente</span>`;
+
+            const rows = [
+                { label: 'Referencia de cita', value: payload.codigoCaso || payload.appointment_reference },
+                { label: 'Consultante', value: payload.patient_full_name },
+                { label: 'Documento', value: payload.patient_document },
+                { label: 'Correo consultante', value: payload.patient_email },
+                { label: 'Teléfono consultante', value: payload.patient_phone || 'No indicado' },
+                { label: 'Edad / Fecha nacimiento', value: `${payload.patient_age || 'N/A'} años (${payload.patient_birthdate || 'N/A'})` },
+                { label: 'Ciudad / Dirección', value: `${payload.patient_city || 'N/A'} · ${payload.patient_address || 'N/A'}` },
+                { label: 'Contacto de emergencia', value: `${payload.emergency_contact_name || 'N/A'} (${payload.emergency_contact_relationship || 'N/A'}) · ${payload.emergency_contact_phone || 'N/A'}` },
+                { label: 'Profesional asignado', value: payload.psychologistName || 'Profesional asignado' },
+                { label: 'Menor de edad', value: payload.esMenor ? 'Sí' : 'No' }
+            ];
+
+            if (payload.esMenor) {
+                rows.push(
+                    { label: 'Acudiente / Representante', value: `${payload.guardianName || 'N/A'} · Doc: ${payload.guardianDoc || 'N/A'}` },
+                    { label: 'Parentesco / Teléfono acudiente', value: `${payload.guardianRelationship || 'N/A'} · ${payload.guardianPhone || 'N/A'}` }
+                );
+            }
+
+            const rowsHtml = rows
+                .map((r) => `<p style="margin: 5px 0;"><strong>${escapeHtml(r.label)}:</strong> ${escapeHtml(r.value)}</p>`)
+                .join('');
+
+            const signatureImg = payload.signature_data_url
+                ? `<div style="margin-top: 14px;"><p style="margin: 0 0 6px 0; font-weight: bold;">Firma en trazo del consultante:</p><img src="${payload.signature_data_url}" alt="Firma consultante" style="max-width: 280px; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; background: #ffffff;"></div>`
+                : '';
+
+            const guardianSigImg = payload.esMenor && payload.guardianSignatureUrl
+                ? `<div style="margin-top: 12px;"><p style="margin: 0 0 6px 0; font-weight: bold;">Firma en trazo del padre, madre o representante legal:</p><img src="${payload.guardianSignatureUrl}" alt="Firma acudiente" style="max-width: 280px; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; background: #ffffff;"></div>`
+                : '';
+
+            const minorSigImg = payload.esMenor && payload.minorAssentSignatureUrl
+                ? `<div style="margin-top: 12px;"><p style="margin: 0 0 6px 0; font-weight: bold;">Firma / asentimiento del niño, niña o adolescente:</p><img src="${payload.minorAssentSignatureUrl}" alt="Firma asentimiento" style="max-width: 280px; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; background: #ffffff;"></div>`
+                : '';
+
+            return `
+                <div style="background-color: #f0fdf4; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #0f172a;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border: 1px solid #bbf7d0; border-radius: 16px; overflow: hidden;">
+                        <tr>
+                            <td style="padding: 20px 24px; background-color: #f0fdf4; border-bottom: 1px solid #bbf7d0;">
+                                ${safeLogo}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 24px; line-height: 1.6; font-size: 14px;">
+                                <h2 style="margin: 0 0 6px 0; font-size: 18px; color: #047857;">Consentimiento informado firmado</h2>
+                                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">Registro de aceptación y firma en el Portal del Consultante de Serena Mente.</p>
+                                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                                    ${rowsHtml}
+                                </div>
+                                ${signatureImg}
+                                ${guardianSigImg}
+                                ${minorSigImg}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 14px 24px; background-color: #064e3b; color: #dcfce7; font-size: 12px;">
+                                Serena Mente · Constancia de consentimiento informado
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+        }
+
+        async function postToAppsScript({ toEmail, replyTo, subject, htmlBody }) {
+            if (!toEmail || !APPS_SCRIPT_URL) {
+                return { sent: false, reason: 'Destinatario o URL de Apps Script faltante' };
+            }
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify({
+                        modulo: 'consentimiento_informado',
+                        to_email: toEmail,
+                        reply_to: replyTo || '',
+                        subject: subject,
+                        html_body: htmlBody
+                    })
+                });
+
+                const rawText = await response.text();
+                let parsed = {};
+                try {
+                    parsed = JSON.parse(rawText);
+                } catch (_) {
+                    parsed = { raw: rawText };
+                }
+
+                if (!response.ok || parsed?.ok === false) {
+                    return { sent: false, reason: parsed?.error || parsed?.raw || `HTTP ${response.status}` };
+                }
+                return { sent: true };
+            } catch (err) {
+                console.error('Error enviando a Google Apps Script:', err);
+                return { sent: false, reason: err?.message || 'Error de red' };
+            }
+        }
+
+        async function enviarConsentimientoPorCorreo(payload) {
+            const htmlBody = buildConsentEmailHtml(payload);
+            const subject = `Consentimiento informado firmado (${payload.codigoCaso}) — Serena Mente`;
+
+            const recipients = [
+                { to: payload.patient_email, replyTo: COORDINACION_EMAIL },
+                { to: COORDINACION_EMAIL, replyTo: payload.patient_email }
+            ];
+
+            const results = await Promise.all(
+                recipients.map((r) => postToAppsScript({
+                    toEmail: r.to,
+                    replyTo: r.replyTo,
+                    subject: subject,
+                    htmlBody: htmlBody
+                }))
+            );
+
+            return {
+                sent: results.every((res) => res.sent),
+                results
+            };
+        }
+
+        async function guardarConsentimientoFirmado(recordId, email, codigoCaso) {
+            const consentCheck = document.getElementById(`consent-check-${recordId}`);
+            const statusEl = document.getElementById(`consent-status-${recordId}`);
+            const consentimiento = Boolean(consentCheck?.checked);
+
+            if (!consentimiento) {
+                toggleConsentimientoPanel(recordId, true);
+                statusEl.textContent = 'Marca la casilla de aceptación del consentimiento informado para continuar.';
+                statusEl.className = 'text-xs text-amber-700 font-medium';
+                return;
+            }
+
+            const patientFullName = (document.getElementById(`ci-nombre-${recordId}`)?.value || '').trim();
+            const docType = (document.getElementById(`ci-tipo-doc-${recordId}`)?.value || '').trim();
+            const docNumber = (document.getElementById(`ci-num-doc-${recordId}`)?.value || '').trim();
+            const patientDocument = docType && docNumber ? `${docType} ${docNumber}` : docNumber;
+            const patientBirthdate = (document.getElementById(`ci-fnac-${recordId}`)?.value || '').trim();
+            const patientAge = (document.getElementById(`ci-edad-${recordId}`)?.value || '').trim();
+            const patientPhone = (document.getElementById(`ci-tel-${recordId}`)?.value || '').trim();
+            const patientCity = (document.getElementById(`ci-ciudad-${recordId}`)?.value || '').trim();
+            const patientAddress = (document.getElementById(`ci-dir-${recordId}`)?.value || '').trim();
+            const emergencyName = (document.getElementById(`ci-emerg-nombre-${recordId}`)?.value || '').trim();
+            const emergencyRelationship = (document.getElementById(`ci-emerg-parentesco-${recordId}`)?.value || '').trim();
+            const emergencyPhone = (document.getElementById(`ci-emerg-tel-${recordId}`)?.value || '').trim();
+
+            const menorBox = document.getElementById(`bloque-menores-${recordId}`);
+            const esMenor = menorBox && !menorBox.classList.contains('hidden');
+            const guardianName = (document.getElementById(`ci-acudiente-nombre-${recordId}`)?.value || '').trim();
+            const guardianDoc = (document.getElementById(`ci-acudiente-doc-${recordId}`)?.value || '').trim();
+            const guardianRelationship = (document.getElementById(`ci-acudiente-parentesco-${recordId}`)?.value || '').trim();
+            const guardianPhone = (document.getElementById(`ci-acudiente-tel-${recordId}`)?.value || '').trim();
+
+            if (!patientFullName || !docType || !docNumber) {
+                toggleConsentimientoPanel(recordId, true);
+                statusEl.textContent = 'Completa el nombre completo, el tipo de documento y el número de documento.';
+                statusEl.className = 'text-xs text-amber-700 font-medium';
+                return;
+            }
+
+            if (esMenor && (!guardianName || !guardianDoc)) {
+                toggleConsentimientoPanel(recordId, true);
+                statusEl.textContent = 'Por tratarse de un menor de edad, completa los datos de la madre, padre o representante legal.';
+                statusEl.className = 'text-xs text-amber-700 font-medium';
+                return;
+            }
+
+            initSignaturePad(recordId);
+            const pad = signaturePads[recordId];
+            if (!pad || pad.isEmpty()) {
+                toggleConsentimientoPanel(recordId, true);
+                statusEl.textContent = 'Realiza tu firma en el espacio de trazo antes de guardar.';
+                statusEl.className = 'text-xs text-amber-700 font-medium';
+                return;
+            }
+
+            if (esMenor) {
+                initSignaturePad(`acudiente-${recordId}`);
+                const acudientePad = signaturePads[`acudiente-${recordId}`];
+                if (!acudientePad || acudientePad.isEmpty()) {
+                    toggleConsentimientoPanel(recordId, true);
+                    statusEl.textContent = 'Falta la firma en trazo del padre, madre o representante legal del menor.';
+                    statusEl.className = 'text-xs text-amber-700 font-medium';
+                    return;
+                }
+            }
+
+            statusEl.textContent = 'Guardando consentimiento informado y enviando constancia...';
+            statusEl.className = 'text-xs text-slate-500';
+
+            const { error: rpcError } = await supabaseClient.rpc('actualizar_mensaje_consultante', {
+                p_email: email,
+                p_codigo_caso: codigoCaso,
+                p_mensaje: '',
+                p_consentimiento: true
+            });
+
+            if (rpcError) {
+                statusEl.textContent = `No se pudo actualizar el estado del consentimiento (${rpcError.message}).`;
+                statusEl.className = 'text-xs text-amber-700 font-medium';
+                return;
+            }
+
+            const citaActual = window.citasCargadas?.[String(recordId)] || {};
+            const signatureDataUrl = pad.toDataUrl();
+            const guardianSignatureUrl = esMenor ? signaturePads[`acudiente-${recordId}`]?.toDataUrl() : null;
+            const minorAssentSignatureUrl = esMenor && signaturePads[`menor-${recordId}`] && !signaturePads[`menor-${recordId}`].isEmpty()
+                ? signaturePads[`menor-${recordId}`].toDataUrl()
+                : null;
+
+            const consentPayload = {
+                appointment_reference: codigoCaso,
+                patient_full_name: patientFullName,
+                patient_document: patientDocument,
+                patient_birthdate: patientBirthdate || null,
+                patient_age: patientAge || null,
+                patient_email: email,
+                patient_phone: patientPhone || null,
+                patient_city: patientCity || null,
+                patient_address: patientAddress || null,
+                emergency_contact_name: emergencyName || null,
+                emergency_contact_relationship: emergencyRelationship || null,
+                emergency_contact_phone: emergencyPhone || null,
+                psychologist_full_name: citaActual.psicologo_nombre || null,
+                psychologist_email: citaActual.psicologo_email || null,
+                is_minor: Boolean(esMenor),
+                guardian_name: esMenor ? (guardianName || null) : null,
+                guardian_document: esMenor ? (guardianDoc || null) : null,
+                guardian_relationship: esMenor ? (guardianRelationship || null) : null,
+                guardian_phone: esMenor ? (guardianPhone || null) : null,
+                guardian_signature_data_url: guardianSignatureUrl || null,
+                minor_assent_signature_data_url: minorAssentSignatureUrl || null,
+                consent_document_html: obtenerTextoIntegroConsentimiento(recordId, codigoCaso, email),
+                signature_data_url: signatureDataUrl,
+                signed_at: new Date().toISOString()
+            };
+
+            const { error: insertError } = await supabaseClient
+                .from('informed_consents')
+                .insert(consentPayload);
+
+            const mailResult = await enviarConsentimientoPorCorreo({
+                ...consentPayload,
+                psychologistName: citaActual.psicologo_nombre || 'Profesional asignado',
+                psychologistEmail: citaActual.psicologo_email || '',
+                docType,
+                docNumber,
+                patientBirthdate,
+                patientAge,
+                patientAddress,
+                esMenor,
+                guardianName,
+                guardianDoc,
+                guardianRelationship,
+                guardianPhone,
+                guardianSignatureUrl,
+                minorAssentSignatureUrl,
+                codigoCaso
+            });
+
+            if (insertError) {
+                statusEl.textContent = `Consentimiento marcado y correo ${mailResult.sent ? 'enviado' : 'pendiente'}; revisa la tabla informed_consents (${insertError.message}).`;
+                statusEl.className = 'text-xs text-amber-700 font-medium';
+                return;
+            }
+
+            if (mailResult.sent) {
+                statusEl.textContent = `Listo: consentimiento guardado y enviado a ${email} y a ${COORDINACION_EMAIL}.`;
+                statusEl.className = 'text-xs text-serena-700 font-semibold';
+            } else {
+                statusEl.textContent = 'Consentimiento guardado, pero no se pudo confirmar el envío de correo a ambos destinatarios.';
+                statusEl.className = 'text-xs text-amber-700 font-medium';
+            }
+        }
+
+        async function consultarCita(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('consultante-email').value.trim().toLowerCase();
+            const codigoCaso = document.getElementById('consultante-codigo').value.trim().toUpperCase();
+            const resultSection = document.getElementById('sesion-resultado');
+            const contentEl = document.getElementById('sesion-contenido');
+            const btn = document.getElementById('btn-consultar-cita');
+
+            resultSection.classList.remove('hidden');
+            contentEl.innerHTML = `
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 text-sm text-slate-500 shadow-sm">
+                    Buscando los datos de tu sesión...
+                </div>
+            `;
+
+            btn.disabled = true;
+            btn.textContent = 'Consultando...';
+
+            const { data, error } = await supabaseClient.rpc('consultar_cita_consultante', {
+                p_email: email,
+                p_codigo_caso: codigoCaso
+            });
+
+            btn.disabled = false;
+            btn.textContent = 'Ver mi sesión';
+
+            if (error) {
+                contentEl.innerHTML = `
+                    <div class="bg-amber-50 rounded-3xl border border-amber-200 p-6 text-sm text-amber-800 shadow-sm">
+                        No fue posible consultar tu sesión en este momento (${escapeHtml(error.message)}).
+                    </div>
+                `;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                contentEl.innerHTML = `
+                    <div class="bg-amber-50 rounded-3xl border border-amber-200 p-6 text-sm text-amber-800 shadow-sm space-y-1">
+                        <p class="font-bold">No encontramos una sesión con esos datos.</p>
+                        <p class="text-xs">Revisa que el correo electrónico y la clave de tu cita estén bien escritos.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            window.citasCargadas = {};
+
+            contentEl.innerHTML = data.map(item => {
+                window.citasCargadas[String(item.id)] = item;
+
+                const safeId = escapeHtml(item.id);
+                const safeCode = escapeHtml(item.codigo_caso || codigoCaso);
+                const safeProName = escapeHtml(item.psicologo_nombre || 'Profesional asignado');
+                const safeProEmail = escapeHtml(item.psicologo_email || 'Por confirmar');
+                const safeTipo = escapeHtml(item.tipo_caso || 'Modalidad virtual');
+                const safeFecha = escapeHtml(item.fecha_sesion || 'Por confirmar');
+                const safeHora = item.hora_sesion ? `· ${escapeHtml(item.hora_sesion)}` : '';
+                const rawPago = (item.estado_pago || 'Pendiente').trim();
+                const safePago = escapeHtml(rawPago);
+                const esPagado = ['pagado', 'confirmado', 'verificado', 'aprobado'].includes(rawPago.toLowerCase());
+                const badgePagoClass = esPagado
+                    ? 'bg-emerald-100 text-serena-900 border-emerald-300'
+                    : 'bg-emerald-50 text-serena-700 border-emerald-200';
+                const meetUrl = getMeetUrl(item);
+
+                const meetBlock = (meetUrl && isSafeUrl(meetUrl))
+                    ? `
+                        <a
+                            href="${escapeHtml(meetUrl)}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center justify-center w-full sm:w-auto bg-serena-600 hover:bg-serena-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
+                        >
+                            Unirme a la videollamada (Google Meet)
+                        </a>
+                    `
+                    : `
+                        <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                            El enlace de videollamada se mostrará aquí cuando corresponda a tu sesión.
+                        </p>
+                    `;
+
+                return `
+                    <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-4">
+                            <div class="flex items-center gap-2.5">
+                                <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="w-8 h-8 object-contain shrink-0" onerror="this.style.display='none'">
+                                <div>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-serena-700">Cita encontrada</span>
+                                    <h2 class="text-xl font-bold text-slate-900 mt-0.5">Referencia: ${safeCode}</h2>
+                                </div>
+                            </div>
+                            <span id="estado-pago-badge-${safeId}" class="inline-block self-start sm:self-auto px-3 py-1 rounded-full text-xs font-bold border ${badgePagoClass}">
+                                Estado de pago: ${safePago}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                            <p><strong class="text-slate-900">Psicólogo/a:</strong> ${safeProName}</p>
+                            <p><strong class="text-slate-900">Correo profesional:</strong> ${safeProEmail}</p>
+                            <p><strong class="text-slate-900">Modalidad / Tipo:</strong> ${safeTipo}</p>
+                            <p><strong class="text-slate-900">Fecha y hora:</strong> ${safeFecha} ${safeHora}</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Acceso a tu sesión</p>
+                            ${meetBlock}
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100 space-y-4">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <h3 class="text-sm font-bold text-slate-900">Consentimiento informado</h3>
+                                <button
+                                    type="button"
+                                    onclick="toggleConsentimientoPanel('${safeId}')"
+                                    class="text-xs font-semibold text-serena-700 hover:text-serena-900 underline"
+                                >
+                                    <span id="consent-toggle-label-${safeId}">Desplegar y firmar consentimiento informado</span>
+                                </button>
+                            </div>
+
+                            <label class="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                                <input
+                                    type="checkbox"
+                                    id="consent-check-${safeId}"
+                                    ${item.consentimiento_aceptado ? 'checked' : ''}
+                                    onchange="if(this.checked){ toggleConsentimientoPanel('${safeId}', true); }"
+                                    class="mt-0.5 w-4 h-4 accent-serena-600 rounded"
+                                >
+                                <span>Confirmo que he leído y acepto el consentimiento informado para la prestación de servicios de atención psicológica en modalidad virtual en Serena Mente.</span>
+                            </label>
+
+                            <div id="consent-panel-${safeId}" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-5">
+                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                                    <div class="flex items-center gap-3">
+                                        <img src="assets/imagotipo.png" alt="Serena Mente" class="h-9 w-auto object-contain" onerror="this.style.display='none'">
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span id="badge-menor-${safeId}" class="hidden text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full">
+                                            Menor de edad detectado
+                                        </span>
+                                        <span class="text-xs font-semibold text-slate-500">Ref: ${safeCode}</span>
+                                    </div>
+                                </div>
+
+                                <div id="ci-documento-integro-${safeId}" class="max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl p-5 text-xs text-slate-700 space-y-4 leading-relaxed">
+                                    <div class="space-y-1">
+                                        <p class="font-bold text-sm text-slate-900">CONSENTIMIENTO INFORMADO PARA LA PRESTACIÓN DE SERVICIOS DE ATENCIÓN PSICOLÓGICA EN MODALIDAD VIRTUAL</p>
+                                        <p>Documento de información, aceptación y autorización para la atención psicológica mediante tecnologías de la información y la comunicación.</p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <p class="font-bold text-slate-900">1. DATOS DE IDENTIFICACIÓN</p>
+                                        <p class="font-semibold text-slate-800">DATOS DEL PROFESIONAL DE PSICOLOGÍA</p>
+                                        <p>Nombre completo: ${safeProName}</p>
+                                        <p>Tipo y número de documento: Por confirmar</p>
+                                        <p>Tarjeta profesional: Por confirmar</p>
+                                        <p>Registro en RETHUS, cuando corresponda: Por confirmar</p>
+                                        <p>Prestador o institución, si aplica: Serena Mente</p>
+                                        <p>Correo electrónico: ${safeProEmail}</p>
+                                        <p>Número de contacto: Por confirmar</p>
+                                        <p>Dirección profesional: Modalidad virtual</p>
+
+                                        <p class="font-semibold text-slate-800 pt-2">DATOS DEL CONSULTANTE</p>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nombre completo *</label>
+                                                <input type="text" id="ci-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipo de documento *</label>
+                                                    <select id="ci-tipo-doc-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs">
+                                                        <option value="">Selecciona</option>
+                                                        <option value="CC">Cédula de Ciudadanía (CC)</option>
+                                                        <option value="TI">Tarjeta de Identidad (TI)</option>
+                                                        <option value="CE">Cédula de Extranjería (CE)</option>
+                                                        <option value="PA">Pasaporte (PA)</option>
+                                                        <option value="RC">Registro Civil (RC)</option>
+                                                        <option value="PPT">PPT</option>
+                                                        <option value="PEP">PEP</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de documento *</label>
+                                                    <input type="text" id="ci-num-doc-${safeId}" placeholder="Número" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Fecha de nacimiento</label>
+                                                <input type="date" id="ci-fnac-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Edad</label>
+                                                <input type="number" min="0" max="120" id="ci-edad-${safeId}" oninput="evaluarMinoridad('${safeId}')" placeholder="Edad" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Correo electrónico</label>
+                                                <input type="text" value="${escapeHtml(email)}" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-600">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de contacto</label>
+                                                <input type="text" id="ci-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Ciudad y departamento de residencia</label>
+                                                <input type="text" id="ci-ciudad-${safeId}" placeholder="Ciudad y departamento de residencia" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dirección o ubicación habitual</label>
+                                                <input type="text" id="ci-dir-${safeId}" placeholder="Dirección o ubicación habitual" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                        </div>
+
+                                        <p class="font-semibold text-slate-800 pt-2">CONTACTO DE EMERGENCIA</p>
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nombre completo</label>
+                                                <input type="text" id="ci-emerg-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Parentesco o relación</label>
+                                                <input type="text" id="ci-emerg-parentesco-${safeId}" placeholder="Parentesco o relación" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de contacto</label>
+                                                <input type="text" id="ci-emerg-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">2. FUNDAMENTO LEGAL Y NORMATIVO</p>
+                                        <p>El presente consentimiento informado se fundamenta en la legislación colombiana vigente, especialmente en las disposiciones que regulan el ejercicio profesional de la psicología, el derecho a la salud, la prestación de servicios mediante tecnologías de la información y la comunicación, la confidencialidad, la protección de datos personales y el manejo de la historia clínica.</p>
+                                        <p>Se consideran, entre otras, las siguientes disposiciones:</p>
+                                        <p>2.1. Constitución Política de Colombia de 1991: Artículo 15 (protege el derecho a la intimidad personal y familiar, al buen nombre y al conocimiento, actualización y rectificación de la información personal) y Artículo 49 (reconoce la salud como un servicio público a cargo del Estado y establece garantías para el acceso a los servicios de promoción, protección y recuperación de la salud).</p>
+                                        <p>2.2. Ley 1090 de 2006: Reglamenta el ejercicio de la profesión de Psicología y establece el Código Deontológico y Bioético del psicólogo en Colombia. Contempla los principios de responsabilidad, competencia profesional, respeto por la dignidad humana, confidencialidad, secreto profesional y deberes frente a los usuarios.</p>
+                                        <p>2.3. Ley 1419 de 2010: Establece los lineamientos para el desarrollo de la telesalud en Colombia y promueve el uso de las tecnologías de la información y la comunicación para mejorar el acceso a los servicios de salud.</p>
+                                        <p>2.4. Ley 1581 de 2012: Establece el régimen general de protección de datos personales y las disposiciones aplicables al tratamiento de datos sensibles, incluyendo información relacionada con la salud y la vida personal de los consultantes.</p>
+                                        <p>2.5. Decreto 1074 de 2015: Reglamenta disposiciones relacionadas con la protección de datos personales y desarrolla aspectos del régimen de autorización, tratamiento y responsabilidad en el manejo de información personal.</p>
+                                        <p>2.6. Ley 1616 de 2013: Establece disposiciones para garantizar el ejercicio pleno del derecho a la salud mental de la población colombiana, mediante acciones de promoción, prevención, diagnóstico, tratamiento y rehabilitación.</p>
+                                        <p>2.7. Ley 1751 de 2015: Regula el derecho fundamental a la salud y establece garantías relacionadas con el acceso oportuno, continuo, integral y de calidad a los servicios de salud.</p>
+                                        <p>2.8. Ley 2460 de 2025: Modifica y fortalece disposiciones de la Ley 1616 de 2013 en materia de salud mental, promoción, prevención, atención integral y garantía de derechos en salud mental.</p>
+                                        <p>2.9. Ley 527 de 1999: Regula el reconocimiento jurídico de los mensajes de datos, el comercio electrónico y las firmas digitales, aspectos relevantes para el uso de medios electrónicos en la documentación y aceptación de procedimientos.</p>
+                                        <p>2.10. Resolución 1995 de 1999: Establece las normas para el manejo, diligenciamiento, conservación, custodia y confidencialidad de la historia clínica.</p>
+                                        <p>2.11. Resolución 3100 de 2019 y sus modificaciones: Establece los procedimientos y condiciones de inscripción de los prestadores de servicios de salud y de habilitación de los servicios de salud en Colombia.</p>
+                                        <p>2.12. Resolución 1644 del 31 de julio de 2026: Establece los requisitos y condiciones para el desarrollo de actividades de telesalud y la prestación de servicios de salud en modalidad de telemedicina en el Sistema General de Seguridad Social en Salud. Esta resolución derogó la Resolución 2654 de 2019 y contempla disposiciones sobre consentimiento informado, privacidad, confidencialidad, protección de datos personales, responsabilidades de las partes y procedimientos ante fallas tecnológicas y emergencias.</p>
+                                        <p>Las anteriores disposiciones se aplicarán de acuerdo con su ámbito de aplicación y con las características del servicio efectivamente prestado.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">3. OBJETO Y DESCRIPCIÓN DEL SERVICIO</p>
+                                        <p>Manifiesto que he recibido información clara, suficiente y comprensible sobre la prestación de servicios de atención psicológica en modalidad virtual, también denominada telepsicología. Esta modalidad consiste en la prestación de servicios de atención psicológica mediante el uso de tecnologías de la información y la comunicación, que permiten la interacción entre el profesional de psicología y el consultante sin necesidad de compartir un mismo espacio físico. La atención psicológica podrá comprender entrevistas psicológicas, evaluación y valoración psicológica, orientación y asesoramiento psicológico, acompañamiento e intervención psicoterapéutica, seguimiento de procesos psicológicos, psicoeducación, intervenciones para la promoción de la salud mental y el bienestar emocional, y remisión a otros profesionales o servicios especializados cuando sea necesario, conforme a las competencias, conocimientos científicos, principios éticos y disposiciones legales vigentes.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">4. CARACTERÍSTICAS Y CONDICIONES DE LA ATENCIÓN VIRTUAL</p>
+                                        <p>Declaro que comprendo y acepto que: (1) las sesiones se realizarán mediante plataformas digitales de videoconferencia o herramientas tecnológicas autorizadas para tal finalidad; (2) la plataforma se informará en la sesión/cita; (3) las sesiones tendrán la duración acordada; (4) la frecuencia será acordada entre el profesional y el consultante; (5) es necesario contar con conexión estable a internet y dispositivo con cámara y micrófono; (6) me comprometo a conectarme puntualmente; (7) procuraré disponer de un espacio privado, tranquilo y libre de interrupciones; (8) informaré al profesional si no puedo garantizar mi privacidad o seguridad; (9) me comprometo a informar mi ubicación cuando resulte necesario para gestionar una eventual emergencia; y (10) el profesional podrá recomendar atención presencial, remisión o valoración especializada cuando considere que la modalidad virtual no es adecuada.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">5. BENEFICIOS Y POSIBLES LIMITACIONES DE LA ATENCIÓN VIRTUAL</p>
+                                        <p>Comprendo que la atención psicológica virtual facilita el acceso, reduce barreras geográficas y desplazamientos, favorece la continuidad del proceso, permite atención desde distintos lugares y facilita el seguimiento. Asimismo, comprendo limitaciones y riesgos como fallas o interrupciones de conexión o plataformas, limitaciones para observar expresiones no verbales, dificultades para intervenir directamente en crisis, riesgos de privacidad y seguridad digital y limitaciones para valoraciones o procedimientos que requieren presencialidad.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">6. CONFIDENCIALIDAD Y SECRETO PROFESIONAL</p>
+                                        <p>La información suministrada durante las sesiones y los registros derivados están protegidos por el deber de confidencialidad y secreto profesional conforme a la Ley 1090 de 2006 y normas aplicables. No será divulgada a terceros sin autorización del consultante, salvo en las excepciones legales aplicables (obligación legal, requerimiento de autoridad competente o riesgo grave para la vida o integridad del consultante o de terceras personas), limitándose a lo estrictamente necesario.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">7. PROTECCIÓN DE DATOS PERSONALES Y MANEJO DE LA HISTORIA CLÍNICA</p>
+                                        <p>Los datos personales y sensibles (salud, antecedentes personales, familiares, emocionales, psicológicos y sociales) se tratan conforme a la Ley 1581 de 2012 y normativa vigente para identificación, prestación y seguimiento del servicio, historia clínica, registro de intervenciones, gestión administrativa, obligaciones legales y remisiones. El consultante puede ejercer sus derechos de conocer, actualizar, rectificar, suprimir cuando proceda y revocar la autorización en los términos legales, sin que ello implique la eliminación de la historia clínica sujeta a custodia legal.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">8. SEGURIDAD Y PRIVACIDAD DE LOS MEDIOS TECNOLÓGICOS</p>
+                                        <p>Reconozco los riesgos inherentes a los medios digitales (acceso no autorizado, interceptación, fallas de plataforma, presencia de terceros en el espacio físico o pérdida temporal de información). Me comprometo a usar dispositivos personales o de confianza, evitar redes públicas cuando sea posible, no compartir enlaces de acceso, proteger mis cuentas y dispositivos e informar si terceros escuchan o participan.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">9. GRABACIÓN Y REGISTRO DE LAS SESIONES</p>
+                                        <p>Las sesiones psicológicas no serán grabadas en audio o video de manera automática. Si existiera una finalidad profesional, académica, investigativa o asistencial que justifique una grabación, deberá informarse previamente y solicitar autorización expresa, específica e independiente, sin que la negativa implique pérdida automática del derecho a la atención. Los registros clínicos se realizarán conforme a la normatividad vigente.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">10. PROCEDIMIENTO ANTE FALLAS TECNOLÓGICAS</p>
+                                        <p>Ante dificultades técnicas: (1) se intentará restablecer la comunicación en la plataforma; (2) si no es posible, se establecerá contacto mediante el número telefónico registrado; (3) si la interrupción impide desarrollar adecuadamente la sesión, se acordará su reprogramación; y (4) si compromete la seguridad o continuidad, el profesional podrá recomendar una modalidad alternativa.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">11. PROCEDIMIENTO ANTE SITUACIONES DE CRISIS O EMERGENCIA</p>
+                                        <p>La atención virtual tiene limitaciones para responder directamente a situaciones que requieren intervención presencial inmediata. Ante crisis emocional grave, riesgo suicida, autolesión, violencia o riesgo grave, el profesional podrá realizar valoración inicial del riesgo dentro de sus competencias, orientar a urgencias, recomendar activar servicios de emergencia, contactar al contacto de emergencia cuando resulte necesario y legalmente procedente y gestionar o recomendar remisión. En emergencia inmediata se debe acudir a urgencias o comunicarse a la línea 123.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">12. DERECHOS DEL CONSULTANTE</p>
+                                        <p>Derecho a atención digna, respetuosa y sin discriminación; información clara y suficiente; conocer objetivos, alcances y limitaciones; formular preguntas y aclaraciones; aceptar o rechazar procedimientos; retirar el consentimiento para la atención virtual en cualquier momento; conocer límites de confidencialidad y tratamiento de datos; solicitar información sobre su historia clínica y ejercer derechos legales; y recibir orientación sobre alternativas de atención.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">13. RESPONSABILIDADES DEL CONSULTANTE</p>
+                                        <p>Suministrar información veraz, completa y suficiente; participar voluntariamente; respetar horarios y acuerdos; informar situaciones que afecten el desarrollo de la atención; procurar un espacio privado y seguro; informar oportunamente crisis o riesgo; mantener actualizados sus datos; no grabar ni divulgar sesiones sin autorización; informar presencia de terceros; y seguir recomendaciones de remisión o atención presencial cuando sean necesarias.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">14. RESPONSABILIDADES DEL PROFESIONAL DE PSICOLOGÍA</p>
+                                        <p>Actuar conforme a los principios éticos, científicos y deontológicos de la psicología; atender dentro de los límites de su competencia; respetar autonomía, dignidad e integridad; informar características y limitaciones de la modalidad virtual; proteger confidencialidad y registros; aplicar medidas razonables de seguridad; documentar actuaciones; identificar situaciones de remisión o presencialidad; orientar ante riesgo o emergencia; y respetar el derecho a aceptar, rechazar o retirar el consentimiento.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">15. CONDICIONES ADMINISTRATIVAS Y ORGANIZACIÓN DE LAS SESIONES</p>
+                                        <p>Las condiciones de programación, duración, honorarios, cancelaciones y reprogramaciones son informadas y acordadas previamente entre el profesional y el consultante, sin limitar sus derechos ni impedir la orientación necesaria ante situaciones de urgencia.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">16. VOLUNTARIEDAD Y REVOCATORIA DEL CONSENTIMIENTO</p>
+                                        <p>La participación es libre, voluntaria y consciente. El consultante puede formular preguntas, manifestar desacuerdos, rechazar intervenciones o retirar su consentimiento para la atención virtual en cualquier momento sin sanciones ni represalias, sin perjuicio de la obligación legal de custodia de la historia clínica y registros previos, pudiendo recibir orientación sobre alternativas presenciales o remisión.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">17. DECLARACIÓN DE COMPRENSIÓN Y ACEPTACIÓN</p>
+                                        <p>Manifiesto que he recibido información clara, suficiente y comprensible sobre la atención psicológica virtual; comprendo objetivos, beneficios, riesgos y limitaciones; he sido informado sobre confidencialidad, secreto profesional y sus límites legales; conozco las condiciones de protección de datos personales y el procedimiento ante fallas tecnológicas y emergencias; he podido formular preguntas resueltas satisfactoriamente; comprendo que puedo retirar mi consentimiento en cualquier momento; y acepto libre y voluntariamente recibir atención psicológica en modalidad virtual.</p>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <p class="font-bold text-slate-900">18. FIRMAS</p>
+                                        <p>Fecha y hora de cita: ${safeFecha} ${safeHora} · Referencia: ${safeCode}</p>
+                                        <p>Profesional: ${safeProName} · Consultante: se registra con los datos y firma en trazo diligenciados a continuación.</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <label class="block text-xs font-semibold text-slate-700">
+                                            Firma en trazo del consultante *
+                                        </label>
+                                        <button
+                                            type="button"
+                                            onclick="limpiarFirma('${safeId}')"
+                                            class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
+                                        >
+                                            Limpiar firma
+                                        </button>
+                                    </div>
+                                    <canvas
+                                        id="firma-canvas-${safeId}"
+                                        class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
+                                    ></canvas>
+                                </div>
+
+                                <div id="bloque-menores-${safeId}" class="hidden bg-amber-50/70 border border-amber-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                                    <div class="space-y-1">
+                                        <p class="text-xs font-bold uppercase tracking-wider text-amber-900">
+                                            Atención a niños, niñas y adolescentes (NNA)
+                                        </p>
+                                        <p class="text-xs text-slate-700 leading-relaxed">
+                                            Al identificarse una persona menor de 18 años, se requiere la autorización de su padre, madre o representante legal, además del espacio de participación/asentimiento del menor de acuerdo con su edad y desarrollo.
+                                        </p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Nombre completo padre, madre o representante legal *</label>
+                                            <input type="text" id="ci-acudiente-nombre-${safeId}" placeholder="Nombre del acudiente" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Documento del padre, madre o representante legal *</label>
+                                            <input type="text" id="ci-acudiente-doc-${safeId}" placeholder="Tipo y número de documento" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Parentesco o calidad de representante</label>
+                                            <input type="text" id="ci-acudiente-parentesco-${safeId}" placeholder="Ej. Madre / Padre / Representante legal" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Teléfono del padre, madre o representante</label>
+                                            <input type="text" id="ci-acudiente-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <div class="flex items-center justify-between">
+                                            <label class="block text-xs font-semibold text-slate-800">
+                                                Firma en trazo del padre, madre o representante legal *
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onclick="limpiarFirma('acudiente-${safeId}')"
+                                                class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
+                                            >
+                                                Limpiar firma acudiente
+                                            </button>
+                                        </div>
+                                        <canvas
+                                            id="firma-canvas-acudiente-${safeId}"
+                                            class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
+                                        ></canvas>
+                                    </div>
+
+                                    <div class="space-y-1.5 pt-2 border-t border-amber-200/80">
+                                        <div class="flex items-center justify-between">
+                                            <label class="block text-xs font-semibold text-slate-800">
+                                                Firma / asentimiento en trazo del niño, niña o adolescente
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onclick="limpiarFirma('menor-${safeId}')"
+                                                class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
+                                            >
+                                                Limpiar firma menor
+                                            </button>
+                                        </div>
+                                        <canvas
+                                            id="firma-canvas-menor-${safeId}"
+                                            class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
+                                        ></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                                <button
+                                    type="button"
+                                    onclick="guardarConsentimientoFirmado('${safeId}', '${escapeHtml(email)}', '${safeCode}')"
+                                    class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition"
+                                >
+                                    Guardar consentimiento informado
+                                </button>
+                                <p id="consent-status-${safeId}" class="text-xs text-slate-500"></p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
 </body>
 </html>

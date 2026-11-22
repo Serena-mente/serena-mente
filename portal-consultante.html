@@ -1,520 +1,1077 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Portal del Profesional — Serena Mente</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        serena: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                            900: '#064e3b',
-                            light: '#e0f2fe',
-                            blue: '#0284c7',
-                            darkblue: '#0369a1'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serena Mente · Portal del Consultante</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F5FAF8;
+      color: #10263D;
+    }
+    .brand-gradient {
+      background: linear-gradient(135deg, #078E99 0%, #07976B 100%);
+    }
+    .brand-btn {
+      background: linear-gradient(135deg, #078E99 0%, #07976B 100%);
+      color: #ffffff;
+    }
+    .brand-btn:hover {
+      background: linear-gradient(135deg, #10263D 0%, #078E99 100%);
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="min-h-screen bg-[#F5FAF8] text-[#10263D]">
 
-    <!-- Header -->
-    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-                <a href="index.html" class="flex items-center space-x-2.5 focus:outline-none" aria-label="Serena Mente">
-                    <img src="assets/imagotipo.png" alt="Serena Mente"
-                        onerror="this.style.display='none'; document.getElementById('header-logo-fallback').classList.remove('hidden');"
-                        class="h-9 w-auto object-contain">
-                    <span id="header-logo-fallback" class="hidden flex items-center gap-2">
-                        <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-8 w-8 object-contain" onerror="this.style.display='none'">
-                    </span>
-                </a>
-                <span class="text-xs font-semibold bg-emerald-50 text-serena-700 border border-emerald-200 px-2.5 py-1 rounded-full">
-                    Portal del Profesional
+  <!-- Barra superior -->
+  <header class="bg-white border-b border-[#D9F5E8] sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center space-x-3 min-w-0">
+        <a href="index.html" class="flex items-center space-x-2.5 shrink-0">
+          <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-8 w-auto object-contain" />
+          <span class="font-extrabold text-base sm:text-lg tracking-tight text-[#10263D]">
+            Serena <span class="text-[#07976B]">Mente</span>
+          </span>
+        </a>
+        <span class="hidden sm:inline-block text-xs font-semibold px-2.5 py-1 rounded-full bg-[#D9F5E8] text-[#10263D]">
+          Portal del Consultante
+        </span>
+      </div>
+
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <span id="user-badge" class="hidden md:inline-block text-xs font-medium text-[#10263D]/75 bg-[#F5FAF8] border border-[#D9F5E8] px-3 py-1.5 rounded-full truncate max-w-[230px]"></span>
+        <a href="index.html" class="text-xs sm:text-sm font-semibold text-[#10263D] hover:text-[#078E99] px-3 py-1.5 rounded-lg border border-[#D9F5E8] bg-white">
+          Inicio
+        </a>
+        <button id="btn-logout" onclick="handleLogout()" class="hidden text-xs sm:text-sm font-semibold text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg border border-red-200 bg-white">
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Toast de notificaciones -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden max-w-sm bg-[#10263D] text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-xl border border-[#078E99]/40"></div>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Vista 1: Acceso / Registro de Consultante -->
+    <section id="auth-section" class="max-w-md mx-auto bg-white rounded-3xl border border-[#D9F5E8] shadow-sm p-6 sm:p-8 space-y-6">
+      <div class="flex items-center space-x-3">
+        <img src="assets/isotipo.png" alt="Serena Mente" class="h-11 w-auto object-contain" />
+        <div>
+          <h1 class="text-xl font-extrabold text-[#10263D]">Portal del Consultante</h1>
+          <p class="text-xs text-[#10263D]/70">Ingresa o crea tu cuenta para gestionar tus citas y comprobantes.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 bg-[#F5FAF8] p-1 rounded-2xl border border-[#D9F5E8]">
+        <button id="tab-login" type="button" onclick="switchAuthTab('login')" class="py-2 text-xs font-bold rounded-xl bg-white text-[#10263D] shadow-sm">
+          Iniciar sesión
+        </button>
+        <button id="tab-register" type="button" onclick="switchAuthTab('register')" class="py-2 text-xs font-bold rounded-xl text-[#10263D]/70 hover:text-[#10263D]">
+          Crear cuenta
+        </button>
+      </div>
+
+      <!-- Formulario Login -->
+      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-[#10263D] mb-1">Correo electrónico</label>
+          <input id="login-email" type="email" required placeholder="tu@correo.com" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#10263D] mb-1">Contraseña</label>
+          <input id="login-password" type="password" required placeholder="••••••••" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
+        </div>
+        <button type="submit" id="btn-login-submit" class="w-full brand-btn font-semibold py-2.5 rounded-xl text-sm shadow-sm transition">
+          Ingresar al portal
+        </button>
+      </form>
+
+      <!-- Formulario Registro -->
+      <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-semibold text-[#10263D] mb-1">Nombre completo</label>
+          <input id="reg-name" type="text" required placeholder="Tu nombre y apellido" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#10263D] mb-1">Correo electrónico</label>
+          <input id="reg-email" type="email" required placeholder="tu@correo.com" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#10263D] mb-1">Teléfono / WhatsApp (opcional)</label>
+          <input id="reg-phone" type="tel" placeholder="300 000 0000" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#10263D] mb-1">Contraseña</label>
+          <input id="reg-password" type="password" minlength="6" required placeholder="Mínimo 6 caracteres" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
+        </div>
+        <button type="submit" id="btn-register-submit" class="w-full brand-btn font-semibold py-2.5 rounded-xl text-sm shadow-sm transition">
+          Registrarme como consultante
+        </button>
+      </form>
+    </section>
+
+    <!-- Vista 2: Panel del Consultante Autenticado -->
+    <section id="portal-section" class="hidden space-y-8">
+
+      <!-- Bienvenida y resumen -->
+      <div class="bg-white rounded-3xl border border-[#D9F5E8] p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold text-[#07976B] uppercase tracking-wider">Espacio personal</p>
+          <h1 id="welcome-title" class="text-2xl font-extrabold text-[#10263D] mt-1">Hola, Consultante</h1>
+          <p id="welcome-subtitle" class="text-xs sm:text-sm text-[#10263D]/70 mt-1">Gestiona tus reservas, adjunta comprobantes de pago y revisa tus sesiones.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" onclick="refreshPortalData()" class="text-xs font-semibold px-4 py-2.5 rounded-xl bg-[#F5FAF8] hover:bg-[#D9F5E8] text-[#10263D] border border-[#D9F5E8] transition">
+            Actualizar datos
+          </button>
+        </div>
+      </div>
+
+      <!-- Grilla principal: Agendar cita + Comprobante de pago -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+
+        <!-- Tarjeta 1: Agendar nueva orientación -->
+        <div class="bg-white rounded-3xl border border-[#D9F5E8] p-6 sm:p-8 shadow-sm space-y-5">
+          <div>
+            <h2 class="text-lg font-extrabold text-[#10263D]">Agendar orientación psicológica</h2>
+            <p class="text-xs text-[#10263D]/70 mt-1">Selecciona profesional, fecha, horario disponible y modalidad.</p>
+          </div>
+
+          <form id="booking-form" onsubmit="handleBookingSubmit(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-[#10263D] mb-1">Profesional</label>
+              <select id="booking-psychologist" required onchange="onBookingFilterChange()" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                <option value="">Cargando profesionales...</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-[#10263D] mb-1">Fecha</label>
+                <input id="booking-date" type="date" required onchange="onBookingFilterChange()" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-[#10263D] mb-1">Modalidad</label>
+                <select id="booking-modality" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                  <option value="Virtual (Meet / Zoom)">Virtual (Meet / Zoom)</option>
+                  <option value="Presencial">Presencial</option>
+                  <option value="Telefónica / WhatsApp">Telefónica / WhatsApp</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-[#10263D] mb-1">Horario disponible</label>
+              <select id="booking-slot" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                <option value="">Selecciona profesional y fecha primero</option>
+              </select>
+              <p id="slot-hint" class="text-[11px] text-[#10263D]/60 mt-1">Se muestran horarios habilitados por el profesional que aún no están reservados.</p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-[#10263D] mb-1">Motivo breve de consulta (opcional)</label>
+              <textarea id="booking-notes" rows="2" placeholder="Describe brevemente en qué te gustaría recibir orientación..." class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-[#078E99]"></textarea>
+            </div>
+
+            <button type="submit" id="btn-booking-submit" class="w-full brand-btn font-semibold py-3 rounded-xl text-sm shadow-sm transition">
+              Confirmar reserva de cita
+            </button>
+          </form>
+        </div>
+
+        <!-- Tarjeta 2: Subir comprobante de pago -->
+        <div class="bg-white rounded-3xl border border-[#D9F5E8] p-6 sm:p-8 shadow-sm space-y-5">
+          <div>
+            <h2 class="text-lg font-extrabold text-[#10263D]">Enviar comprobante de pago</h2>
+            <p class="text-xs text-[#10263D]/70 mt-1">Asocia tu comprobante a una cita para que el equipo valide el pago.</p>
+          </div>
+
+          <div class="bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl p-4 text-xs space-y-1">
+            <p class="font-bold text-[#10263D]">Datos de transferencia / coordinación</p>
+            <p class="text-[#10263D]/75">Correo de coordinación: <span class="font-semibold text-[#078E99]">serenelyserenamente@gmail.com</span></p>
+            <p class="text-[#10263D]/75">WhatsApp de soporte: <span class="font-semibold">322 500 0756</span></p>
+          </div>
+
+          <form id="receipt-form" onsubmit="handleReceiptSubmit(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-[#10263D] mb-1">Cita asociada</label>
+              <select id="receipt-appointment" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
+                <option value="">Selecciona una de tus citas</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-[#10263D] mb-1">Referencia / N° transacción</label>
+                <input id="receipt-ref" type="text" required placeholder="Ej. TRF-984512" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-[#10263D] mb-1">Valor pagado (COP)</label>
+                <input id="receipt-amount" type="number" min="1000" step="500" required placeholder="Ej. 80000" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#078E99]" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-[#10263D] mb-1">Archivo de comprobante (Imagen o PDF)</label>
+              <input id="receipt-file" type="file" accept="image/*,application/pdf" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3 py-2 text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#D9F5E8] file:text-[#10263D] hover:file:bg-[#07976B] hover:file:text-white" />
+            </div>
+
+            <button type="submit" id="btn-receipt-submit" class="w-full brand-btn font-semibold py-3 rounded-xl text-sm shadow-sm transition">
+              Subir comprobante y notificar
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Listado de citas del consultante -->
+      <div class="bg-white rounded-3xl border border-[#D9F5E8] p-6 sm:p-8 shadow-sm space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 class="text-lg font-extrabold text-[#10263D]">Mis citas programadas</h2>
+            <p class="text-xs text-[#10263D]/70">Consulta el estado de tu reserva, comprobante, recordatorios o solicita reprogramación/cancelación.</p>
+          </div>
+        </div>
+
+        <div id="appointments-list" class="space-y-4">
+          <p class="text-sm text-[#10263D]/60">Cargando tus citas...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Reprogramar / Cancelar Cita -->
+  <div id="manage-modal" class="fixed inset-0 z-50 hidden bg-[#10263D]/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-[#D9F5E8] max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="modal-title" class="text-lg font-extrabold text-[#10263D]">Gestionar cita</h3>
+        <button type="button" onclick="closeManageModal()" class="text-sm font-bold text-[#10263D]/60 hover:text-[#10263D]">✕</button>
+      </div>
+
+      <form id="manage-form" onsubmit="handleManageAppointmentSubmit(event)" class="space-y-4">
+        <input type="hidden" id="manage-appt-id" />
+        <input type="hidden" id="manage-action-type" />
+
+        <div id="reschedule-fields" class="space-y-3 hidden">
+          <div>
+            <label class="block text-xs font-semibold text-[#10263D] mb-1">Nueva fecha</label>
+            <input id="manage-new-date" type="date" onchange="loadRescheduleSlots()" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-[#10263D] mb-1">Nuevo horario disponible</label>
+            <select id="manage-new-slot" class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm">
+              <option value="">Selecciona fecha</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label id="manage-reason-label" class="block text-xs font-semibold text-[#10263D] mb-1">Motivo</label>
+          <textarea id="manage-reason" rows="3" required placeholder="Indica el motivo del cambio o cancelación..." class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeManageModal()" class="px-4 py-2 rounded-xl text-xs font-semibold border border-[#D9F5E8] text-[#10263D]">
+            Volver
+          </button>
+          <button type="submit" id="btn-manage-submit" class="px-4 py-2 rounded-xl text-xs font-semibold brand-btn">
+            Guardar cambio
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const APPS_SCRIPT_CONSULTANTE_URL = 'https://script.google.com/macros/s/AKfycbz3WTs2d84VbqYonD2rysX1TyRkC00DE68VXwLrVVSRSqyXfU2zMdmeiiizB6z3JGvK/exec';
+    const BRAND_LOGO_URL = new URL('assets/imagotipo.png', window.location.href).href;
+
+    const RECEIPTS_BUCKET = 'comprobantes-pago';
+    const COORDINACION_EMAIL = 'serenelyserenamente@gmail.com';
+
+    let currentUser = null;
+    let currentProfile = null;
+    let psychologistsList = [];
+    let allAppointmentsForFilters = [];
+    let myAppointments = [];
+    let availabilityRows = [];
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `fixed bottom-5 right-5 z-50 max-w-sm text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-xl border ${
+        isError ? 'bg-red-900 border-red-400/40' : 'bg-[#10263D] border-[#078E99]/40'
+      }`;
+      toast.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 4200);
+    }
+
+    function switchAuthTab(tab) {
+      const isLogin = tab === 'login';
+      document.getElementById('login-form').classList.toggle('hidden', !isLogin);
+      document.getElementById('register-form').classList.toggle('hidden', isLogin);
+      document.getElementById('tab-login').className = isLogin
+        ? 'py-2 text-xs font-bold rounded-xl bg-white text-[#10263D] shadow-sm'
+        : 'py-2 text-xs font-bold rounded-xl text-[#10263D]/70 hover:text-[#10263D]';
+      document.getElementById('tab-register').className = !isLogin
+        ? 'py-2 text-xs font-bold rounded-xl bg-white text-[#10263D] shadow-sm'
+        : 'py-2 text-xs font-bold rounded-xl text-[#10263D]/70 hover:text-[#10263D]';
+    }
+
+    async function handleLogin(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btn-login-submit');
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+
+      btn.disabled = true;
+      btn.textContent = 'Ingresando...';
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+      btn.disabled = false;
+      btn.textContent = 'Ingresar al portal';
+
+      if (error) {
+        showToast(error.message || 'No se pudo iniciar sesión.', true);
+        return;
+      }
+
+      currentUser = data.user;
+      await enterPortal();
+    }
+
+    async function handleRegister(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btn-register-submit');
+      const fullName = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const password = document.getElementById('reg-password').value;
+
+      btn.disabled = true;
+      btn.textContent = 'Creando cuenta...';
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            phone: phone,
+            role: 'consultante'
+          }
+        }
+      });
+
+      btn.disabled = false;
+      btn.textContent = 'Registrarme como consultante';
+
+      if (error) {
+        showToast(error.message || 'No se pudo completar el registro.', true);
+        return;
+      }
+
+      if (data.user) {
+        await supabaseClient.from('profiles').upsert({
+          id: data.user.id,
+          email: email,
+          full_name: fullName,
+          phone: phone || null,
+          role: 'consultante'
+        }, { onConflict: 'id' });
+      }
+
+      if (data.session) {
+        currentUser = data.user;
+        showToast('Cuenta creada con éxito.');
+        await enterPortal();
+      } else {
+        showToast('Revisa tu correo para confirmar tu cuenta y luego inicia sesión.');
+        switchAuthTab('login');
+      }
+    }
+
+    async function handleLogout() {
+      await supabaseClient.auth.signOut();
+      currentUser = null;
+      currentProfile = null;
+      document.getElementById('portal-section').classList.add('hidden');
+      document.getElementById('auth-section').classList.remove('hidden');
+      document.getElementById('btn-logout').classList.add('hidden');
+      document.getElementById('user-badge').classList.add('hidden');
+      showToast('Sesión cerrada.');
+    }
+
+    async function enterPortal() {
+      if (!currentUser) return;
+
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .maybeSingle();
+
+      currentProfile = profile || {
+        id: currentUser.id,
+        email: currentUser.email,
+        full_name: currentUser.user_metadata?.full_name || currentUser.email.split('@')[0],
+        phone: currentUser.user_metadata?.phone || ''
+      };
+
+      document.getElementById('auth-section').classList.add('hidden');
+      document.getElementById('portal-section').classList.remove('hidden');
+      document.getElementById('btn-logout').classList.remove('hidden');
+
+      const displayName = currentProfile.full_name || currentUser.email;
+      document.getElementById('user-badge').textContent = displayName;
+      document.getElementById('user-badge').classList.remove('hidden');
+      document.getElementById('welcome-title').textContent = `Hola, ${displayName}`;
+      document.getElementById('welcome-subtitle').textContent = `Correo registrado: ${currentUser.email}`;
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      document.getElementById('booking-date').min = todayStr;
+      document.getElementById('manage-new-date').min = todayStr;
+
+      await refreshPortalData();
+    }
+
+    function buildBrandedHtmlEmail({ title, subtitle, rows }) {
+      const safeLogo = /^https?:\/\/[^\s]+$/i.test(BRAND_LOGO_URL)
+        ? `<img src="${escapeHtml(BRAND_LOGO_URL)}" alt="Serena Mente" style="max-height: 44px; width: auto; display: block; border: 0;">`
+        : `<span style="font-size: 18px; font-weight: 800; color: #10263D;">Serena <span style="color: #07976B;">Mente</span></span>`;
+
+      const detailsHtml = (rows || [])
+        .map((r) => `<p style="margin: 5px 0;"><strong>${escapeHtml(r.label)}:</strong> ${escapeHtml(r.value)}</p>`)
+        .join('');
+
+      return `
+        <div style="background-color: #F5FAF8; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #10263D;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border: 1px solid #D9F5E8; border-radius: 16px; overflow: hidden;">
+            <tr>
+              <td style="padding: 20px 24px; background-color: #F5FAF8; border-bottom: 1px solid #D9F5E8;">
+                ${safeLogo}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 24px; line-height: 1.6; font-size: 14px;">
+                <h2 style="margin: 0 0 6px 0; font-size: 18px; color: #07976B;">${escapeHtml(title)}</h2>
+                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">${escapeHtml(subtitle || '')}</p>
+                <div style="background-color: #F5FAF8; border: 1px solid #D9F5E8; border-radius: 12px; padding: 16px;">
+                  ${detailsHtml}
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 14px 24px; background-color: #10263D; color: #D9F5E8; font-size: 12px;">
+                Serena Mente · Plataforma de orientación psicológica virtual
+              </td>
+            </tr>
+          </table>
+        </div>
+      `;
+    }
+
+    async function sendMailViaAppsScript({ toEmail, subject, title, subtitle, rows, replyTo = '' }) {
+      if (!APPS_SCRIPT_CONSULTANTE_URL || APPS_SCRIPT_CONSULTANTE_URL.includes('PEGA_AQUI_')) {
+        console.warn('Falta configurar APPS_SCRIPT_CONSULTANTE_URL en portal-consultante.html');
+        return { sent: false, reason: 'URL de Apps Script no configurada' };
+      }
+
+      if (!toEmail) return { sent: false, reason: 'Sin destinatario' };
+
+      const htmlBody = buildBrandedHtmlEmail({ title, subtitle, rows });
+
+      try {
+        const response = await fetch(APPS_SCRIPT_CONSULTANTE_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify({
+            modulo: 'portal_consultante',
+            to_email: toEmail,
+            reply_to: replyTo || '',
+            subject: subject,
+            html_body: htmlBody
+          })
+        });
+
+        const rawText = await response.text();
+        let data = {};
+        try {
+          data = JSON.parse(rawText);
+        } catch (_) {
+          data = { raw: rawText };
+        }
+
+        if (!response.ok || data?.ok === false) {
+          const detail = data?.error || data?.message || data?.raw || `HTTP ${response.status}`;
+          console.error('Error enviando correo desde portal consultante:', detail);
+          return { sent: false, reason: detail };
+        }
+
+        return { sent: true };
+      } catch (err) {
+        console.error('Error de red al enviar correo en portal consultante:', err);
+        return { sent: false, reason: err?.message || 'Error de red' };
+      }
+    }
+
+    async function refreshPortalData() {
+      await Promise.all([
+        loadPsychologistsAndAvailability(),
+        loadMyAppointments()
+      ]);
+      renderAvailableSlots('booking-psychologist', 'booking-date', 'booking-slot');
+      populateReceiptAppointmentSelect();
+    }
+
+    async function loadPsychologistsAndAvailability() {
+      const { data: psychs } = await supabaseClient
+        .from('profiles')
+        .select('id, full_name, email, specialty')
+        .eq('role', 'psicologo')
+        .order('full_name', { ascending: true });
+
+      psychologistsList = psychs || [];
+
+      const selectEl = document.getElementById('booking-psychologist');
+      const prevVal = selectEl.value;
+      if (!psychologistsList.length) {
+        selectEl.innerHTML = '<option value="">No hay profesionales disponibles por el momento</option>';
+      } else {
+        selectEl.innerHTML = '<option value="">Selecciona un profesional</option>' + psychologistsList.map((p) => {
+          const label = p.specialty ? `${p.full_name} — ${p.specialty}` : p.full_name;
+          return `<option value="${escapeHtml(p.id)}">${escapeHtml(label)}</option>`;
+        }).join('');
+        if (prevVal && psychologistsList.some((p) => p.id === prevVal)) {
+          selectEl.value = prevVal;
+        }
+      }
+
+      const { data: avail } = await supabaseClient
+        .from('availability_slots')
+        .select('*')
+        .eq('is_active', true);
+
+      availabilityRows = avail || [];
+
+      const { data: booked } = await supabaseClient
+        .from('appointments')
+        .select('psychologist_id, appointment_date, start_time, status')
+        .neq('status', 'cancelada');
+
+      allAppointmentsForFilters = booked || [];
+    }
+
+    function getDayOfWeekFromDateStr(dateStr) {
+      if (!dateStr) return null;
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      return dt.getUTCDay();
+    }
+
+    function getAvailableSlotsFor(psychologistId, dateStr, targetSelectId) {
+      const select = document.getElementById(targetSelectId);
+      if (!psychologistId || !dateStr) {
+        select.innerHTML = '<option value="">Selecciona profesional y fecha</option>';
+        return;
+      }
+
+      const dayOfWeek = getDayOfWeekFromDateStr(dateStr);
+      const matchingSlots = availabilityRows.filter((slot) => {
+        const samePsych = slot.psychologist_id === psychologistId;
+        const sameDay = Number(slot.day_of_week) === Number(dayOfWeek);
+        const withinRange = (!slot.valid_from || dateStr >= slot.valid_from) &&
+                            (!slot.valid_until || dateStr <= slot.valid_until);
+        return samePsych && sameDay && withinRange;
+      });
+
+      const takenTimes = new Set(
+        allAppointmentsForFilters
+          .filter((a) => a.psychologist_id === psychologistId && a.appointment_date === dateStr && a.status !== 'cancelada')
+          .map((a) => String(a.start_time || '').slice(0, 5))
+      );
+
+      const freeSlots = matchingSlots
+        .map((s) => String(s.start_time || '').slice(0, 5))
+        .filter((t) => t && !takenTimes.has(t))
+        .sort();
+
+      if (!freeSlots.length) {
+        select.innerHTML = '<option value="">Sin horarios disponibles para esa fecha</option>';
+        return;
+      }
+
+      select.innerHTML = '<option value="">Selecciona un horario</option>' +
+        freeSlots.map((t) => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+    }
+
+    function renderAvailableSlots(psychSelectId, dateInputId, slotSelectId) {
+      const psychId = document.getElementById(psychSelectId).value;
+      const dateStr = document.getElementById(dateInputId).value;
+      getAvailableSlotsFor(psychId, dateStr, slotSelectId);
+    }
+
+    function onBookingFilterChange() {
+      renderAvailableSlots('booking-psychologist', 'booking-date', 'booking-slot');
+    }
+
+    async function handleBookingSubmit(event) {
+      event.preventDefault();
+      if (!currentUser) return;
+
+      const btn = document.getElementById('btn-booking-submit');
+      const psychologistId = document.getElementById('booking-psychologist').value;
+      const appointmentDate = document.getElementById('booking-date').value;
+      const modality = document.getElementById('booking-modality').value;
+      const startTime = document.getElementById('booking-slot').value;
+      const notes = document.getElementById('booking-notes').value.trim();
+
+      if (!psychologistId || !appointmentDate || !startTime) {
+        showToast('Selecciona profesional, fecha y horario disponible.', true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Agendando...';
+
+      const psychObj = psychologistsList.find((p) => p.id === psychologistId);
+      const consultanteName = currentProfile?.full_name || currentUser.email;
+      const consultanteEmail = currentProfile?.email || currentUser.email;
+
+      const { data: created, error } = await supabaseClient
+        .from('appointments')
+        .insert([{
+          client_id: currentUser.id,
+          client_name: consultanteName,
+          client_email: consultanteEmail,
+          psychologist_id: psychologistId,
+          psychologist_name: psychObj?.full_name || 'Profesional Serena Mente',
+          appointment_date: appointmentDate,
+          start_time: startTime,
+          modality: modality,
+          notes: notes || null,
+          status: 'pendiente_pago'
+        }])
+        .select()
+        .single();
+
+      btn.disabled = false;
+      btn.textContent = 'Confirmar reserva de cita';
+
+      if (error) {
+        showToast(error.message || 'No se pudo agendar la cita.', true);
+        return;
+      }
+
+      document.getElementById('booking-form').reset();
+      await refreshPortalData();
+      showToast('Cita reservada. Recuerda subir tu comprobante de pago.');
+
+      const emailRows = [
+        { label: 'Consultante', value: consultanteName },
+        { label: 'Correo consultante', value: consultanteEmail },
+        { label: 'Profesional', value: created.psychologist_name },
+        { label: 'Fecha', value: appointmentDate },
+        { label: 'Hora', value: startTime },
+        { label: 'Modalidad', value: modality },
+        { label: 'Estado inicial', value: 'Pendiente de comprobante / validación' }
+      ];
+
+      await Promise.all([
+        sendMailViaAppsScript({
+          toEmail: consultanteEmail,
+          subject: `Confirmación de reserva (${appointmentDate} ${startTime}) — Serena Mente`,
+          title: 'Reserva registrada en Serena Mente',
+          subtitle: 'Hemos recibido tu solicitud de orientación psicológica. Sube tu comprobante en el portal para completar la validación.',
+          rows: emailRows,
+          replyTo: COORDINACION_EMAIL
+        }),
+        sendMailViaAppsScript({
+          toEmail: COORDINACION_EMAIL,
+          subject: `Nueva reserva de cita: ${consultanteName} (${appointmentDate} ${startTime})`,
+          title: 'Nueva reserva registrada en el portal',
+          subtitle: 'Un consultante ha agendado una nueva orientación.',
+          rows: emailRows,
+          replyTo: consultanteEmail
+        })
+      ]);
+    }
+
+    async function loadMyAppointments() {
+      const { data, error } = await supabaseClient
+        .from('appointments')
+        .select('*')
+        .eq('client_id', currentUser.id)
+        .order('appointment_date', { ascending: true })
+        .order('start_time', { ascending: true });
+
+      const container = document.getElementById('appointments-list');
+      if (error) {
+        container.innerHTML = `<p class="text-sm text-red-700">Error cargando citas: ${escapeHtml(error.message)}</p>`;
+        return;
+      }
+
+      myAppointments = data || [];
+      if (!myAppointments.length) {
+        container.innerHTML = '<p class="text-sm text-[#10263D]/60">Aún no tienes citas agendadas.</p>';
+        return;
+      }
+
+      const badgeMap = {
+        pendiente_pago: 'bg-amber-100 text-amber-900 border-amber-200',
+        en_revision_pago: 'bg-sky-100 text-sky-900 border-sky-200',
+        confirmada: 'bg-emerald-100 text-emerald-900 border-emerald-200',
+        reprogramacion_solicitada: 'bg-purple-100 text-purple-900 border-purple-200',
+        cancelada: 'bg-red-100 text-red-900 border-red-200',
+        completada: 'bg-slate-200 text-slate-800 border-slate-300'
+      };
+
+      container.innerHTML = myAppointments.map((appt) => {
+        const statusKey = appt.status || 'pendiente_pago';
+        const badgeClass = badgeMap[statusKey] || 'bg-[#D9F5E8] text-[#10263D] border-[#D9F5E8]';
+        const canManage = !['cancelada', 'completada'].includes(statusKey);
+
+        return `
+          <div class="border border-[#D9F5E8] bg-[#F5FAF8] rounded-2xl p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-extrabold text-[#10263D]">${escapeHtml(appt.psychologist_name || 'Profesional')}</span>
+                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${badgeClass}">
+                  ${escapeHtml(statusKey.replaceAll('_', ' '))}
                 </span>
+              </div>
+              <p class="text-xs text-[#10263D]/80 font-medium">
+                Fecha: <span class="font-bold">${escapeHtml(appt.appointment_date)}</span> · Hora: <span class="font-bold">${escapeHtml(String(appt.start_time || '').slice(0, 5))}</span> · Modalidad: ${escapeHtml(appt.modality || 'Virtual')}
+              </p>
+              ${appt.payment_reference ? `<p class="text-xs text-[#078E99] font-semibold">Comprobante ref: ${escapeHtml(appt.payment_reference)} (${appt.payment_amount ? `$${Number(appt.payment_amount).toLocaleString('es-CO')}` : 'registrado'})</p>` : ''}
+              ${appt.meeting_link && statusKey === 'confirmada' ? `<p class="text-xs text-[#07976B] font-semibold">Enlace de sesión: <a href="${escapeHtml(appt.meeting_link)}" target="_blank" rel="noopener" class="underline">${escapeHtml(appt.meeting_link)}</a></p>` : ''}
             </div>
 
-            <div class="flex items-center gap-2 sm:gap-3">
-                <span id="pro-session-badge" class="hidden md:inline-block text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full truncate max-w-[240px]"></span>
-                <a href="index.html" class="text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 bg-white transition">
-                    Inicio
-                </a>
-                <button id="btn-pro-logout" type="button" onclick="handleProLogout()" class="hidden text-xs sm:text-sm font-semibold text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-xl border border-red-200 bg-white transition">
-                    Cerrar sesión
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="sendReminderEmail('${escapeHtml(appt.id)}')" class="text-xs font-semibold px-3 py-2 rounded-xl bg-white hover:bg-[#D9F5E8] text-[#10263D] border border-[#D9F5E8] transition">
+                Enviar recordatorio al correo
+              </button>
+              ${canManage ? `
+                <button type="button" onclick="openManageModal('${escapeHtml(appt.id)}', 'reprogramar')" class="text-xs font-semibold px-3 py-2 rounded-xl bg-white hover:bg-[#D9F5E8] text-[#078E99] border border-[#D9F5E8] transition">
+                  Reprogramar
                 </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Toast -->
-    <div id="pro-toast" class="fixed bottom-5 right-5 z-50 hidden max-w-sm bg-slate-900 text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-xl border border-serena-500/40"></div>
-
-    <!-- Main Content -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
-        <!-- Login Profesional -->
-        <section id="pro-auth-section" class="max-w-md mx-auto bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-            <div class="flex items-center gap-3">
-                <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="w-11 h-11 object-contain shrink-0" onerror="this.style.display='none'">
-                <div>
-                    <h1 class="text-xl font-extrabold text-slate-900">Acceso Profesional</h1>
-                    <p class="text-xs text-slate-500">Gestiona citas, enlaces Meet, consentimientos y comunicaciones.</p>
-                </div>
-            </div>
-
-            <form id="pro-login-form" onsubmit="handleProLogin(event)" class="space-y-4">
-                <div>
-                    <label for="pro-email" class="block text-xs font-semibold text-slate-700 uppercase mb-1">Correo profesional</label>
-                    <input id="pro-email" type="email" required placeholder="profesional@serenamente.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:bg-white focus:border-serena-600">
-                </div>
-                <div>
-                    <label for="pro-password" class="block text-xs font-semibold text-slate-700 uppercase mb-1">Contraseña</label>
-                    <input id="pro-password" type="password" required placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:bg-white focus:border-serena-600">
-                </div>
-                <button id="btn-pro-login" type="submit" class="w-full bg-serena-600 hover:bg-serena-700 text-white font-semibold py-2.5 rounded-xl text-sm shadow-sm transition">
-                    Ingresar al portal profesional
+                <button type="button" onclick="openManageModal('${escapeHtml(appt.id)}', 'cancelar')" class="text-xs font-semibold px-3 py-2 rounded-xl bg-white hover:bg-red-50 text-red-700 border border-red-200 transition">
+                  Cancelar
                 </button>
-            </form>
-        </section>
-
-        <!-- Panel Profesional -->
-        <section id="pro-dashboard-section" class="hidden space-y-8">
-            <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-serena-700">Panel clínico y de coordinación</p>
-                    <h1 id="pro-welcome-title" class="text-2xl font-extrabold text-slate-900 mt-1">Bienvenido/a</h1>
-                    <p id="pro-welcome-sub" class="text-xs sm:text-sm text-slate-500 mt-1">Revisa citas, actualiza estados de pago/enlace y envía notificaciones por correo.</p>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="cargarDatosProfesional()" class="text-xs font-semibold px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 transition">
-                        Actualizar citas
-                    </button>
-                </div>
+              ` : ''}
             </div>
+          </div>
+        `;
+      }).join('');
+    }
 
-            <!-- Listado de citas -->
-            <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                        <h2 class="text-lg font-extrabold text-slate-900">Citas y casos registrados</h2>
-                        <p class="text-xs text-slate-500">Actualiza estado de pago, enlace de videollamada y notifica al consultante y a coordinación.</p>
-                    </div>
-                    <input id="pro-search" type="text" oninput="renderAppointmentsTable()" placeholder="Buscar por código, correo o profesional..." class="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm w-full sm:w-72 focus:outline-none focus:bg-white focus:border-serena-600">
-                </div>
+    function populateReceiptAppointmentSelect() {
+      const select = document.getElementById('receipt-appointment');
+      const eligible = myAppointments.filter((a) => !['cancelada', 'completada'].includes(a.status));
 
-                <div id="pro-appointments-container" class="space-y-4">
-                    <p class="text-sm text-slate-500">Cargando citas...</p>
-                </div>
-            </div>
+      if (!eligible.length) {
+        select.innerHTML = '<option value="">No tienes citas activas pendientes de comprobante</option>';
+        return;
+      }
 
-            <!-- Consentimientos firmados recientes -->
-            <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
-                <div>
-                    <h2 class="text-lg font-extrabold text-slate-900">Consentimientos informados firmados</h2>
-                    <p class="text-xs text-slate-500">Consulta los últimos consentimientos registrados en <code>informed_consents</code>.</p>
-                </div>
-                <div id="pro-consents-container" class="space-y-3">
-                    <p class="text-sm text-slate-500">Cargando consentimientos...</p>
-                </div>
-            </div>
-        </section>
-    </main>
+      select.innerHTML = '<option value="">Selecciona una cita</option>' + eligible.map((a) => {
+        const timeStr = String(a.start_time || '').slice(0, 5);
+        return `<option value="${escapeHtml(a.id)}">${escapeHtml(a.appointment_date)} · ${escapeHtml(timeStr)} — ${escapeHtml(a.psychologist_name || 'Profesional')}</option>`;
+      }).join('');
+    }
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-5 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-            <div class="flex items-center space-x-2.5">
-                <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="w-7 h-7 object-contain shrink-0" onerror="this.style.display='none'">
-                <span>Serena Mente · Portal del Profesional</span>
-            </div>
-            <div class="flex flex-wrap items-center justify-center gap-4">
-                <a href="index.html" class="hover:text-serena-700 transition">Inicio</a>
-                <a href="portal-consultante_2.html" class="hover:text-serena-700 transition">Portal del Consultante</a>
-                <a href="contacto.html" class="hover:text-serena-700 transition">Contacto</a>
-            </div>
-        </div>
-    </footer>
+    async function handleReceiptSubmit(event) {
+      event.preventDefault();
+      if (!currentUser) return;
 
-    <script>
-        const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3WTs2d84VbqYonD2rysX1TyRkC00DE68VXwLrVVSRSqyXfU2zMdmeiiizB6z3JGvK/exec';
-        const COORDINACION_EMAIL = 'serenelyserenamente@gmail.com';
-        const BRAND_LOGO_URL = new URL('assets/imagotipo.png', window.location.href).href;
+      const btn = document.getElementById('btn-receipt-submit');
+      const appointmentId = document.getElementById('receipt-appointment').value;
+      const reference = document.getElementById('receipt-ref').value.trim();
+      const amount = Number(document.getElementById('receipt-amount').value);
+      const fileInput = document.getElementById('receipt-file');
+      const file = fileInput.files && fileInput.files[0];
 
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      if (!appointmentId || !reference || !amount || !file) {
+        showToast('Completa todos los campos y adjunta tu comprobante.', true);
+        return;
+      }
 
-        let proUser = null;
-        let proAppointments = [];
-        let proConsents = [];
+      btn.disabled = true;
+      btn.textContent = 'Subiendo comprobante...';
 
-        function escapeHtml(value) {
-            return String(value ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+      const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const filePath = `${currentUser.id}/${appointmentId}/${Date.now()}_${cleanFileName}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from(RECEIPTS_BUCKET)
+        .upload(filePath, file, { upsert: false });
+
+      if (uploadError) {
+        btn.disabled = false;
+        btn.textContent = 'Subir comprobante y notificar';
+        showToast(`Error al subir archivo: ${uploadError.message}`, true);
+        return;
+      }
+
+      const { data: publicUrlData } = supabaseClient.storage
+        .from(RECEIPTS_BUCKET)
+        .getPublicUrl(filePath);
+
+      const receiptUrl = publicUrlData?.publicUrl || filePath;
+
+      const { error: updateError } = await supabaseClient
+        .from('appointments')
+        .update({
+          payment_reference: reference,
+          payment_amount: amount,
+          payment_receipt_url: receiptUrl,
+          status: 'en_revision_pago'
+        })
+        .eq('id', appointmentId)
+        .eq('client_id', currentUser.id);
+
+      btn.disabled = false;
+      btn.textContent = 'Subir comprobante y notificar';
+
+      if (updateError) {
+        showToast(`Error actualizando cita: ${updateError.message}`, true);
+        return;
+      }
+
+      const appt = myAppointments.find((a) => a.id === appointmentId);
+      const consultanteName = currentProfile?.full_name || currentUser.email;
+      const consultanteEmail = currentProfile?.email || currentUser.email;
+
+      document.getElementById('receipt-form').reset();
+      await refreshPortalData();
+      showToast('Comprobante enviado. Queda en revisión de pago.');
+
+      const rows = [
+        { label: 'Consultante', value: consultanteName },
+        { label: 'Correo consultante', value: consultanteEmail },
+        { label: 'Cita', value: appt ? `${appt.appointment_date} (${String(appt.start_time || '').slice(0, 5)})` : appointmentId },
+        { label: 'Referencia', value: reference },
+        { label: 'Valor (COP)', value: `$${amount.toLocaleString('es-CO')}` },
+        { label: 'Archivo', value: receiptUrl }
+      ];
+
+      await Promise.all([
+        sendMailViaAppsScript({
+          toEmail: consultanteEmail,
+          subject: `Comprobante recibido (Ref: ${reference}) — Serena Mente`,
+          title: 'Comprobante de pago en revisión',
+          subtitle: 'Hemos recibido tu comprobante y lo estamos validando.',
+          rows,
+          replyTo: COORDINACION_EMAIL
+        }),
+        sendMailViaAppsScript({
+          toEmail: COORDINACION_EMAIL,
+          subject: `Nuevo comprobante de pago: ${consultanteName} (Ref: ${reference})`,
+          title: 'Comprobante de pago pendiente de validación',
+          subtitle: 'Un consultante ha subido un comprobante de pago en el portal.',
+          rows,
+          replyTo: consultanteEmail
+        })
+      ]);
+    }
+
+    function openManageModal(appointmentId, actionType) {
+      const appt = myAppointments.find((a) => a.id === appointmentId);
+      if (!appt) return;
+
+      document.getElementById('manage-appt-id').value = appointmentId;
+      document.getElementById('manage-action-type').value = actionType;
+      document.getElementById('manage-reason').value = '';
+
+      const isReschedule = actionType === 'reprogramar';
+      document.getElementById('modal-title').textContent = isReschedule ? 'Solicitar reprogramación' : 'Cancelar cita';
+      document.getElementById('reschedule-fields').classList.toggle('hidden', !isReschedule);
+      document.getElementById('manage-reason-label').textContent = isReschedule
+        ? 'Motivo de la reprogramación'
+        : 'Motivo de la cancelación';
+
+      if (isReschedule) {
+        document.getElementById('manage-new-date').value = '';
+        document.getElementById('manage-new-slot').innerHTML = '<option value="">Selecciona nueva fecha</option>';
+        document.getElementById('manage-new-date').dataset.psychId = appt.psychologist_id || '';
+      }
+
+      document.getElementById('manage-modal').classList.remove('hidden');
+    }
+
+    function closeManageModal() {
+      document.getElementById('manage-modal').classList.add('hidden');
+    }
+
+    function loadRescheduleSlots() {
+      const dateInput = document.getElementById('manage-new-date');
+      const psychId = dateInput.dataset.psychId;
+      const dateStr = dateInput.value;
+      getAvailableSlotsFor(psychId, dateStr, 'manage-new-slot');
+    }
+
+    async function handleManageAppointmentSubmit(event) {
+      event.preventDefault();
+      const apptId = document.getElementById('manage-appt-id').value;
+      const actionType = document.getElementById('manage-action-type').value;
+      const reason = document.getElementById('manage-reason').value.trim();
+      const btn = document.getElementById('btn-manage-submit');
+
+      const appt = myAppointments.find((a) => a.id === apptId);
+      if (!appt) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Procesando...';
+
+      let updatePayload = {};
+      let newDate = appt.appointment_date;
+      let newTime = String(appt.start_time || '').slice(0, 5);
+
+      if (actionType === 'reprogramar') {
+        newDate = document.getElementById('manage-new-date').value;
+        newTime = document.getElementById('manage-new-slot').value;
+        if (!newDate || !newTime) {
+          btn.disabled = false;
+          btn.textContent = 'Guardar cambio';
+          showToast('Selecciona nueva fecha y horario disponible.', true);
+          return;
         }
+        updatePayload = {
+          appointment_date: newDate,
+          start_time: newTime,
+          reschedule_reason: reason,
+          status: 'reprogramacion_solicitada'
+        };
+      } else {
+        updatePayload = {
+          cancel_reason: reason,
+          status: 'cancelada'
+        };
+      }
 
-        function isSafeHttpUrl(url) {
-            try {
-                const parsed = new URL(url);
-                return parsed.protocol === 'https:' || parsed.protocol === 'http:';
-            } catch {
-                return false;
-            }
-        }
+      const { error } = await supabaseClient
+        .from('appointments')
+        .update(updatePayload)
+        .eq('id', apptId)
+        .eq('client_id', currentUser.id);
 
-        function showProToast(message, isError = false) {
-            const toast = document.getElementById('pro-toast');
-            toast.textContent = message;
-            toast.className = `fixed bottom-5 right-5 z-50 max-w-sm text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-xl border ${
-                isError ? 'bg-red-900 border-red-400/40' : 'bg-slate-900 border-serena-500/40'
-            }`;
-            toast.classList.remove('hidden');
-            clearTimeout(window.__proToastTimer);
-            window.__proToastTimer = setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 4200);
-        }
+      btn.disabled = false;
+      btn.textContent = 'Guardar cambio';
 
-        function buildProEmailHtml({ title, subtitle, rows }) {
-            const safeLogo = isSafeHttpUrl(BRAND_LOGO_URL)
-                ? `<img src="${escapeHtml(BRAND_LOGO_URL)}" alt="Serena Mente" style="max-height: 44px; width: auto; display: block; border: 0;">`
-                : `<span style="font-size: 18px; font-weight: 800; color: #064e3b;">Serena Mente</span>`;
+      if (error) {
+        showToast(error.message || 'No se pudo actualizar la cita.', true);
+        return;
+      }
 
-            const rowsHtml = (rows || [])
-                .map((r) => `<p style="margin: 5px 0;"><strong>${escapeHtml(r.label)}:</strong> ${escapeHtml(r.value)}</p>`)
-                .join('');
+      closeManageModal();
+      await refreshPortalData();
+      showToast(actionType === 'reprogramar' ? 'Solicitud de reprogramación enviada.' : 'Cita cancelada.');
 
-            return `
-                <div style="background-color: #f0fdf4; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #0f172a;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border: 1px solid #bbf7d0; border-radius: 16px; overflow: hidden;">
-                        <tr>
-                            <td style="padding: 20px 24px; background-color: #f0fdf4; border-bottom: 1px solid #bbf7d0;">
-                                ${safeLogo}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 24px; line-height: 1.6; font-size: 14px;">
-                                <h2 style="margin: 0 0 6px 0; font-size: 18px; color: #047857;">${escapeHtml(title)}</h2>
-                                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">${escapeHtml(subtitle || '')}</p>
-                                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
-                                    ${rowsHtml}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 14px 24px; background-color: #064e3b; color: #dcfce7; font-size: 12px;">
-                                Serena Mente · Notificación del Portal del Profesional
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            `;
-        }
+      const consultanteName = currentProfile?.full_name || currentUser.email;
+      const consultanteEmail = currentProfile?.email || currentUser.email;
 
-        async function postToAppsScript({ toEmail, replyTo, subject, htmlBody }) {
-            if (!toEmail || !APPS_SCRIPT_URL) {
-                return { sent: false, reason: 'Destinatario o URL faltante' };
-            }
-            try {
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'text/plain;charset=utf-8'
-                    },
-                    body: JSON.stringify({
-                        modulo: 'portal_profesional',
-                        to_email: toEmail,
-                        reply_to: replyTo || '',
-                        subject: subject,
-                        html_body: htmlBody
-                    })
-                });
-                const rawText = await response.text();
-                let parsed = {};
-                try {
-                    parsed = JSON.parse(rawText);
-                } catch (_) {
-                    parsed = { raw: rawText };
-                }
-                if (!response.ok || parsed?.ok === false) {
-                    return { sent: false, reason: parsed?.error || parsed?.raw || `HTTP ${response.status}` };
-                }
-                return { sent: true };
-            } catch (err) {
-                console.error('Error enviando correo desde portal profesional:', err);
-                return { sent: false, reason: err?.message || 'Error de red' };
-            }
-        }
+      const rows = actionType === 'reprogramar'
+        ? [
+            { label: 'Consultante', value: consultanteName },
+            { label: 'Profesional', value: appt.psychologist_name || 'Profesional' },
+            { label: 'Fecha/hora anterior', value: `${appt.appointment_date} (${String(appt.start_time || '').slice(0, 5)})` },
+            { label: 'Nueva fecha/hora solicitada', value: `${newDate} (${newTime})` },
+            { label: 'Motivo', value: reason }
+          ]
+        : [
+            { label: 'Consultante', value: consultanteName },
+            { label: 'Profesional', value: appt.psychologist_name || 'Profesional' },
+            { label: 'Fecha/hora cancelada', value: `${appt.appointment_date} (${String(appt.start_time || '').slice(0, 5)})` },
+            { label: 'Motivo', value: reason }
+          ];
 
-        async function enviarNotificacionProfesional({ clientEmail, subject, title, subtitle, rows }) {
-            const htmlBody = buildProEmailHtml({ title, subtitle, rows });
-            const targets = [];
+      await Promise.all([
+        sendMailViaAppsScript({
+          toEmail: consultanteEmail,
+          subject: actionType === 'reprogramar'
+            ? `Reprogramación solicitada (${newDate} ${newTime}) — Serena Mente`
+            : `Cancelación de cita (${appt.appointment_date}) — Serena Mente`,
+          title: actionType === 'reprogramar' ? 'Solicitud de reprogramación registrada' : 'Cita cancelada',
+          subtitle: 'Se ha registrado el cambio en tu cita.',
+          rows,
+          replyTo: COORDINACION_EMAIL
+        }),
+        sendMailViaAppsScript({
+          toEmail: COORDINACION_EMAIL,
+          subject: actionType === 'reprogramar'
+            ? `Solicitud de reprogramación: ${consultanteName}`
+            : `Cita cancelada por consultante: ${consultanteName}`,
+          title: actionType === 'reprogramar' ? 'Reprogramación solicitada' : 'Cita cancelada',
+          subtitle: 'Actualización realizada desde el Portal del Consultante.',
+          rows,
+          replyTo: consultanteEmail
+        })
+      ]);
+    }
 
-            if (clientEmail) {
-                targets.push({ to: clientEmail, replyTo: COORDINACION_EMAIL });
-            }
-            targets.push({ to: COORDINACION_EMAIL, replyTo: clientEmail || COORDINACION_EMAIL });
+    async function sendReminderEmail(appointmentId) {
+      const appt = myAppointments.find((a) => a.id === appointmentId);
+      if (!appt) return;
 
-            const results = await Promise.all(
-                targets.map((t) => postToAppsScript({
-                    toEmail: t.to,
-                    replyTo: t.replyTo,
-                    subject,
-                    htmlBody
-                }))
-            );
+      const consultanteName = currentProfile?.full_name || currentUser.email;
+      const consultanteEmail = currentProfile?.email || currentUser.email;
+      const timeStr = String(appt.start_time || '').slice(0, 5);
 
-            return results.every((r) => r.sent);
-        }
+      const result = await sendMailViaAppsScript({
+        toEmail: consultanteEmail,
+        subject: `Recordatorio de orientación: ${appt.appointment_date} a las ${timeStr} — Serena Mente`,
+        title: 'Recordatorio de tu orientación psicológica',
+        subtitle: 'Aquí tienes los datos de tu cita programada:',
+        rows: [
+          { label: 'Consultante', value: consultanteName },
+          { label: 'Profesional', value: appt.psychologist_name || 'Profesional Serena Mente' },
+          { label: 'Fecha', value: appt.appointment_date },
+          { label: 'Hora', value: timeStr },
+          { label: 'Modalidad', value: appt.modality || 'Virtual' },
+          { label: 'Estado', value: (appt.status || '').replaceAll('_', ' ') }
+        ],
+        replyTo: COORDINACION_EMAIL
+      });
 
-        async function handleProLogin(event) {
-            event.preventDefault();
-            const btn = document.getElementById('btn-pro-login');
-            const email = document.getElementById('pro-email').value.trim().toLowerCase();
-            const password = document.getElementById('pro-password').value;
+      if (result.sent) {
+        showToast('Recordatorio enviado a tu correo.');
+      } else {
+        showToast('No se pudo enviar el recordatorio. Revisa la configuración del correo.', true);
+      }
+    }
 
-            btn.disabled = true;
-            btn.textContent = 'Ingresando...';
-
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-            btn.disabled = false;
-            btn.textContent = 'Ingresar al portal profesional';
-
-            if (error) {
-                showProToast(error.message || 'No se pudo iniciar sesión.', true);
-                return;
-            }
-
-            proUser = data.user;
-            await enterProDashboard();
-        }
-
-        async function handleProLogout() {
-            await supabaseClient.auth.signOut();
-            proUser = null;
-            document.getElementById('pro-dashboard-section').classList.add('hidden');
-            document.getElementById('pro-auth-section').classList.remove('hidden');
-            document.getElementById('btn-pro-logout').classList.add('hidden');
-            document.getElementById('pro-session-badge').classList.add('hidden');
-            showProToast('Sesión cerrada.');
-        }
-
-        async function enterProDashboard() {
-            if (!proUser) return;
-            document.getElementById('pro-auth-section').classList.add('hidden');
-            document.getElementById('pro-dashboard-section').classList.remove('hidden');
-            document.getElementById('btn-pro-logout').classList.remove('hidden');
-
-            const badge = document.getElementById('pro-session-badge');
-            badge.textContent = proUser.email;
-            badge.classList.remove('hidden');
-
-            document.getElementById('pro-welcome-title').textContent = `Hola, ${proUser.email}`;
-            await cargarDatosProfesional();
-        }
-
-        async function cargarDatosProfesional() {
-            const apptContainer = document.getElementById('pro-appointments-container');
-            const consentContainer = document.getElementById('pro-consents-container');
-
-            const { data: appts, error: apptErr } = await supabaseClient
-                .from('citas_casos')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(100);
-
-            if (apptErr) {
-                apptContainer.innerHTML = `<p class="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-4">No se pudieron cargar las citas (${escapeHtml(apptErr.message)}).</p>`;
-            } else {
-                proAppointments = appts || [];
-                renderAppointmentsTable();
-            }
-
-            const { data: consents, error: consentErr } = await supabaseClient
-                .from('informed_consents')
-                .select('id, appointment_reference, patient_full_name, patient_document, patient_email, psychologist_full_name, is_minor, signed_at')
-                .order('signed_at', { ascending: false })
-                .limit(30);
-
-            if (consentErr) {
-                consentContainer.innerHTML = `<p class="text-xs text-slate-500">No se pudieron cargar los consentimientos (${escapeHtml(consentErr.message)}).</p>`;
-            } else {
-                proConsents = consents || [];
-                renderConsentsList();
-            }
-        }
-
-        function renderAppointmentsTable() {
-            const container = document.getElementById('pro-appointments-container');
-            const query = (document.getElementById('pro-search')?.value || '').trim().toLowerCase();
-
-            const filtered = proAppointments.filter((a) => {
-                if (!query) return true;
-                const hay = [
-                    a.codigo_caso,
-                    a.correo_consultante,
-                    a.psicologo_nombre,
-                    a.psicologo_email,
-                    a.estado_pago
-                ].filter(Boolean).join(' ').toLowerCase();
-                return hay.includes(query);
-            });
-
-            if (!filtered.length) {
-                container.innerHTML = '<p class="text-sm text-slate-500">No hay citas que coincidan con el filtro.</p>';
-                return;
-            }
-
-            container.innerHTML = filtered.map((appt) => {
-                const id = String(appt.id);
-                const safeId = escapeHtml(id);
-                const code = escapeHtml(appt.codigo_caso || 'Sin código');
-                const clientEmail = escapeHtml(appt.correo_consultante || '');
-                const proName = escapeHtml(appt.psicologo_nombre || 'Profesional');
-                const fecha = escapeHtml(appt.fecha_sesion || 'Por confirmar');
-                const hora = escapeHtml(appt.hora_sesion || '');
-                const pagoActual = escapeHtml(appt.estado_pago || 'Pendiente');
-                const meetActual = escapeHtml(appt.enlace_meet || appt.link_meet || '');
-
-                return `
-                    <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 sm:p-5 space-y-4">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                            <div>
-                                <span class="text-xs font-bold uppercase text-serena-700">Ref: ${code}</span>
-                                <p class="text-sm font-bold text-slate-900">${clientEmail || 'Consultante sin correo'} · <span class="font-normal text-slate-600">${proName}</span></p>
-                                <p class="text-xs text-slate-500">Fecha/Hora: ${fecha} ${hora}</p>
-                            </div>
-                            <span class="self-start sm:self-auto text-xs font-bold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-800">
-                                Pago: ${pagoActual}
-                            </span>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Estado de pago</label>
-                                <select id="pro-pago-${safeId}" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                                    <option value="Pendiente" ${pagoActual === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
-                                    <option value="En revisión" ${pagoActual === 'En revisión' ? 'selected' : ''}>En revisión</option>
-                                    <option value="Pagado" ${pagoActual === 'Pagado' ? 'selected' : ''}>Pagado</option>
-                                    <option value="Confirmado" ${pagoActual === 'Confirmado' ? 'selected' : ''}>Confirmado</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Enlace Google Meet (https://)</label>
-                                <input id="pro-meet-${safeId}" type="url" value="${meetActual}" placeholder="https://meet.google.com/..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                            </div>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-2 pt-1">
-                            <button type="button" onclick="guardarYNotificarCita('${safeId}')" class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-4 py-2 rounded-xl text-xs transition">
-                                Guardar y notificar por correo
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        async function guardarYNotificarCita(idStr) {
-            const appt = proAppointments.find((a) => String(a.id) === String(idStr));
-            if (!appt) return;
-
-            const nuevoPago = document.getElementById(`pro-pago-${idStr}`)?.value || 'Pendiente';
-            const nuevoMeet = (document.getElementById(`pro-meet-${idStr}`)?.value || '').trim();
-
-            if (nuevoMeet && !isSafeHttpUrl(nuevoMeet)) {
-                showProToast('Ingresa un enlace válido que comience por https://.', true);
-                return;
-            }
-
-            const { error } = await supabaseClient
-                .from('citas_casos')
-                .update({
-                    estado_pago: nuevoPago,
-                    enlace_meet: nuevoMeet || null
-                })
-                .eq('id', appt.id);
-
-            if (error) {
-                showProToast(`No se pudo guardar (${error.message}).`, true);
-                return;
-            }
-
-            const sent = await enviarNotificacionProfesional({
-                clientEmail: appt.correo_consultante || '',
-                subject: `Actualización de tu cita (${appt.codigo_caso || 'Serena Mente'}) — Serena Mente`,
-                title: 'Actualización de tu sesión en Serena Mente',
-                subtitle: 'Se han actualizado los datos de tu cita o acceso a sesión.',
-                rows: [
-                    { label: 'Código / Referencia', value: appt.codigo_caso || 'N/A' },
-                    { label: 'Consultante', value: appt.correo_consultante || 'N/A' },
-                    { label: 'Profesional', value: appt.psicologo_nombre || 'Profesional asignado' },
-                    { label: 'Fecha / Hora', value: `${appt.fecha_sesion || 'Por confirmar'} ${appt.hora_sesion || ''}`.trim() },
-                    { label: 'Estado de pago', value: nuevoPago },
-                    { label: 'Enlace de sesión', value: nuevoMeet || 'Pendiente por asignar' }
-                ]
-            });
-
-            await cargarDatosProfesional();
-            showProToast(sent ? 'Cita actualizada y correo enviado.' : 'Cita actualizada; revisa el envío de correo.');
-        }
-
-        function renderConsentsList() {
-            const container = document.getElementById('pro-consents-container');
-            if (!proConsents.length) {
-                container.innerHTML = '<p class="text-xs text-slate-500">Aún no hay consentimientos firmados registrados.</p>';
-                return;
-            }
-
-            container.innerHTML = proConsents.map((c) => {
-                const fechaFirma = c.signed_at ? new Date(c.signed_at).toLocaleString('es-CO') : 'Sin fecha';
-                return `
-                    <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
-                        <div>
-                            <p class="font-bold text-slate-900">${escapeHtml(c.patient_full_name || 'Consultante')} · <span class="text-serena-700">${escapeHtml(c.appointment_reference || '')}</span></p>
-                            <p class="text-slate-600">Doc: ${escapeHtml(c.patient_document || 'N/A')} · Correo: ${escapeHtml(c.patient_email || 'N/A')}</p>
-                        </div>
-                        <div class="text-slate-500">
-                            ${c.is_minor ? '<span class="inline-block bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded-full mr-2">NNA</span>' : ''}
-                            <span>Firmado: ${escapeHtml(fechaFirma)}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        (async function initPro() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session && session.user) {
-                proUser = session.user;
-                await enterProDashboard();
-            }
-        })();
-    </script>
+    (async function init() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session && session.user) {
+        currentUser = session.user;
+        await enterPortal();
+      }
+    })();
+  </script>
 </body>
 </html>

@@ -763,23 +763,6 @@
             statusEl.textContent = 'Guardando consentimiento informado y generando PDF...';
             statusEl.className = 'text-xs text-slate-500';
 
-            const { error: rpcError } = await supabaseClient.rpc('actualizar_mensaje_consultante', {
-                p_email: email,
-                p_codigo_caso: codigoCaso,
-                p_mensaje: '',
-                p_consentimiento: true
-            });
-
-            if (rpcError) {
-                if (saveBtn) {
-                    saveBtn.disabled = false;
-                    saveBtn.textContent = 'Guardar consentimiento informado';
-                }
-                statusEl.textContent = `No se pudo actualizar el estado del consentimiento (${rpcError.message}).`;
-                statusEl.className = 'text-xs text-amber-700 font-medium';
-                return;
-            }
-
             const signatureDataUrl = pad.toDataUrl();
             const guardianSignatureUrl = esMenor ? signaturePads[`acudiente-${recordId}`]?.toDataUrl() : null;
             const minorAssentSignatureUrl = esMenor && signaturePads[`menor-${recordId}`] && !signaturePads[`menor-${recordId}`].isEmpty()
@@ -788,6 +771,8 @@
 
             const consentPayload = {
                 appointment_reference: codigoCaso,
+                consent_version: 'v1.0-2026',
+                session_modality: citaActual.tipo_caso || 'Virtual',
                 patient_full_name: patientFullName,
                 patient_document: patientDocument,
                 patient_birthdate: patientBirthdate || null,
@@ -817,6 +802,38 @@
                 .from('informed_consents')
                 .insert(consentPayload);
 
+            if (insertError) {
+                if (insertError.code === '23505') {
+                    await supabaseClient.rpc('actualizar_mensaje_consultante', {
+                        p_email: email,
+                        p_codigo_caso: codigoCaso,
+                        p_mensaje: '',
+                        p_consentimiento: true
+                    });
+                    bloquearConsentimientoYaEnviado(recordId);
+                    return;
+                }
+
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Guardar consentimiento informado';
+                }
+                statusEl.textContent = `No se pudo guardar el consentimiento (${insertError.message}).`;
+                statusEl.className = 'text-xs text-amber-700 font-medium';
+                return;
+            }
+
+            const { error: rpcError } = await supabaseClient.rpc('actualizar_mensaje_consultante', {
+                p_email: email,
+                p_codigo_caso: codigoCaso,
+                p_mensaje: '',
+                p_consentimiento: true
+            });
+
+            if (rpcError) {
+                console.warn('No se pudo actualizar bandera de cita:', rpcError.message);
+            }
+
             const mailResult = await enviarConsentimientoPorCorreo({
                 ...consentPayload,
                 psychologistName: citaActual.psicologo_nombre || 'Profesional asignado',
@@ -835,16 +852,6 @@
                 minorAssentSignatureUrl,
                 codigoCaso
             });
-
-            if (insertError) {
-                if (saveBtn) {
-                    saveBtn.disabled = false;
-                    saveBtn.textContent = 'Guardar consentimiento informado';
-                }
-                statusEl.textContent = `Consentimiento enviado; revisa el registro en base de datos (${insertError.message}).`;
-                statusEl.className = 'text-xs text-amber-700 font-medium';
-                return;
-            }
 
             if (mailResult.sent) {
                 bloquearConsentimientoYaEnviado(recordId);

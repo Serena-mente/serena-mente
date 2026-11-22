@@ -33,8 +33,6 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- SDK de EmailJS para enviar mensajes de contacto por correo desde el navegador -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -184,18 +182,19 @@
     <script>
         const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+        const SERENA_EMAIL_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/send-serena-email`;
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const CONTACT_TABLE = 'mensajes_contacto';
         const DESTINO_CORREO = 'serenelyserenamente@gmail.com';
 
-        // Credenciales de EmailJS para los mensajes de contacto
-        const EMAILJS_PUBLIC_KEY = 'hAUcIp_2DLmaRXodc';
-        const EMAILJS_SERVICE_ID = 'service_p1gsqjg';
-        const EMAILJS_CONTACT_TEMPLATE_ID = 'template_i9z8l31';
-
-        if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY' && window.emailjs) {
-            window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function showToast(msg) {
@@ -226,31 +225,48 @@
             return { saved: true };
         }
 
-        async function sendContactViaEmailJS({ name, email, message }) {
-            const isConfigured =
-                EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY' &&
-                EMAILJS_SERVICE_ID && EMAILJS_SERVICE_ID !== 'TU_SERVICE_ID' &&
-                EMAILJS_CONTACT_TEMPLATE_ID && EMAILJS_CONTACT_TEMPLATE_ID !== 'TU_TEMPLATE_ID' &&
-                window.emailjs;
-
-            if (!isConfigured) {
-                return { sent: false, reason: 'EmailJS no configurado' };
-            }
+        async function sendContactViaEdgeFunction({ name, email, message }) {
+            const htmlBody = `
+                <div style="font-family: Arial, sans-serif; color: #10263D; max-width: 640px; margin: 0 auto; line-height: 1.5;">
+                    <h2 style="color: #07976B; margin-bottom: 8px;">Nuevo mensaje de contacto — Serena Mente</h2>
+                    <p style="margin-top: 0; color: #475569;">Se ha recibido una consulta desde el formulario de contacto del portal.</p>
+                    <div style="background: #F5FAF8; border: 1px solid #D9F5E8; border-radius: 12px; padding: 16px; margin: 16px 0;">
+                        <p style="margin: 4px 0;"><strong>Nombre completo:</strong> ${escapeHtml(name)}</p>
+                        <p style="margin: 4px 0;"><strong>Correo electrónico:</strong> ${escapeHtml(email)}</p>
+                        <p style="margin: 8px 0 4px;"><strong>Mensaje:</strong></p>
+                        <p style="margin: 0; white-space: pre-wrap;">${escapeHtml(message)}</p>
+                    </div>
+                </div>
+            `;
 
             try {
-                await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_CONTACT_TEMPLATE_ID, {
-                    to_email: DESTINO_CORREO,
-                    correo_destino: DESTINO_CORREO,
-                    consultante_nombre: name,
-                    consultante_email: email,
-                    mensaje_consultante: message,
-                    mensaje_contacto: message,
-                    reply_to: email
+                const response = await fetch(SERENA_EMAIL_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        tipo: 'notificacion_general',
+                        to_email: DESTINO_CORREO,
+                        reply_to: email,
+                        subject: `Nuevo mensaje de contacto: ${name} | Serena Mente`,
+                        html_body: htmlBody
+                    })
                 });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || data?.ok === false) {
+                    const detail = data?.error || `HTTP ${response.status}`;
+                    console.error('Error enviando mensaje de contacto vía Edge Function:', detail);
+                    return { sent: false, reason: detail };
+                }
+
                 return { sent: true };
             } catch (err) {
-                const detail = err?.text || err?.message || (err?.status ? `HTTP ${err.status}` : 'Error al enviar correo');
-                console.error('Error enviando mensaje de contacto por EmailJS:', detail);
+                const detail = err?.message || 'Error de red al enviar correo';
+                console.error('Error de red enviando mensaje de contacto:', detail);
                 return { sent: false, reason: detail };
             }
         }
@@ -272,7 +288,7 @@
 
             const [dbResult, emailResult] = await Promise.all([
                 saveContactToSupabase({ name, email, message }),
-                sendContactViaEmailJS({ name, email, message })
+                sendContactViaEdgeFunction({ name, email, message })
             ]);
 
             submitBtn.disabled = false;

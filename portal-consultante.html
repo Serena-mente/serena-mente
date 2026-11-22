@@ -143,9 +143,11 @@
     <script>
         const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+        const SERENA_EMAIL_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/send-serena-email`;
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const signaturePads = {};
+        window.citasCargadas = {};
 
         function escapeHtml(value) {
             return String(value ?? '')
@@ -327,9 +329,25 @@
         }
 
         async function enviarConsentimientoPorCorreo(payload) {
-            // Conecta aquí EmailJS o una Supabase Edge Function para enviar la copia
-            // al correo del consultante (y acudiente si aplica) y al correo del profesional.
-            return { sent: false, payload };
+            try {
+                const response = await fetch(SERENA_EMAIL_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        tipo: 'consentimiento_firmado',
+                        ...payload
+                    })
+                });
+                const data = await response.json().catch(() => ({}));
+                return { sent: response.ok, data };
+            } catch (err) {
+                console.error('Error enviando consentimiento por correo:', err);
+                return { sent: false, error: err };
+            }
         }
 
         async function guardarConsentimientoFirmado(recordId, email, codigoCaso) {
@@ -414,6 +432,7 @@
                 return;
             }
 
+            const citaActual = window.citasCargadas?.[String(recordId)] || {};
             const signatureDataUrl = pad.toDataUrl();
             const guardianSignatureUrl = esMenor ? signaturePads[`acudiente-${recordId}`]?.toDataUrl() : null;
             const minorAssentSignatureUrl = esMenor && signaturePads[`menor-${recordId}`] && !signaturePads[`menor-${recordId}`].isEmpty()
@@ -441,6 +460,8 @@
 
             await enviarConsentimientoPorCorreo({
                 ...consentPayload,
+                psychologistName: citaActual.psicologo_nombre || 'Profesional asignado',
+                psychologistEmail: citaActual.psicologo_email || '',
                 docType,
                 docNumber,
                 patientBirthdate,
@@ -512,7 +533,11 @@
                 return;
             }
 
+            window.citasCargadas = {};
+
             contentEl.innerHTML = data.map(item => {
+                window.citasCargadas[String(item.id)] = item;
+
                 const safeId = escapeHtml(item.id);
                 const safeCode = escapeHtml(item.codigo_caso || codigoCaso);
                 const safeProName = escapeHtml(item.psicologo_nombre || 'Profesional asignado');
@@ -814,7 +839,6 @@
                                     ></canvas>
                                 </div>
 
-                                <!-- Bloque automático cuando se detecta menor de edad -->
                                 <div id="bloque-menores-${safeId}" class="hidden bg-amber-50/70 border border-amber-200 rounded-2xl p-4 sm:p-5 space-y-4">
                                     <div class="space-y-1">
                                         <p class="text-xs font-bold uppercase tracking-wider text-amber-900">

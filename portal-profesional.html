@@ -25,7 +25,6 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
@@ -187,7 +186,7 @@
                                 <div class="flex flex-wrap items-center gap-2">
                                     <button type="button" onclick="enviarCorreoConsultanteActual()"
                                         class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
-                                        ✉ Enviar por Gmail
+                                        ✉ Enviar correo
                                     </button>
                                     <button type="button" onclick="imprimirHistoriaPdf()"
                                         class="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition">
@@ -842,7 +841,7 @@
                 <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-indigo-50/70 border border-indigo-200 rounded-xl px-3.5 py-2.5 w-full">
                     <input type="checkbox" id="new-hc-enviar-correo" checked class="w-4 h-4 accent-indigo-600 rounded">
                     <span class="text-xs font-semibold text-indigo-950">
-                        Notificar por Gmail al consultante si se registró su correo electrónico
+                        Notificar por correo al consultante si se registró su correo electrónico
                     </span>
                 </label>
 
@@ -865,18 +864,10 @@
     <script>
         const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+        const SERENA_EMAIL_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/send-serena-email`;
+        const DESTINO_COORDINACION = 'serenelyserenamente@gmail.com';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const RECEIPTS_BUCKET = 'comprobantes';
-
-        const EMAILJS_CONFIG = {
-            publicKey: '',
-            serviceId: '',
-            templateId: ''
-        };
-
-        if (window.emailjs && EMAILJS_CONFIG.publicKey) {
-            window.emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
-        }
 
         const AGENDA_SLOTS = [
             '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -1933,8 +1924,8 @@
                 codigo_caso: codigoCaso || null,
                 destinatario_email: destinatarioEmail,
                 asunto: asunto || 'Notificación clínica — Serena Mente',
-                canal: canal || 'gmail_web',
-                estado: estado || 'abierto_en_gmail'
+                canal: canal || 'edge_function',
+                estado: estado || 'enviado'
             };
 
             const { error } = await supabaseClient
@@ -1966,71 +1957,79 @@
             ];
             const bodyText = bodyLines.join('\n');
 
-            if (window.emailjs && EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.serviceId && EMAILJS_CONFIG.templateId) {
-                try {
-                    await window.emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+            const meetHtml = isSafeUrl(linkMeet)
+                ? `<p style="margin: 6px 0;"><strong>Enlace de Google Meet:</strong> <a href="${escapeHtml(linkMeet)}" style="color: #0284c7;">${escapeHtml(linkMeet)}</a></p>`
+                : `<p style="margin: 6px 0;"><strong>Enlace de Google Meet:</strong> Se enviará o coordinará por este medio.</p>`;
+
+            const htmlBody = `
+                <div style="font-family: Arial, sans-serif; color: #0f172a; max-width: 640px; margin: 0 auto; line-height: 1.55;">
+                    <h2 style="color: #059669; margin-bottom: 8px;">Información de consulta y historia clínica — Serena Mente</h2>
+                    <p>Hola <strong>${escapeHtml(nombre)}</strong>,</p>
+                    <p>Se ha registrado tu información en <strong>Serena Mente</strong>. Conserva este código para ingresar al Portal del Consultante:</p>
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 18px; margin: 16px 0;">
+                        <p style="margin: 6px 0;"><strong>Código de historia clínica:</strong> <span style="font-family: monospace; font-weight: bold;">${escapeHtml(codigo)}</span></p>
+                        <p style="margin: 6px 0;"><strong>Tipo de caso:</strong> ${escapeHtml(tipoCaso || 'Consulta clínica')}</p>
+                        <p style="margin: 6px 0;"><strong>Fecha:</strong> ${escapeHtml(fecha || 'Por coordinar')}</p>
+                        <p style="margin: 6px 0;"><strong>Hora:</strong> ${escapeHtml(hora || 'Por coordinar')}</p>
+                        ${meetHtml}
+                    </div>
+                    <p style="font-size: 13px; color: #475569;">Si necesitas apoyo o coordinación adicional, puedes responder a este correo o escribir a ${escapeHtml(DESTINO_COORDINACION)}.</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(SERENA_EMAIL_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        tipo: 'notificacion_general',
                         to_email: email,
-                        cliente_email: email,
-                        nombre_consultante: nombre,
-                        codigo_caso: codigo,
-                        tipo_caso: tipoCaso || 'Consulta clínica',
-                        fecha_sesion: fecha || 'Por coordinar',
-                        hora_sesion: hora || 'Por coordinar',
-                        link_meet: linkMeet || '',
-                        mensaje: bodyText
-                    });
-
-                    await registrarCorreoEnBitacora({
-                        historiaId,
-                        codigoCaso: codigo,
-                        destinatarioEmail: email,
-                        asunto: subject,
-                        canal: 'emailjs_gmail',
-                        estado: 'enviado'
-                    });
-
-                    return { sent: true, mode: 'emailjs', subject, body: bodyText, email };
-                } catch (err) {
-                    const gmailUrl = buildGmailComposeUrl({ email, subject, body: bodyText });
-                    await registrarCorreoEnBitacora({
-                        historiaId,
-                        codigoCaso: codigo,
-                        destinatarioEmail: email,
-                        asunto: subject,
-                        canal: 'gmail_web',
-                        estado: 'respaldo_gmail'
-                    });
-
-                    return {
-                        sent: false,
-                        mode: 'gmail_fallback',
-                        error: err.message,
+                        reply_to: currentUser?.email || DESTINO_COORDINACION,
                         subject,
-                        body: bodyText,
-                        email,
-                        gmailUrl
-                    };
+                        html_body: htmlBody
+                    })
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || data?.ok === false) {
+                    throw new Error(data?.error || `HTTP ${response.status}`);
                 }
+
+                await registrarCorreoEnBitacora({
+                    historiaId,
+                    codigoCaso: codigo,
+                    destinatarioEmail: email,
+                    asunto: subject,
+                    canal: 'edge_function_resend',
+                    estado: 'enviado'
+                });
+
+                return { sent: true, mode: 'edge_function', subject, body: bodyText, email };
+            } catch (err) {
+                const gmailUrl = buildGmailComposeUrl({ email, subject, body: bodyText });
+                await registrarCorreoEnBitacora({
+                    historiaId,
+                    codigoCaso: codigo,
+                    destinatarioEmail: email,
+                    asunto: subject,
+                    canal: 'gmail_web',
+                    estado: 'respaldo_gmail'
+                });
+
+                return {
+                    sent: false,
+                    mode: 'gmail_fallback',
+                    error: err?.message || 'Error al enviar correo',
+                    subject,
+                    body: bodyText,
+                    email,
+                    gmailUrl
+                };
             }
-
-            const gmailUrl = buildGmailComposeUrl({ email, subject, body: bodyText });
-            await registrarCorreoEnBitacora({
-                historiaId,
-                codigoCaso: codigo,
-                destinatarioEmail: email,
-                asunto: subject,
-                canal: 'gmail_web',
-                estado: 'abierto_en_gmail'
-            });
-
-            return {
-                sent: false,
-                mode: 'gmail_fallback',
-                subject,
-                body: bodyText,
-                email,
-                gmailUrl
-            };
         }
 
         async function enviarCorreoConsultanteActual() {
@@ -2070,7 +2069,7 @@
                 body: res.body
             });
             window.open(gmailUrl, '_blank', 'noopener,noreferrer');
-            showFeedback(`Se abrió Gmail para ${email} (código ${codigo}) y quedó registrado en bitácora.`, 'success');
+            showFeedback(`No se pudo enviar automáticamente (${res.error || 'revisar servicio'}); se abrió Gmail para ${email} y quedó registrado en bitácora.`, 'error');
         }
 
         async function crearHistoriaDirecta(event) {
@@ -2215,7 +2214,7 @@
                         body: mailRes.body
                     });
                     window.open(gmailUrl, '_blank', 'noopener,noreferrer');
-                    correoMsg = ` Se abrió Gmail para ${clienteEmail}.`;
+                    correoMsg = ` No se pudo enviar automáticamente; se abrió Gmail para ${clienteEmail}.`;
                 }
             }
 

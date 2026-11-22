@@ -143,7 +143,9 @@
     <script>
         const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
-        const SERENA_EMAIL_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/send-serena-email`;
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3WTs2d84VbqYonD2rysX1TyRkC00DE68VXwLrVVSRSqyXfU2zMdmeiiizB6z3JGvK/exec';
+        const COORDINACION_EMAIL = 'serenelyserenamente@gmail.com';
+        const BRAND_LOGO_URL = new URL('assets/imagotipo.png', window.location.href).href;
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const signaturePads = {};
@@ -328,26 +330,137 @@
             return `${baseText}\n\nReferencia de cita: ${codigoCaso}\nCorreo registrado: ${email}\nFecha y hora de firma: ${new Date().toLocaleString('es-CO')}`;
         }
 
-        async function enviarConsentimientoPorCorreo(payload) {
+        function buildConsentEmailHtml(payload) {
+            const safeLogo = isSafeUrl(BRAND_LOGO_URL)
+                ? `<img src="${escapeHtml(BRAND_LOGO_URL)}" alt="Serena Mente" style="max-height: 44px; width: auto; display: block; border: 0;">`
+                : `<span style="font-size: 18px; font-weight: 800; color: #064e3b;">Serena Mente</span>`;
+
+            const rows = [
+                { label: 'Referencia de cita', value: payload.codigoCaso || payload.appointment_reference },
+                { label: 'Consultante', value: payload.patient_full_name },
+                { label: 'Documento', value: payload.patient_document },
+                { label: 'Correo consultante', value: payload.patient_email },
+                { label: 'Teléfono consultante', value: payload.patient_phone || 'No indicado' },
+                { label: 'Edad / Fecha nacimiento', value: `${payload.patient_age || 'N/A'} años (${payload.patient_birthdate || 'N/A'})` },
+                { label: 'Ciudad / Dirección', value: `${payload.patient_city || 'N/A'} · ${payload.patient_address || 'N/A'}` },
+                { label: 'Contacto de emergencia', value: `${payload.emergency_contact_name || 'N/A'} (${payload.emergency_contact_relationship || 'N/A'}) · ${payload.emergency_contact_phone || 'N/A'}` },
+                { label: 'Profesional asignado', value: payload.psychologistName || 'Profesional asignado' },
+                { label: 'Menor de edad', value: payload.esMenor ? 'Sí' : 'No' }
+            ];
+
+            if (payload.esMenor) {
+                rows.push(
+                    { label: 'Acudiente / Representante', value: `${payload.guardianName || 'N/A'} · Doc: ${payload.guardianDoc || 'N/A'}` },
+                    { label: 'Parentesco / Teléfono acudiente', value: `${payload.guardianRelationship || 'N/A'} · ${payload.guardianPhone || 'N/A'}` }
+                );
+            }
+
+            const rowsHtml = rows
+                .map((r) => `<p style="margin: 5px 0;"><strong>${escapeHtml(r.label)}:</strong> ${escapeHtml(r.value)}</p>`)
+                .join('');
+
+            const signatureImg = payload.signature_data_url
+                ? `<div style="margin-top: 14px;"><p style="margin: 0 0 6px 0; font-weight: bold;">Firma en trazo del consultante:</p><img src="${payload.signature_data_url}" alt="Firma consultante" style="max-width: 280px; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; background: #ffffff;"></div>`
+                : '';
+
+            const guardianSigImg = payload.esMenor && payload.guardianSignatureUrl
+                ? `<div style="margin-top: 12px;"><p style="margin: 0 0 6px 0; font-weight: bold;">Firma en trazo del padre, madre o representante legal:</p><img src="${payload.guardianSignatureUrl}" alt="Firma acudiente" style="max-width: 280px; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; background: #ffffff;"></div>`
+                : '';
+
+            const minorSigImg = payload.esMenor && payload.minorAssentSignatureUrl
+                ? `<div style="margin-top: 12px;"><p style="margin: 0 0 6px 0; font-weight: bold;">Firma / asentimiento del niño, niña o adolescente:</p><img src="${payload.minorAssentSignatureUrl}" alt="Firma asentimiento" style="max-width: 280px; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; background: #ffffff;"></div>`
+                : '';
+
+            return `
+                <div style="background-color: #f0fdf4; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #0f172a;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border: 1px solid #bbf7d0; border-radius: 16px; overflow: hidden;">
+                        <tr>
+                            <td style="padding: 20px 24px; background-color: #f0fdf4; border-bottom: 1px solid #bbf7d0;">
+                                ${safeLogo}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 24px; line-height: 1.6; font-size: 14px;">
+                                <h2 style="margin: 0 0 6px 0; font-size: 18px; color: #047857;">Consentimiento informado firmado</h2>
+                                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">Registro de aceptación y firma en el Portal del Consultante de Serena Mente.</p>
+                                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                                    ${rowsHtml}
+                                </div>
+                                ${signatureImg}
+                                ${guardianSigImg}
+                                ${minorSigImg}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 14px 24px; background-color: #064e3b; color: #dcfce7; font-size: 12px;">
+                                Serena Mente · Constancia de consentimiento informado
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+        }
+
+        async function postToAppsScript({ toEmail, replyTo, subject, htmlBody }) {
+            if (!toEmail || !APPS_SCRIPT_URL) {
+                return { sent: false, reason: 'Destinatario o URL de Apps Script faltante' };
+            }
+
             try {
-                const response = await fetch(SERENA_EMAIL_FUNCTION_URL, {
+                const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        'Content-Type': 'text/plain;charset=utf-8'
                     },
                     body: JSON.stringify({
-                        tipo: 'consentimiento_firmado',
-                        ...payload
+                        modulo: 'consentimiento_informado',
+                        to_email: toEmail,
+                        reply_to: replyTo || '',
+                        subject: subject,
+                        html_body: htmlBody
                     })
                 });
-                const data = await response.json().catch(() => ({}));
-                return { sent: response.ok, data };
+
+                const rawText = await response.text();
+                let parsed = {};
+                try {
+                    parsed = JSON.parse(rawText);
+                } catch (_) {
+                    parsed = { raw: rawText };
+                }
+
+                if (!response.ok || parsed?.ok === false) {
+                    return { sent: false, reason: parsed?.error || parsed?.raw || `HTTP ${response.status}` };
+                }
+                return { sent: true };
             } catch (err) {
-                console.error('Error enviando consentimiento por correo:', err);
-                return { sent: false, error: err };
+                console.error('Error enviando a Google Apps Script:', err);
+                return { sent: false, reason: err?.message || 'Error de red' };
             }
+        }
+
+        async function enviarConsentimientoPorCorreo(payload) {
+            const htmlBody = buildConsentEmailHtml(payload);
+            const subject = `Consentimiento informado firmado (${payload.codigoCaso}) — Serena Mente`;
+
+            const recipients = [
+                { to: payload.patient_email, replyTo: COORDINACION_EMAIL },
+                { to: COORDINACION_EMAIL, replyTo: payload.patient_email }
+            ];
+
+            const results = await Promise.all(
+                recipients.map((r) => postToAppsScript({
+                    toEmail: r.to,
+                    replyTo: r.replyTo,
+                    subject: subject,
+                    htmlBody: htmlBody
+                }))
+            );
+
+            return {
+                sent: results.every((res) => res.sent),
+                results
+            };
         }
 
         async function guardarConsentimientoFirmado(recordId, email, codigoCaso) {
@@ -416,7 +529,7 @@
                 }
             }
 
-            statusEl.textContent = 'Guardando consentimiento informado...';
+            statusEl.textContent = 'Guardando consentimiento informado y enviando constancia...';
             statusEl.className = 'text-xs text-slate-500';
 
             const { error: rpcError } = await supabaseClient.rpc('actualizar_mensaje_consultante', {
@@ -470,7 +583,7 @@
                 .from('informed_consents')
                 .insert(consentPayload);
 
-            await enviarConsentimientoPorCorreo({
+            const mailResult = await enviarConsentimientoPorCorreo({
                 ...consentPayload,
                 psychologistName: citaActual.psicologo_nombre || 'Profesional asignado',
                 psychologistEmail: citaActual.psicologo_email || '',
@@ -490,13 +603,18 @@
             });
 
             if (insertError) {
-                statusEl.textContent = `Consentimiento marcado, pero revisa la tabla informed_consents en Supabase (${insertError.message}).`;
+                statusEl.textContent = `Consentimiento marcado y correo ${mailResult.sent ? 'enviado' : 'pendiente'}; revisa la tabla informed_consents (${insertError.message}).`;
                 statusEl.className = 'text-xs text-amber-700 font-medium';
                 return;
             }
 
-            statusEl.textContent = 'Listo: tu consentimiento informado firmado quedó guardado.';
-            statusEl.className = 'text-xs text-serena-700 font-semibold';
+            if (mailResult.sent) {
+                statusEl.textContent = `Listo: consentimiento guardado y enviado a ${email} y a ${COORDINACION_EMAIL}.`;
+                statusEl.className = 'text-xs text-serena-700 font-semibold';
+            } else {
+                statusEl.textContent = 'Consentimiento guardado, pero no se pudo confirmar el envío de correo a ambos destinatarios.';
+                statusEl.className = 'text-xs text-amber-700 font-medium';
+            }
         }
 
         async function consultarCita(e) {

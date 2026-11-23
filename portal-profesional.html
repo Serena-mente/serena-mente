@@ -130,6 +130,9 @@
                 <button id="tab-btn-consentimientos" type="button" onclick="switchProTab('consentimientos')" class="pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
                     Consentimientos firmados
                 </button>
+                <button id="tab-btn-admin" type="button" onclick="switchProTab('admin')" class="pro-tab-btn hidden px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-serena-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition">
+                    Administración
+                </button>
             </div>
 
             <!-- TAB 1: CITAS Y CASOS -->
@@ -252,6 +255,98 @@
                 </div>
                 <div id="pro-consents-container" class="space-y-3">
                     <p class="text-sm text-slate-500">Cargando consentimientos...</p>
+                </div>
+            </div>
+
+            <!-- TAB 5: ADMINISTRACIÓN (EXCLUSIVA PARA ADMIN / serenelyserenamente@gmail.com) -->
+            <div id="pro-tab-admin" class="pro-tab-panel hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-8">
+                <div class="border-b border-slate-100 pb-4">
+                    <h2 class="text-lg font-extrabold text-slate-900">Administración de la plataforma</h2>
+                    <p class="text-xs text-slate-500">Gestiona cuentas y perfiles de psicólogos, así como los parámetros globales y Términos y Condiciones.</p>
+                </div>
+
+                <!-- 1. Alta de psicólogos -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900">Asignar acceso y registrar psicólogo</h3>
+                        <p class="text-xs text-slate-500">Crea el acceso en Authentication, registra el perfil en <code>perfiles</code> y publica el profesional en <code>psicologos</code>.</p>
+                    </div>
+
+                    <form id="form-crear-psicologo" onsubmit="crearPsicologoAdmin(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div>
+                            <label for="admin-psi-nombre" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Nombre completo *</label>
+                            <input id="admin-psi-nombre" type="text" required placeholder="Ej. Psi. Laura Gómez" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="admin-psi-email" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Correo asignado *</label>
+                            <input id="admin-psi-email" type="email" required placeholder="profesional@serenamente.co" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="admin-psi-password" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Contraseña inicial (mín. 6) *</label>
+                            <input id="admin-psi-password" type="password" required minlength="6" placeholder="••••••••" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-3">
+                            <label for="admin-psi-area" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Área / Especialidad *</label>
+                            <input id="admin-psi-area" type="text" required placeholder="Ej. Área clínica - Terapia cognitivo-conductual" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-3">
+                            <label for="admin-psi-modelo" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Modelo de trabajo *</label>
+                            <textarea id="admin-psi-modelo" rows="3" required placeholder="Describe el enfoque y modelo de trabajo del profesional..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-3 flex justify-end">
+                            <button id="btn-crear-psicologo" type="submit" class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-sm">
+                                Crear psicólogo y asignar correo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 2. Psicólogos registrados -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-extrabold text-slate-900">Equipo de psicólogos registrados</h3>
+                    <div id="admin-psychologists-container" class="space-y-3">
+                        <p class="text-xs text-slate-500">Cargando equipo...</p>
+                    </div>
+                </div>
+
+                <!-- 3. Configuración global y Términos y Condiciones -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900">Configuración global y Términos y Condiciones</h3>
+                        <p class="text-xs text-slate-500">Actualiza los datos visibles de la plataforma en <code>configuracion_plataforma</code>.</p>
+                    </div>
+
+                    <form id="form-config-plataforma" onsubmit="guardarConfiguracionPlataforma(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="cfg-tarifa" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Tarifa de consulta</label>
+                                <input id="cfg-tarifa" type="text" placeholder="Ej. $80.000 COP" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="cfg-horario" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Horario de atención</label>
+                                <input id="cfg-horario" type="text" placeholder="Ej. 8:00 AM a 6:00 PM" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="cfg-cuenta" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Cuenta de pago</label>
+                                <input id="cfg-cuenta" type="text" placeholder="Ej. 300 000 0000 (Nequi / Daviplata)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="cfg-correo-coord" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Correo de coordinación</label>
+                                <input id="cfg-correo-coord" type="email" placeholder="serenelyserenamente@gmail.com" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="cfg-terminos" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Términos y Condiciones</label>
+                            <textarea id="cfg-terminos" rows="7" placeholder="Texto de Términos y Condiciones de Serena Mente..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button id="btn-guardar-config" type="submit" class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-sm">
+                                Guardar configuración y términos
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </section>
@@ -459,15 +554,19 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx99j2dNkuSaKoqLNQTf7-Jpbv9sYBPYL_wq89yWh9O1JyxLF2ZBIePYGsMxJRzBLVX/exec';
         const COORDINACION_EMAIL = 'serenelyserenamente@gmail.com';
+        const ADMIN_EDGE_FUNCTION = 'admin-psicologos';
         const BRAND_LOGO_URL = new URL('assets/imagotipo.png', window.location.href).href;
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let proUser = null;
         let proProfile = null;
+        let isAdminUser = false;
         let proAppointments = [];
         let proConsents = [];
         let proScheduleSlots = [];
+        let adminPsychologists = [];
+        let platformConfigMap = {};
 
         function escapeHtml(value) {
             return String(value ?? '')
@@ -510,9 +609,16 @@
         }
 
         function switchProTab(tabName) {
+            if (tabName === 'admin' && !isAdminUser) {
+                tabName = 'citas';
+            }
             document.querySelectorAll('.pro-tab-panel').forEach((el) => el.classList.add('hidden'));
             document.querySelectorAll('.pro-tab-btn').forEach((btn) => {
-                btn.className = 'pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 transition';
+                if (btn.id === 'tab-btn-admin') {
+                    btn.className = 'pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-serena-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition';
+                } else {
+                    btn.className = 'pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 transition';
+                }
             });
 
             const panel = document.getElementById(`pro-tab-${tabName}`);
@@ -671,6 +777,8 @@
             await supabaseClient.auth.signOut();
             proUser = null;
             proProfile = null;
+            isAdminUser = false;
+            document.getElementById('tab-btn-admin').classList.add('hidden');
             document.getElementById('pro-dashboard-section').classList.add('hidden');
             document.getElementById('pro-auth-section').classList.remove('hidden');
             document.getElementById('btn-pro-logout').classList.add('hidden');
@@ -701,6 +809,7 @@
             return {
                 id: proUser.id,
                 email: proUser.email,
+                rol: 'psicologo',
                 nombre_completo: proUser.user_metadata?.nombre_completo || proUser.user_metadata?.full_name || 'Profesional'
             };
         }
@@ -712,7 +821,19 @@
             document.getElementById('btn-pro-logout').classList.remove('hidden');
 
             proProfile = await cargarPerfilProfesional();
-            const displayName = (proProfile?.nombre_completo || 'Profesional').trim();
+            const emailLower = String(proUser.email || proProfile?.email || '').trim().toLowerCase();
+            const rolLower = String(proProfile?.rol || '').trim().toLowerCase();
+            isAdminUser = emailLower === COORDINACION_EMAIL || rolLower === 'admin';
+
+            const adminTabBtn = document.getElementById('tab-btn-admin');
+            if (isAdminUser) {
+                adminTabBtn.classList.remove('hidden');
+            } else {
+                adminTabBtn.classList.add('hidden');
+                switchProTab('citas');
+            }
+
+            const displayName = (proProfile?.nombre_completo || (isAdminUser ? 'Administración Serena Mente' : 'Profesional')).trim();
 
             const headerName = document.getElementById('pro-header-name');
             headerName.textContent = displayName;
@@ -840,6 +961,175 @@
             } else {
                 renderConsentsList();
             }
+
+            if (isAdminUser) {
+                await cargarDatosAdmin();
+            }
+        }
+
+        // ADMINISTRACIÓN
+        async function cargarDatosAdmin() {
+            const psiContainer = document.getElementById('admin-psychologists-container');
+
+            const [{ data: psiRows, error: psiErr }, { data: cfgRows }] = await Promise.all([
+                supabaseClient
+                    .from('psicologos')
+                    .select('*')
+                    .order('orden', { ascending: true })
+                    .order('id', { ascending: true }),
+                supabaseClient
+                    .from('configuracion_plataforma')
+                    .select('clave, valor')
+            ]);
+
+            if (psiErr) {
+                psiContainer.innerHTML = `<p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">No se pudo cargar la tabla <code>psicologos</code> (${escapeHtml(psiErr.message)}).</p>`;
+            } else {
+                adminPsychologists = psiRows || [];
+                renderAdminPsychologists();
+            }
+
+            platformConfigMap = {};
+            (cfgRows || []).forEach((item) => {
+                platformConfigMap[item.clave] = item.valor ?? '';
+            });
+
+            document.getElementById('cfg-tarifa').value = platformConfigMap.tarifa_consulta || '';
+            document.getElementById('cfg-horario').value = platformConfigMap.horario_atencion || '';
+            document.getElementById('cfg-cuenta').value = platformConfigMap.cuenta_pago || '';
+            document.getElementById('cfg-correo-coord').value = platformConfigMap.correo_coordinacion || COORDINACION_EMAIL;
+            document.getElementById('cfg-terminos').value = platformConfigMap.terminos_condiciones || '';
+        }
+
+        function renderAdminPsychologists() {
+            const container = document.getElementById('admin-psychologists-container');
+            if (!adminPsychologists.length) {
+                container.innerHTML = '<p class="text-xs text-slate-500">No hay psicólogos registrados.</p>';
+                return;
+            }
+
+            container.innerHTML = adminPsychologists.map((p) => {
+                const isMainAdmin = String(p.email || '').trim().toLowerCase() === COORDINACION_EMAIL;
+                return `
+                    <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="space-y-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-sm font-extrabold text-slate-900">${escapeHtml(p.nombre)}</span>
+                                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-serena-800 border border-emerald-200">${escapeHtml(p.area)}</span>
+                                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${p.activo !== false ? 'bg-emerald-100 text-serena-900' : 'bg-slate-200 text-slate-700'}">
+                                    ${p.activo !== false ? 'Activo' : 'Inactivo'}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-600">Correo: <strong>${escapeHtml(p.email)}</strong></p>
+                            <p class="text-xs text-slate-500 line-clamp-2">${escapeHtml(p.modelo_trabajo || '')}</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            ${isMainAdmin ? '' : `
+                                <button type="button" onclick="eliminarPsicologoAdmin(${escapeHtml(p.id)}, '${escapeHtml(p.email)}', '${escapeHtml(p.perfil_id || '')}')" class="bg-white hover:bg-red-50 text-red-700 border border-red-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                    Eliminar
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function crearPsicologoAdmin(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btn-crear-psicologo');
+            const nombre = document.getElementById('admin-psi-nombre').value.trim();
+            const email = document.getElementById('admin-psi-email').value.trim().toLowerCase();
+            const password = document.getElementById('admin-psi-password').value;
+            const area = document.getElementById('admin-psi-area').value.trim();
+            const modeloTrabajo = document.getElementById('admin-psi-modelo').value.trim();
+
+            if (!nombre || !email || !password || !area || !modeloTrabajo) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Creando psicólogo...';
+
+            const { data, error } = await supabaseClient.functions.invoke(ADMIN_EDGE_FUNCTION, {
+                body: {
+                    action: 'create_psychologist',
+                    nombre,
+                    email,
+                    password,
+                    area,
+                    modelo_trabajo: modeloTrabajo
+                }
+            });
+
+            btn.disabled = false;
+            btn.textContent = 'Crear psicólogo y asignar correo';
+
+            if (error || data?.ok === false) {
+                showProToast(data?.error || error?.message || 'No se pudo crear el psicólogo.', true);
+                return;
+            }
+
+            document.getElementById('form-crear-psicologo').reset();
+            await cargarDatosAdmin();
+            showProToast(`Psicólogo ${nombre} creado y asignado a ${email}.`);
+        }
+
+        async function eliminarPsicologoAdmin(id, email, perfilId) {
+            if (!confirm(`¿Eliminar al psicólogo ${email} y revocar su acceso?`)) return;
+
+            const { data, error } = await supabaseClient.functions.invoke(ADMIN_EDGE_FUNCTION, {
+                body: {
+                    action: 'delete_psychologist',
+                    id,
+                    email,
+                    perfil_id: perfilId || null
+                }
+            });
+
+            if (error || data?.ok === false) {
+                showProToast(data?.error || error?.message || 'No se pudo eliminar el psicólogo.', true);
+                return;
+            }
+
+            await cargarDatosAdmin();
+            showProToast('Psicólogo eliminado correctamente.');
+        }
+
+        async function guardarConfiguracionPlataforma(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btn-guardar-config');
+
+            const entries = [
+                { clave: 'tarifa_consulta', valor: document.getElementById('cfg-tarifa').value.trim() },
+                { clave: 'horario_atencion', valor: document.getElementById('cfg-horario').value.trim() },
+                { clave: 'cuenta_pago', valor: document.getElementById('cfg-cuenta').value.trim() },
+                { clave: 'correo_coordinacion', valor: document.getElementById('cfg-correo-coord').value.trim().toLowerCase() },
+                { clave: 'terminos_condiciones', valor: document.getElementById('cfg-terminos').value }
+            ];
+
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            const { error } = await supabaseClient
+                .from('configuracion_plataforma')
+                .upsert(
+                    entries.map((e) => ({
+                        clave: e.clave,
+                        valor: e.valor,
+                        actualizado_en: new Date().toISOString()
+                    })),
+                    { onConflict: 'clave' }
+                );
+
+            btn.disabled = false;
+            btn.textContent = 'Guardar configuración y términos';
+
+            if (error) {
+                showProToast(`No se pudo guardar la configuración (${error.message}).`, true);
+                return;
+            }
+
+            await cargarDatosAdmin();
+            showProToast('Configuración y Términos y Condiciones actualizados.');
         }
 
         function renderAppointmentsTable() {

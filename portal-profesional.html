@@ -774,7 +774,9 @@
                     const detalleJson = (row.detalle_clinico_json && typeof row.detalle_clinico_json === 'object')
                         ? row.detalle_clinico_json
                         : {};
-                    const tipoNormalizado = normalizeOrientationLabel(row.tipo_caso || consentMatch?.session_modality);
+                    const tipoNormalizado = normalizeOrientationLabel(
+                        row.tipo_caso || detalleJson.linea_orientacion || consentMatch?.session_modality
+                    );
 
                     return {
                         ...row,

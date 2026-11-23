@@ -101,11 +101,11 @@
                 <div>
                     <p class="text-xs font-bold uppercase tracking-wider text-serena-700">Espacio clínico profesional</p>
                     <h1 id="pro-welcome-title" class="text-2xl font-extrabold text-slate-900 mt-1">Bienvenido/a</h1>
-                    <p id="pro-welcome-sub" class="text-xs sm:text-sm text-slate-500 mt-1">Gestiona tus citas, disponibilidad horaria, evolución clínica, consentimientos y correos.</p>
+                    <p id="pro-welcome-sub" class="text-xs sm:text-sm text-slate-500 mt-1">Gestiona citas, historias clínicas, disponibilidad horaria, evolución, consentimientos y correos.</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" onclick="openCaseModal(null)" class="text-xs font-semibold px-4 py-2.5 rounded-xl bg-serena-600 hover:bg-serena-700 text-white transition shadow-sm">
-                        + Nueva cita / caso
+                        + Nueva cita / historia clínica
                     </button>
                     <button type="button" onclick="openEmailModal('', '', '')" class="text-xs font-semibold px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-serena-900 border border-emerald-200 transition">
                         Enviar correo
@@ -137,9 +137,15 @@
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div>
                         <h2 class="text-lg font-extrabold text-slate-900">Citas y casos registrados</h2>
-                        <p class="text-xs text-slate-500">Consulta el consultante, ajusta estado de pago en cualquier momento, actualiza enlace Meet o edita el caso.</p>
+                        <p class="text-xs text-slate-500">Diligencia la historia clínica en cualquier cita (apartada por consultante o profesional), ajusta estado de pago y enlace Meet.</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
+                        <select id="pro-filter-tipo" onchange="renderAppointmentsTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:bg-white focus:border-serena-600">
+                            <option value="">Todas las orientaciones</option>
+                            <option value="Orientación individual">Orientación individual</option>
+                            <option value="Orientación organizacional">Orientación organizacional</option>
+                            <option value="Orientación jurídica">Orientación jurídica</option>
+                        </select>
                         <select id="pro-filter-pago" onchange="renderAppointmentsTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:bg-white focus:border-serena-600">
                             <option value="">Todos los estados de pago</option>
                             <option value="Pendiente">Pendiente</option>
@@ -251,71 +257,129 @@
         </section>
     </main>
 
-    <!-- MODAL 1: CREAR / EDITAR CITA O CASO -->
+    <!-- MODAL 1: FORMATO DE HISTORIA CLÍNICA / CREAR O EDITAR CITA -->
     <div id="modal-caso" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl border border-slate-200 max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-5 my-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 max-w-4xl w-full p-6 sm:p-8 shadow-2xl space-y-5 my-auto max-h-[92vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div>
-                    <h3 id="modal-caso-title" class="text-lg font-extrabold text-slate-900">Nueva cita / caso</h3>
-                    <p class="text-xs text-slate-500">Guarda los datos en <code>historias_clinicas</code>.</p>
+                    <h3 id="modal-caso-title" class="text-lg font-extrabold text-slate-900">Formato de Historia Clínica y Cita</h3>
+                    <p class="text-xs text-slate-500">Diligenciamiento obligatorio para citas agendadas por consultante o profesional en <code>historias_clinicas</code>.</p>
                 </div>
                 <button type="button" onclick="closeCaseModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2">&times;</button>
             </div>
 
-            <form id="form-caso" onsubmit="guardarCaso(event)" class="space-y-4">
+            <form id="form-caso" onsubmit="guardarCaso(event)" class="space-y-5">
                 <input type="hidden" id="caso-id">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Código del caso / referencia *</label>
-                        <input id="caso-codigo" type="text" required placeholder="Ej. HC-2026-9021" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm uppercase">
+                <!-- 1. Tipo / Línea de orientación y datos de cita -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-serena-700">1. Línea de orientación y programación</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo / Línea de consulta *</label>
+                            <select id="caso-tipo" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                                <option value="Orientación individual">Orientación individual</option>
+                                <option value="Orientación organizacional">Orientación organizacional</option>
+                                <option value="Orientación jurídica">Orientación jurídica</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Código del caso / referencia *</label>
+                            <input id="caso-codigo" type="text" required placeholder="Ej. HC-2026-9021" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm uppercase">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Fecha de sesión</label>
+                            <input id="caso-fecha" type="date" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Hora de sesión</label>
+                            <input id="caso-hora" type="text" placeholder="Ej. 10:00 AM" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre del consultante *</label>
-                        <input id="caso-nombre-consultante" type="text" required placeholder="Nombre completo del consultante" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Correo del consultante *</label>
-                        <input id="caso-cliente-email" type="email" required placeholder="consultante@correo.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Teléfono del consultante</label>
-                        <input id="caso-telefono" type="text" placeholder="Número de contacto" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Modalidad / tipo de caso</label>
-                        <input id="caso-tipo" type="text" placeholder="Ej. Psicología clínica virtual / Infantil" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Ciudad</label>
-                        <input id="caso-ciudad" type="text" placeholder="Ciudad de residencia" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Fecha de sesión</label>
-                        <input id="caso-fecha" type="date" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Hora de sesión</label>
-                        <input id="caso-hora" type="text" placeholder="Ej. 10:00 AM" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Estado de pago</label>
-                        <select id="caso-estado-pago" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="En revisión">En revisión</option>
-                            <option value="Pagado">Pagado</option>
-                            <option value="Confirmado">Confirmado</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Enlace Google Meet (https://)</label>
-                        <input id="caso-meet" type="url" placeholder="https://meet.google.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Estado de pago</label>
+                            <select id="caso-estado-pago" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En revisión">En revisión</option>
+                                <option value="Pagado">Pagado</option>
+                                <option value="Confirmado">Confirmado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Enlace Google Meet (https://)</label>
+                            <input id="caso-meet" type="url" placeholder="https://meet.google.com/..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Observación clínica / notas iniciales</label>
-                    <textarea id="caso-observacion" rows="3" placeholder="Notas o acuerdos de la cita..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                <!-- 2. Datos de identificación del consultante / empresa -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-serena-700">2. Datos de identificación</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre completo / razón social *</label>
+                            <input id="caso-nombre-consultante" type="text" required placeholder="Nombre del consultante o entidad" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Correo electrónico *</label>
+                            <input id="caso-cliente-email" type="email" required placeholder="consultante@correo.com" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Teléfono</label>
+                            <input id="caso-telefono" type="text" placeholder="Número de contacto" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Documento o NIT</label>
+                            <input id="caso-documento-nit" type="text" placeholder="CC / TI / NIT" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Edad o cargo / área</label>
+                            <input id="caso-edad-cargo" type="text" placeholder="Ej. 28 años / Talento humano / Demandante" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Ciudad</label>
+                            <input id="caso-ciudad" type="text" placeholder="Ciudad de residencia o sede" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Género</label>
+                            <input id="caso-genero" type="text" placeholder="Ej. Femenino / Masculino / Otro" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Edad (numérica / texto)</label>
+                            <input id="caso-edad" type="text" placeholder="Ej. 28" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Orientación / enfoque / eje</label>
+                            <input id="caso-orientacion" type="text" placeholder="Enfoque clínico, organizacional o jurídico" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Formato clínico / del caso -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-serena-700">3. Valoración y registro de historia clínica</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Sueño y vigilia</label>
+                            <textarea id="caso-sueno-vigilia" rows="2" placeholder="Calidad del sueño, descanso, vigilia o jornada..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Alimentación / hábitos / contexto</label>
+                            <textarea id="caso-alimentacion" rows="2" placeholder="Hábitos alimentarios o condiciones del entorno..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Discurso / relato / motivo y hechos del caso</label>
+                        <textarea id="caso-discurso-relato" rows="3" placeholder="Relato del consultante, motivo de consulta, antecedentes o hechos relevantes..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Observación clínica / análisis y concepto profesional</label>
+                        <textarea id="caso-observacion" rows="3" placeholder="Observación profesional, impresión diagnóstica/orientación y plan..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                    </div>
                 </div>
 
                 <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
@@ -328,7 +392,7 @@
                         Cancelar
                     </button>
                     <button type="submit" id="btn-guardar-caso" class="px-5 py-2 rounded-xl bg-serena-600 hover:bg-serena-700 text-white text-xs font-semibold shadow-sm">
-                        Guardar caso
+                        Guardar historia clínica y cita
                     </button>
                 </div>
             </form>
@@ -421,6 +485,15 @@
             } catch {
                 return false;
             }
+        }
+
+        function normalizeOrientationLabel(rawTipo) {
+            const val = String(rawTipo || '').trim();
+            const lower = val.toLowerCase();
+            if (lower.includes('organiz')) return 'Orientación organizacional';
+            if (lower.includes('jurid') || lower.includes('juríd')) return 'Orientación jurídica';
+            if (lower.includes('indiv')) return 'Orientación individual';
+            return val || 'Orientación individual';
         }
 
         function showProToast(message, isError = false) {
@@ -701,9 +774,11 @@
                     const detalleJson = (row.detalle_clinico_json && typeof row.detalle_clinico_json === 'object')
                         ? row.detalle_clinico_json
                         : {};
+                    const tipoNormalizado = normalizeOrientationLabel(row.tipo_caso || consentMatch?.session_modality);
 
                     return {
                         ...row,
+                        tipo_caso: tipoNormalizado,
                         nombre_consultante: (row.nombre_consultante || consentMatch?.patient_full_name || 'Consultante sin nombre').trim(),
                         correo_consultante: (row.cliente_email || consentMatch?.patient_email || '').trim(),
                         psicologo_nombre: (prof?.nombre_completo || proProfile?.nombre_completo || 'Profesional').trim(),
@@ -718,7 +793,6 @@
                 renderEvolucionCaso();
             }
 
-            // Cargar franjas de agenda desde appointments o desde detalle_clinico_json.disponibilidad
             const customSlots = [];
             proAppointments.forEach((row) => {
                 const dispList = Array.isArray(row.detalle_clinico_json?.disponibilidad)
@@ -770,9 +844,13 @@
             const container = document.getElementById('pro-appointments-container');
             const query = (document.getElementById('pro-search')?.value || '').trim().toLowerCase();
             const pagoFilter = document.getElementById('pro-filter-pago')?.value || '';
+            const tipoFilter = document.getElementById('pro-filter-tipo')?.value || '';
 
             const filtered = proAppointments.filter((a) => {
                 if (pagoFilter && (a.estado_pago || 'Pendiente') !== pagoFilter) {
+                    return false;
+                }
+                if (tipoFilter && normalizeOrientationLabel(a.tipo_caso) !== tipoFilter) {
                     return false;
                 }
                 if (!query) return true;
@@ -781,6 +859,7 @@
                     a.nombre_consultante,
                     a.correo_consultante,
                     a.telefono_consultante,
+                    a.tipo_caso,
                     a.psicologo_nombre,
                     a.estado_pago
                 ].filter(Boolean).join(' ').toLowerCase();
@@ -802,10 +881,13 @@
                 const proName = escapeHtml(appt.psicologo_nombre || 'Profesional');
                 const fecha = escapeHtml(appt.fecha_sesion || 'Por confirmar');
                 const hora = escapeHtml(appt.hora_sesion || '');
-                const tipo = escapeHtml(appt.tipo_caso || 'Modalidad virtual');
+                const tipo = escapeHtml(normalizeOrientationLabel(appt.tipo_caso));
                 const pagoActual = escapeHtml(appt.estado_pago || 'Pendiente');
                 const meetActual = escapeHtml(appt.enlace_meet || '');
                 const tieneConsent = Boolean(appt.consentimiento_firmado || appt.consentimiento_aceptado);
+                const tieneHcCompleta = Boolean(
+                    appt.discurso_relato || appt.observacion_clinica || appt.documento_o_nit || appt.edad_o_cargo
+                );
 
                 return `
                     <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 sm:p-5 space-y-4">
@@ -813,9 +895,11 @@
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-xs font-bold uppercase text-serena-700">Ref: ${code}</span>
-                                    <span class="text-xs text-slate-400">·</span>
-                                    <span class="text-xs font-medium text-slate-600">${tipo}</span>
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${tieneConsent ? 'bg-emerald-100 text-serena-900' : 'bg-amber-100 text-amber-900'}">
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-serena-800 border border-emerald-200">${tipo}</span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneHcCompleta ? 'bg-sky-50 text-serena-darkblue border border-sky-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}">
+                                        ${tieneHcCompleta ? 'Historia clínica diligenciada' : 'Historia clínica por diligenciar'}
+                                    </span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneConsent ? 'bg-emerald-100 text-serena-900' : 'bg-amber-100 text-amber-900'}">
                                         ${tieneConsent ? 'Consentimiento firmado' : 'Consentimiento pendiente'}
                                     </span>
                                 </div>
@@ -855,8 +939,8 @@
                             <button type="button" onclick="guardarCambiosRapidosCita('${safeId}', false)" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
                                 Guardar sin correo
                             </button>
-                            <button type="button" onclick="openCaseModal('${safeId}')" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
-                                Editar caso
+                            <button type="button" onclick="openCaseModal('${safeId}')" class="bg-serena-50 hover:bg-serena-100 text-serena-900 border border-emerald-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                Historia clínica / editar cita
                             </button>
                             <button type="button" onclick="irAEvolucionCaso('${safeId}')" class="bg-white hover:bg-slate-100 text-serena-800 border border-emerald-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
                                 Evolución / seguimiento
@@ -913,6 +997,7 @@
                     subtitle: 'Se han actualizado los datos de tu cita o acceso a sesión.',
                     rows: [
                         { label: 'Consultante', value: appt.nombre_consultante || appt.correo_consultante || 'N/A' },
+                        { label: 'Orientación', value: normalizeOrientationLabel(appt.tipo_caso) },
                         { label: 'Código / Referencia', value: appt.codigo_caso || 'N/A' },
                         { label: 'Profesional', value: appt.psicologo_nombre || 'Profesional asignado' },
                         { label: 'Fecha / Hora', value: `${appt.fecha_sesion || 'Por confirmar'} ${appt.hora_sesion || ''}`.trim() },
@@ -935,36 +1020,52 @@
             const titleEl = document.getElementById('modal-caso-title');
 
             if (!idStr) {
-                titleEl.textContent = 'Nueva cita / caso';
+                titleEl.textContent = 'Nueva cita y formato de historia clínica';
                 document.getElementById('caso-id').value = '';
+                document.getElementById('caso-tipo').value = 'Orientación individual';
                 document.getElementById('caso-codigo').value = '';
-                document.getElementById('caso-nombre-consultante').value = '';
-                document.getElementById('caso-cliente-email').value = '';
-                document.getElementById('caso-telefono').value = '';
-                document.getElementById('caso-tipo').value = 'Psicología clínica virtual';
-                document.getElementById('caso-ciudad').value = '';
                 document.getElementById('caso-fecha').value = '';
                 document.getElementById('caso-hora').value = '';
                 document.getElementById('caso-estado-pago').value = 'Pendiente';
                 document.getElementById('caso-meet').value = '';
+                document.getElementById('caso-nombre-consultante').value = '';
+                document.getElementById('caso-cliente-email').value = '';
+                document.getElementById('caso-telefono').value = '';
+                document.getElementById('caso-documento-nit').value = '';
+                document.getElementById('caso-edad-cargo').value = '';
+                document.getElementById('caso-ciudad').value = '';
+                document.getElementById('caso-genero').value = '';
+                document.getElementById('caso-edad').value = '';
+                document.getElementById('caso-orientacion').value = '';
+                document.getElementById('caso-sueno-vigilia').value = '';
+                document.getElementById('caso-alimentacion').value = '';
+                document.getElementById('caso-discurso-relato').value = '';
                 document.getElementById('caso-observacion').value = '';
                 document.getElementById('caso-notificar').checked = true;
             } else {
                 const appt = proAppointments.find((a) => String(a.id) === String(idStr));
                 if (!appt) return;
-                titleEl.textContent = `Editar caso · ${appt.codigo_caso || ''}`;
+                titleEl.textContent = `Historia clínica y cita · ${appt.codigo_caso || ''}`;
                 document.getElementById('caso-id').value = appt.id;
+                document.getElementById('caso-tipo').value = normalizeOrientationLabel(appt.tipo_caso);
                 document.getElementById('caso-codigo').value = appt.codigo_caso || '';
-                document.getElementById('caso-nombre-consultante').value = appt.nombre_consultante || '';
-                document.getElementById('caso-cliente-email').value = appt.correo_consultante || '';
-                document.getElementById('caso-telefono').value = appt.telefono_consultante || '';
-                document.getElementById('caso-tipo').value = appt.tipo_caso || '';
-                document.getElementById('caso-ciudad').value = appt.ciudad || '';
                 document.getElementById('caso-fecha').value = appt.fecha_sesion || '';
                 document.getElementById('caso-hora').value = appt.hora_sesion || '';
                 document.getElementById('caso-estado-pago').value = appt.estado_pago || 'Pendiente';
                 document.getElementById('caso-meet').value = appt.enlace_meet || '';
-                document.getElementById('caso-observacion').value = appt.observacion_clinica || appt.notas_clinicas || '';
+                document.getElementById('caso-nombre-consultante').value = appt.nombre_consultante || '';
+                document.getElementById('caso-cliente-email').value = appt.correo_consultante || '';
+                document.getElementById('caso-telefono').value = appt.telefono_consultante || '';
+                document.getElementById('caso-documento-nit').value = appt.documento_o_nit || '';
+                document.getElementById('caso-edad-cargo').value = appt.edad_o_cargo || '';
+                document.getElementById('caso-ciudad').value = appt.ciudad || '';
+                document.getElementById('caso-genero').value = appt.genero || '';
+                document.getElementById('caso-edad').value = appt.edad || '';
+                document.getElementById('caso-orientacion').value = appt.orientacion_tlp || '';
+                document.getElementById('caso-sueno-vigilia').value = appt.sueno_vigilia || '';
+                document.getElementById('caso-alimentacion').value = appt.alimentacion || '';
+                document.getElementById('caso-discurso-relato').value = appt.discurso_relato || appt.discurso || '';
+                document.getElementById('caso-observacion').value = appt.observacion_clinica || '';
                 document.getElementById('caso-notificar').checked = true;
             }
 
@@ -979,16 +1080,24 @@
             event.preventDefault();
             const btn = document.getElementById('btn-guardar-caso');
             const existingId = document.getElementById('caso-id').value.trim();
+            const tipoCaso = normalizeOrientationLabel(document.getElementById('caso-tipo').value);
             const codigo = document.getElementById('caso-codigo').value.trim().toUpperCase();
-            const nombreConsultante = document.getElementById('caso-nombre-consultante').value.trim();
-            const clienteEmail = document.getElementById('caso-cliente-email').value.trim().toLowerCase();
-            const telefono = document.getElementById('caso-telefono').value.trim();
-            const tipoCaso = document.getElementById('caso-tipo').value.trim();
-            const ciudad = document.getElementById('caso-ciudad').value.trim();
             const fechaSesion = document.getElementById('caso-fecha').value || null;
             const horaSesion = document.getElementById('caso-hora').value.trim() || null;
             const estadoPago = document.getElementById('caso-estado-pago').value || 'Pendiente';
             const meetUrl = document.getElementById('caso-meet').value.trim();
+            const nombreConsultante = document.getElementById('caso-nombre-consultante').value.trim();
+            const clienteEmail = document.getElementById('caso-cliente-email').value.trim().toLowerCase();
+            const telefono = document.getElementById('caso-telefono').value.trim();
+            const documentoNit = document.getElementById('caso-documento-nit').value.trim();
+            const edadCargo = document.getElementById('caso-edad-cargo').value.trim();
+            const ciudad = document.getElementById('caso-ciudad').value.trim();
+            const genero = document.getElementById('caso-genero').value.trim();
+            const edad = document.getElementById('caso-edad').value.trim();
+            const orientacion = document.getElementById('caso-orientacion').value.trim();
+            const suenoVigilia = document.getElementById('caso-sueno-vigilia').value.trim();
+            const alimentacion = document.getElementById('caso-alimentacion').value.trim();
+            const discursoRelato = document.getElementById('caso-discurso-relato').value.trim();
             const observacion = document.getElementById('caso-observacion').value.trim();
             const notificar = document.getElementById('caso-notificar').checked;
 
@@ -1000,19 +1109,40 @@
             btn.disabled = true;
             btn.textContent = 'Guardando...';
 
+            const currentAppt = existingId
+                ? proAppointments.find((a) => String(a.id) === String(existingId))
+                : null;
+
+            const nextDetalleJson = {
+                ...(currentAppt?.detalle_clinico_json || {}),
+                linea_orientacion: tipoCaso,
+                documento_o_nit: documentoNit || null,
+                edad_o_cargo: edadCargo || null
+            };
+
             const payload = {
+                tipo_caso: tipoCaso,
                 codigo_caso: codigo,
-                nombre_consultante: nombreConsultante,
-                cliente_email: clienteEmail,
-                telefono_consultante: telefono || null,
-                tipo_caso: tipoCaso || null,
-                ciudad: ciudad || null,
                 fecha_sesion: fechaSesion,
                 hora_sesion: horaSesion,
                 estado_pago: estadoPago,
                 enlace_meet: meetUrl || null,
                 link_meet: meetUrl || null,
+                nombre_consultante: nombreConsultante,
+                cliente_email: clienteEmail,
+                telefono_consultante: telefono || null,
+                documento_o_nit: documentoNit || null,
+                edad_o_cargo: edadCargo || null,
+                ciudad: ciudad || null,
+                genero: genero || null,
+                edad: edad || null,
+                orientacion_tlp: orientacion || null,
+                sueno_vigilia: suenoVigilia || null,
+                alimentacion: alimentacion || null,
+                discurso_relato: discursoRelato || null,
+                discurso: discursoRelato || null,
                 observacion_clinica: observacion || null,
+                detalle_clinico_json: nextDetalleJson,
                 actualizado_en: new Date().toISOString()
             };
 
@@ -1042,10 +1172,10 @@
             }
 
             btn.disabled = false;
-            btn.textContent = 'Guardar caso';
+            btn.textContent = 'Guardar historia clínica y cita';
 
             if (dbError) {
-                showProToast(`Error al guardar el caso (${dbError.message}).`, true);
+                showProToast(`Error al guardar la historia clínica (${dbError.message}).`, true);
                 return;
             }
 
@@ -1055,10 +1185,11 @@
                     codigoCaso: codigo,
                     historiaClinicaId: savedRecord?.id || existingId || null,
                     subject: `${existingId ? 'Actualización de cita' : 'Programación de cita'} (${codigo}) — Serena Mente`,
-                    title: existingId ? 'Actualización de tu cita y caso' : 'Nueva cita programada en Serena Mente',
-                    subtitle: 'Estos son los detalles vigentes de tu sesión:',
+                    title: existingId ? 'Actualización de tu cita y registro' : 'Nueva cita programada en Serena Mente',
+                    subtitle: 'Estos son los datos vigentes de tu sesión:',
                     rows: [
-                        { label: 'Consultante', value: nombreConsultante },
+                        { label: 'Consultante / Entidad', value: nombreConsultante },
+                        { label: 'Línea de orientación', value: tipoCaso },
                         { label: 'Código / Referencia', value: codigo },
                         { label: 'Profesional', value: proProfile?.nombre_completo || 'Profesional asignado' },
                         { label: 'Fecha / Hora', value: `${fechaSesion || 'Por confirmar'} ${horaSesion || ''}`.trim() },
@@ -1070,7 +1201,7 @@
 
             closeCaseModal();
             await cargarDatosProfesional();
-            showProToast(existingId ? 'Caso actualizado correctamente.' : 'Nuevo caso/cita creado.');
+            showProToast(existingId ? 'Historia clínica y cita actualizadas.' : 'Cita e historia clínica guardadas.');
         }
 
         // AGENDA Y DISPONIBILIDAD
@@ -1261,12 +1392,18 @@
                 : '<p class="text-xs text-slate-500 bg-white border border-slate-200 rounded-2xl p-4">Aún no hay notas de evolución registradas en el seguimiento de este caso.</p>';
 
             container.innerHTML = `
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-1">
-                    <p class="text-xs font-bold uppercase text-serena-700">Seguimiento del caso · ${escapeHtml(appt.codigo_caso || '')}</p>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <p class="text-xs font-bold uppercase text-serena-700">Seguimiento del caso · ${escapeHtml(appt.codigo_caso || '')}</p>
+                        <button type="button" onclick="openCaseModal('${escapeHtml(appt.id)}')" class="text-xs font-semibold text-serena-700 hover:underline">
+                            Abrir / editar historia clínica
+                        </button>
+                    </div>
                     <h3 class="text-base font-extrabold text-slate-900">${escapeHtml(appt.nombre_consultante || 'Consultante')}</h3>
-                    <p class="text-xs text-slate-600">Correo: ${escapeHtml(appt.correo_consultante || 'N/A')} · Modalidad: ${escapeHtml(appt.tipo_caso || 'N/A')} · Pago: ${escapeHtml(appt.estado_pago || 'Pendiente')}</p>
-                    ${appt.observacion_clinica ? `<p class="text-xs text-slate-600 pt-1"><strong>Observación inicial:</strong> ${escapeHtml(appt.observacion_clinica)}</p>` : ''}
-                    ${appt.notas_clinicas ? `<p class="text-xs text-slate-600 pt-1"><strong>Resumen clínico:</strong> ${escapeHtml(appt.notas_clinicas)}</p>` : ''}
+                    <p class="text-xs text-slate-600">Línea: <strong>${escapeHtml(normalizeOrientationLabel(appt.tipo_caso))}</strong> · Correo: ${escapeHtml(appt.correo_consultante || 'N/A')} · Pago: ${escapeHtml(appt.estado_pago || 'Pendiente')}</p>
+                    ${appt.documento_o_nit || appt.edad_o_cargo ? `<p class="text-xs text-slate-600">Doc/NIT: ${escapeHtml(appt.documento_o_nit || 'N/A')} · Edad/Cargo: ${escapeHtml(appt.edad_o_cargo || 'N/A')}</p>` : ''}
+                    ${appt.discurso_relato ? `<p class="text-xs text-slate-600 pt-1"><strong>Relato / motivo:</strong> ${escapeHtml(appt.discurso_relato)}</p>` : ''}
+                    ${appt.observacion_clinica ? `<p class="text-xs text-slate-600 pt-1"><strong>Observación clínica:</strong> ${escapeHtml(appt.observacion_clinica)}</p>` : ''}
                 </div>
                 <div class="space-y-3">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600">Historial de evolución</h4>
@@ -1466,7 +1603,6 @@
             btn.disabled = true;
             btn.textContent = 'Enviando...';
 
-            const paragraphsHtml = `<p style="margin: 0; white-space: pre-line;">${escapeHtml(message)}</p>`;
             const sent = await enviarNotificacionProfesional({
                 clientEmail: toEmail,
                 codigoCaso: '',

@@ -342,22 +342,35 @@
             const apptContainer = document.getElementById('pro-appointments-container');
             const consentContainer = document.getElementById('pro-consents-container');
 
-            const { data: appts, error: apptErr } = await supabaseClient
-                .from('historias_clinicas')
-                .select('*, perfiles(nombre_completo, email)')
-                .order('created_at', { ascending: false })
-                .limit(100);
+            const [
+                { data: appts, error: apptErr },
+                { data: profiles }
+            ] = await Promise.all([
+                supabaseClient
+                    .from('historias_clinicas')
+                    .select('*')
+                    .order('fecha_sesion', { ascending: false })
+                    .limit(100),
+                supabaseClient
+                    .from('perfiles')
+                    .select('id, nombre_completo, email')
+            ]);
 
             if (apptErr) {
                 apptContainer.innerHTML = `<p class="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-4">No se pudieron cargar las citas (${escapeHtml(apptErr.message)}).</p>`;
             } else {
-                proAppointments = (appts || []).map((row) => ({
-                    ...row,
-                    correo_consultante: row.cliente_email || '',
-                    psicologo_nombre: row.perfiles?.nombre_completo || row.psicologo_nombre || 'Profesional',
-                    psicologo_email: row.perfiles?.email || row.psicologo_email || '',
-                    enlace_meet: row.enlace_meet || row.link_meet || ''
-                }));
+                const profilesById = new Map((profiles || []).map((p) => [String(p.id), p]));
+
+                proAppointments = (appts || []).map((row) => {
+                    const prof = row.psicologo_id ? profilesById.get(String(row.psicologo_id)) : null;
+                    return {
+                        ...row,
+                        correo_consultante: row.cliente_email || '',
+                        psicologo_nombre: prof?.nombre_completo || row.psicologo_nombre || 'Profesional',
+                        psicologo_email: prof?.email || row.psicologo_email || '',
+                        enlace_meet: row.enlace_meet || row.link_meet || ''
+                    };
+                });
                 renderAppointmentsTable();
             }
 

@@ -1147,7 +1147,7 @@
                 return;
             }
 
-            // Respaldo directo si la Edge Function devuelve 404 o no está disponible
+            // Respaldo directo si la Edge Function devuelve error o estado no-2xx
             const currentPsi = adminPsychologists.find((item) => String(item.id) === String(id));
             const { error: directPsiErr } = await supabaseClient
                 .from('psicologos')
@@ -1239,13 +1239,43 @@
                 }
             });
 
-            if (error || data?.ok === false) {
-                showProToast(data?.error || error?.message || 'No se pudo eliminar el psicólogo.', true);
+            if (!error && data?.ok !== false) {
+                await cargarDatosAdmin();
+                showProToast('Psicólogo eliminado correctamente.');
                 return;
             }
 
+            // Respaldo directo si la Edge Function devuelve error o estado no-2xx
+            let query = supabaseClient.from('psicologos').delete();
+            query = id ? query.eq('id', id) : query.ilike('email', String(email || '').trim());
+
+            const { error: directDelErr } = await query;
+
+            if (!directDelErr) {
+                await cargarDatosAdmin();
+                showProToast('Registro eliminado de psicologos; revisa el acceso en Auth si la función está inactiva.');
+                return;
+            }
+
+            // Si hay restricción por historial/citas vinculadas, desactivar en lugar de borrar
+            let deactivateQuery = supabaseClient.from('psicologos').update({ activo: false });
+            deactivateQuery = id
+                ? deactivateQuery.eq('id', id)
+                : deactivateQuery.ilike('email', String(email || '').trim());
+
+            const { error: deactErr } = await deactivateQuery;
+
             await cargarDatosAdmin();
-            showProToast('Psicólogo eliminado correctamente.');
+
+            if (!deactErr) {
+                showProToast('El psicólogo tenía registros vinculados: se marcó como Inactivo para ocultarlo del equipo.', true);
+                return;
+            }
+
+            showProToast(
+                data?.error || error?.message || directDelErr.message || deactErr.message || 'No se pudo eliminar el psicólogo.',
+                true
+            );
         }
 
         async function guardarConfiguracionPlataforma(event) {

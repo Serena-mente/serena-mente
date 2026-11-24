@@ -99,12 +99,12 @@
             <!-- Cabecera del profesional y acciones principales -->
             <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-serena-700">Espacio clínico profesional</p>
+                    <p id="pro-role-kicker" class="text-xs font-bold uppercase tracking-wider text-serena-700">Espacio clínico profesional</p>
                     <h1 id="pro-welcome-title" class="text-2xl font-extrabold text-slate-900 mt-1">Bienvenido/a</h1>
                     <p id="pro-welcome-sub" class="text-xs sm:text-sm text-slate-500 mt-1">Gestiona citas, historias clínicas, disponibilidad horaria, evolución, consentimientos y correos.</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="openCaseModal(null)" class="text-xs font-semibold px-4 py-2.5 rounded-xl bg-serena-600 hover:bg-serena-700 text-white transition shadow-sm">
+                    <button id="btn-new-case-top" type="button" onclick="openCaseModal(null)" class="text-xs font-semibold px-4 py-2.5 rounded-xl bg-serena-600 hover:bg-serena-700 text-white transition shadow-sm">
                         + Nueva cita / historia clínica
                     </button>
                     <button type="button" onclick="openEmailModal('', '', '')" class="text-xs font-semibold px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-serena-900 border border-emerald-200 transition">
@@ -114,6 +114,12 @@
                         Actualizar todo
                     </button>
                 </div>
+            </div>
+
+            <!-- Banner informativo en modo solo lectura para Administrador -->
+            <div id="admin-readonly-banner" class="hidden bg-sky-50 border border-sky-200 text-serena-darkblue rounded-2xl px-4 py-3 text-xs sm:text-sm flex items-start gap-2.5">
+                <span class="font-extrabold uppercase tracking-wider text-[11px] bg-white border border-sky-200 px-2 py-0.5 rounded-full shrink-0 mt-0.5">Solo lectura</span>
+                <p>En las secciones clínicas (<strong>Citas y casos</strong>, <strong>Agenda y disponibilidad</strong>, <strong>Evolución y seguimiento</strong> y <strong>Consentimientos</strong>) tu perfil de administración opera en modo supervisión de solo lectura. La edición está habilitada en <strong>Administración</strong>.</p>
             </div>
 
             <!-- Navegación interna del portal profesional -->
@@ -140,7 +146,7 @@
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div>
                         <h2 class="text-lg font-extrabold text-slate-900">Citas y casos registrados</h2>
-                        <p class="text-xs text-slate-500">Diligencia la historia clínica en cualquier cita (apartada por consultante o profesional), ajusta estado de pago y enlace Meet.</p>
+                        <p id="pro-citas-subtitle" class="text-xs text-slate-500">Diligencia la historia clínica en cualquier cita (apartada por consultante o profesional), ajusta estado de pago y enlace Meet.</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <select id="pro-filter-tipo" onchange="renderAppointmentsTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:bg-white focus:border-serena-600">
@@ -170,41 +176,89 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-4">
                     <div>
                         <h2 class="text-lg font-extrabold text-slate-900">Agenda, días y horarios de atención</h2>
-                        <p class="text-xs text-slate-500">Define horarios disponibles, márcalos como ocupados/reservados o cambia su estado cuando lo necesites.</p>
+                        <p id="pro-agenda-subtitle" class="text-xs text-slate-500">Configura qué días de la semana atiendes y tus franjas horarias (puedes dividir el día en dos bloques para dejar horas libres).</p>
                     </div>
                 </div>
 
-                <form onsubmit="guardarFranjaAgenda(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <!-- Bloque A: Disponibilidad semanal recurrente (tabla disponibilidad_psicologos) -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
                     <div>
-                        <label for="agenda-fecha" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Fecha *</label>
-                        <input id="agenda-fecha" type="date" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        <h3 class="text-sm font-extrabold text-slate-900">Disponibilidad semanal recurrente</h3>
+                        <p class="text-xs text-slate-500">Ejemplo: agrega <code>08:00</code> a <code>14:00</code> y <code>15:00</code> a <code>18:00</code> para dejar libre las 2:00 PM todos los días que atiendas.</p>
                     </div>
-                    <div>
-                        <label for="agenda-hora" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Hora / Franja *</label>
-                        <input id="agenda-hora" type="text" required placeholder="Ej. 09:00 AM - 10:00 AM" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="agenda-estado" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Estado del horario</label>
-                        <select id="agenda-estado" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                            <option value="Disponible">Disponible</option>
-                            <option value="Ocupado">Ocupado</option>
-                            <option value="Reservado">Reservado</option>
-                            <option value="Bloqueado">Bloqueado</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="agenda-nota" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Nota / Referencia</label>
-                        <input id="agenda-nota" type="text" placeholder="Ej. Atención virtual o HC-..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit" class="w-full bg-serena-600 hover:bg-serena-700 text-white font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition">
-                            Guardar horario
-                        </button>
-                    </div>
-                </form>
 
-                <div id="pro-agenda-container" class="space-y-3">
-                    <p class="text-sm text-slate-500">Cargando horarios...</p>
+                    <form id="form-disponibilidad-semanal" onsubmit="guardarDisponibilidadSemanal(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div>
+                            <label for="disp-dia-semana" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Día de la semana *</label>
+                            <select id="disp-dia-semana" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                                <option value="1">Lunes</option>
+                                <option value="2">Martes</option>
+                                <option value="3">Miércoles</option>
+                                <option value="4">Jueves</option>
+                                <option value="5">Viernes</option>
+                                <option value="6">Sábado</option>
+                                <option value="0">Domingo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="disp-hora-inicio" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Hora inicio *</label>
+                            <input id="disp-hora-inicio" type="time" value="08:00" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="disp-hora-fin" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Hora fin *</label>
+                            <input id="disp-hora-fin" type="time" value="18:00" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-serena-600 hover:bg-serena-700 text-white font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition">
+                                Agregar franja semanal
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="pro-weekly-availability-container" class="space-y-2.5">
+                        <p class="text-xs text-slate-500">Cargando disponibilidad semanal...</p>
+                    </div>
+                </div>
+
+                <!-- Bloque B: Bloqueos o franjas puntuales por fecha -->
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900">Bloqueos o horarios puntuales por fecha</h3>
+                        <p class="text-xs text-slate-500">Registra excepciones para una fecha específica (disponible, ocupado, reservado o bloqueado).</p>
+                    </div>
+
+                    <form id="form-franja-puntual" onsubmit="guardarFranjaAgenda(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <div>
+                            <label for="agenda-fecha" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Fecha *</label>
+                            <input id="agenda-fecha" type="date" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="agenda-hora" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Hora / Franja *</label>
+                            <input id="agenda-hora" type="text" required placeholder="Ej. 02:00 PM" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="agenda-estado" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Estado del horario</label>
+                            <select id="agenda-estado" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                                <option value="Disponible">Disponible</option>
+                                <option value="Ocupado">Ocupado</option>
+                                <option value="Reservado">Reservado</option>
+                                <option value="Bloqueado">Bloqueado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="agenda-nota" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Nota / Referencia</label>
+                            <input id="agenda-nota" type="text" placeholder="Ej. Bloqueo personal o HC-..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-serena-600 hover:bg-serena-700 text-white font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition">
+                                Guardar horario
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="pro-agenda-container" class="space-y-3">
+                        <p class="text-sm text-slate-500">Cargando horarios...</p>
+                    </div>
                 </div>
             </div>
 
@@ -212,7 +266,7 @@
             <div id="pro-tab-evolucion" class="pro-tab-panel hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
                 <div>
                     <h2 class="text-lg font-extrabold text-slate-900">Notas de evolución y seguimiento clínico</h2>
-                    <p class="text-xs text-slate-500">Selecciona un consultante/caso para revisar su seguimiento y registrar nuevas notas de evolución.</p>
+                    <p id="pro-evo-subtitle" class="text-xs text-slate-500">Selecciona un consultante/caso para revisar su seguimiento y registrar nuevas notas de evolución.</p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -222,7 +276,7 @@
                             <option value="">Selecciona un caso...</option>
                         </select>
 
-                        <form onsubmit="guardarNotaEvolucion(event)" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                        <form id="form-nota-evolucion" onsubmit="guardarNotaEvolucion(event)" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
                             <div>
                                 <label for="evo-fecha" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Fecha de sesión / nota</label>
                                 <input id="evo-fecha" type="date" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs">
@@ -262,14 +316,14 @@
             <div id="pro-tab-admin" class="pro-tab-panel hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-8">
                 <div class="border-b border-slate-100 pb-4">
                     <h2 class="text-lg font-extrabold text-slate-900">Administración de la plataforma</h2>
-                    <p class="text-xs text-slate-500">Gestiona cuentas y perfiles de psicólogos, así como los parámetros globales y Términos y Condiciones.</p>
+                    <p class="text-xs text-slate-500">Gestiona cuentas, perfiles y tarifas individuales de psicólogos, así como los parámetros globales y Términos y Condiciones.</p>
                 </div>
 
                 <!-- 1. Alta de psicólogos -->
                 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
                     <div>
                         <h3 class="text-sm font-extrabold text-slate-900">Asignar acceso y registrar psicólogo</h3>
-                        <p class="text-xs text-slate-500">Crea el acceso en Authentication, registra el perfil en <code>perfiles</code> y publica el profesional en <code>psicologos</code>.</p>
+                        <p class="text-xs text-slate-500">Crea el acceso en Authentication, registra el perfil en <code>perfiles</code> y publica el profesional en <code>psicologos</code> con su tarifa individual.</p>
                     </div>
 
                     <form id="form-crear-psicologo" onsubmit="crearPsicologoAdmin(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -285,9 +339,13 @@
                             <label for="admin-psi-password" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Contraseña inicial (mín. 6) *</label>
                             <input id="admin-psi-password" type="password" required minlength="6" placeholder="••••••••" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
                         </div>
-                        <div class="sm:col-span-2 lg:col-span-3">
+                        <div class="sm:col-span-2">
                             <label for="admin-psi-area" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Área / Especialidad *</label>
                             <input id="admin-psi-area" type="text" required placeholder="Ej. Área clínica - Terapia cognitivo-conductual" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="admin-psi-tarifa" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Tarifa por sesión (COP) *</label>
+                            <input id="admin-psi-tarifa" type="number" min="0" step="1000" value="80000" required placeholder="80000" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
                         </div>
                         <div class="sm:col-span-2 lg:col-span-3">
                             <label for="admin-psi-modelo" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Modelo de trabajo *</label>
@@ -319,7 +377,7 @@
                     <form id="form-config-plataforma" onsubmit="guardarConfiguracionPlataforma(event)" class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label for="cfg-tarifa" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Tarifa de consulta</label>
+                                <label for="cfg-tarifa" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Tarifa base de referencia</label>
                                 <input id="cfg-tarifa" type="text" placeholder="Ej. $80.000 COP" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
                             </div>
                             <div>
@@ -358,7 +416,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div>
                     <h3 id="modal-caso-title" class="text-lg font-extrabold text-slate-900">Formato de Historia Clínica y Cita</h3>
-                    <p class="text-xs text-slate-500">Diligenciamiento obligatorio para citas agendadas por consultante o profesional en <code>historias_clinicas</code>.</p>
+                    <p id="modal-caso-subtitle" class="text-xs text-slate-500">Diligenciamiento obligatorio para citas agendadas por consultante o profesional en <code>historias_clinicas</code>.</p>
                 </div>
                 <button type="button" onclick="closeCaseModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2">&times;</button>
             </div>
@@ -477,14 +535,14 @@
                     </div>
                 </div>
 
-                <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                <label id="caso-notificar-wrapper" class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
                     <input id="caso-notificar" type="checkbox" checked class="w-4 h-4 accent-serena-600 rounded">
                     <span>Enviar notificación por correo al consultante y a coordinación al guardar</span>
                 </label>
 
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeCaseModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-                        Cancelar
+                        Cerrar
                     </button>
                     <button type="submit" id="btn-guardar-caso" class="px-5 py-2 rounded-xl bg-serena-600 hover:bg-serena-700 text-white text-xs font-semibold shadow-sm">
                         Guardar historia clínica y cita
@@ -555,7 +613,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div>
                     <h3 class="text-lg font-extrabold text-slate-900">Editar psicólogo</h3>
-                    <p class="text-xs text-slate-500">Modifica datos, correo asignado, contraseña opcional, área, modelo de trabajo o estado.</p>
+                    <p class="text-xs text-slate-500">Modifica datos, correo asignado, tarifa individual, contraseña opcional, área, modelo de trabajo o estado.</p>
                 </div>
                 <button type="button" onclick="closeEditPsychologistModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2">&times;</button>
             </div>
@@ -576,6 +634,10 @@
                         <input id="edit-psi-area" type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
                     </div>
                     <div>
+                        <label for="edit-psi-tarifa" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Tarifa por sesión (COP) *</label>
+                        <input id="edit-psi-tarifa" type="number" min="0" step="1000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                    </div>
+                    <div class="sm:col-span-2">
                         <label for="edit-psi-password" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Nueva contraseña (opcional)</label>
                         <input id="edit-psi-password" type="password" minlength="6" placeholder="Dejar vacía para no cambiar" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
                     </div>
@@ -607,15 +669,28 @@
         const COORDINACION_EMAIL = 'serenelyserenamente@gmail.com';
         const ADMIN_EDGE_FUNCTION = 'admin-psicologos';
         const BRAND_LOGO_URL = new URL('assets/imagotipo.png', window.location.href).href;
+        const DEFAULT_TARIFA_COP = 80000;
+
+        const DIAS_SEMANA_LABELS = {
+            0: 'Domingo',
+            1: 'Lunes',
+            2: 'Martes',
+            3: 'Miércoles',
+            4: 'Jueves',
+            5: 'Viernes',
+            6: 'Sábado'
+        };
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let proUser = null;
         let proProfile = null;
         let isAdminUser = false;
+        let currentPsychologistRow = null;
         let proAppointments = [];
         let proConsents = [];
         let proScheduleSlots = [];
+        let weeklyAvailabilityRows = [];
         let adminPsychologists = [];
         let platformConfigMap = {};
 
@@ -626,6 +701,19 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        }
+
+        function formatCop(value, fallback = DEFAULT_TARIFA_COP) {
+            const num = value === null || value === undefined || value === ''
+                ? fallback
+                : Number(String(value).replace(/[^\d.-]/g, ''));
+            const safe = Number.isFinite(num) && num >= 0 ? Math.round(num) : fallback;
+            return `$${safe.toLocaleString('es-CO')} COP`;
+        }
+
+        function formatTimeShort(rawTime) {
+            const val = String(rawTime || '').trim();
+            return val.length >= 5 ? val.slice(0, 5) : val;
         }
 
         function isSafeHttpUrl(url) {
@@ -657,6 +745,46 @@
             window.__proToastTimer = setTimeout(() => {
                 toast.classList.add('hidden');
             }, 4200);
+        }
+
+        function applyRoleUiMode() {
+            const adminTabBtn = document.getElementById('tab-btn-admin');
+            const readonlyBanner = document.getElementById('admin-readonly-banner');
+            const newCaseTopBtn = document.getElementById('btn-new-case-top');
+            const roleKicker = document.getElementById('pro-role-kicker');
+            const welcomeSub = document.getElementById('pro-welcome-sub');
+            const citasSub = document.getElementById('pro-citas-subtitle');
+            const agendaSub = document.getElementById('pro-agenda-subtitle');
+            const evoSub = document.getElementById('pro-evo-subtitle');
+            const formWeekly = document.getElementById('form-disponibilidad-semanal');
+            const formPuntual = document.getElementById('form-franja-puntual');
+            const formEvo = document.getElementById('form-nota-evolucion');
+
+            if (isAdminUser) {
+                adminTabBtn.classList.remove('hidden');
+                readonlyBanner.classList.remove('hidden');
+                newCaseTopBtn.classList.add('hidden');
+                roleKicker.textContent = 'Panel de Administración y Supervisión';
+                welcomeSub.textContent = 'Supervisión en solo lectura de citas, agenda y seguimiento, y edición completa en Administración.';
+                citasSub.textContent = 'Vista de supervisión (solo lectura) de citas y casos registrados en la plataforma.';
+                agendaSub.textContent = 'Vista de supervisión (solo lectura) de la disponibilidad semanal y horarios de cada profesional.';
+                evoSub.textContent = 'Consulta en modo solo lectura las notas de evolución y seguimiento de cada caso.';
+                if (formWeekly) formWeekly.classList.add('hidden');
+                if (formPuntual) formPuntual.classList.add('hidden');
+                if (formEvo) formEvo.classList.add('hidden');
+            } else {
+                adminTabBtn.classList.add('hidden');
+                readonlyBanner.classList.add('hidden');
+                newCaseTopBtn.classList.remove('hidden');
+                roleKicker.textContent = 'Espacio clínico profesional';
+                welcomeSub.textContent = 'Gestiona citas, historias clínicas, disponibilidad horaria, evolución, consentimientos y correos.';
+                citasSub.textContent = 'Diligencia la historia clínica en cualquier cita (apartada por consultante o profesional), ajusta estado de pago y enlace Meet.';
+                agendaSub.textContent = 'Configura qué días de la semana atiendes y tus franjas horarias (puedes dividir el día en dos bloques para dejar horas libres).';
+                evoSub.textContent = 'Selecciona un consultante/caso para revisar su seguimiento y registrar nuevas notas de evolución.';
+                if (formWeekly) formWeekly.classList.remove('hidden');
+                if (formPuntual) formPuntual.classList.remove('hidden');
+                if (formEvo) formEvo.classList.remove('hidden');
+            }
         }
 
         function switchProTab(tabName) {
@@ -829,6 +957,7 @@
             proUser = null;
             proProfile = null;
             isAdminUser = false;
+            currentPsychologistRow = null;
             document.getElementById('tab-btn-admin').classList.add('hidden');
             document.getElementById('pro-dashboard-section').classList.add('hidden');
             document.getElementById('pro-auth-section').classList.remove('hidden');
@@ -876,11 +1005,9 @@
             const rolLower = String(proProfile?.rol || '').trim().toLowerCase();
             isAdminUser = emailLower === COORDINACION_EMAIL || rolLower === 'admin';
 
-            const adminTabBtn = document.getElementById('tab-btn-admin');
-            if (isAdminUser) {
-                adminTabBtn.classList.remove('hidden');
-            } else {
-                adminTabBtn.classList.add('hidden');
+            applyRoleUiMode();
+
+            if (!isAdminUser) {
                 switchProTab('citas');
             }
 
@@ -898,17 +1025,34 @@
             const apptContainer = document.getElementById('pro-appointments-container');
             const consentContainer = document.getElementById('pro-consents-container');
 
+            let hcQuery = supabaseClient
+                .from('historias_clinicas')
+                .select('*')
+                .order('fecha_sesion', { ascending: false })
+                .limit(150);
+
+            if (!isAdminUser && proUser?.id) {
+                hcQuery = hcQuery.eq('psicologo_id', proUser.id);
+            }
+
+            let apptSlotsQuery = supabaseClient
+                .from('appointments')
+                .select('*')
+                .order('scheduled_at', { ascending: true })
+                .limit(150);
+
+            if (!isAdminUser && proUser?.id) {
+                apptSlotsQuery = apptSlotsQuery.eq('psychologist_id', proUser.id);
+            }
+
             const [
                 { data: hcRows, error: hcErr },
                 { data: profiles },
                 { data: consents, error: consentErr },
-                { data: apptSlots }
+                { data: apptSlots },
+                { data: psiRows }
             ] = await Promise.all([
-                supabaseClient
-                    .from('historias_clinicas')
-                    .select('*')
-                    .order('fecha_sesion', { ascending: false })
-                    .limit(150),
+                hcQuery,
                 supabaseClient
                     .from('perfiles')
                     .select('id, nombre_completo, email, rol'),
@@ -917,12 +1061,22 @@
                     .select('*')
                     .order('signed_at', { ascending: false })
                     .limit(80),
+                apptSlotsQuery,
                 supabaseClient
-                    .from('appointments')
+                    .from('psicologos')
                     .select('*')
-                    .order('scheduled_at', { ascending: true })
-                    .limit(150)
+                    .order('orden', { ascending: true })
+                    .order('id', { ascending: true })
             ]);
+
+            const allPsychologists = psiRows || [];
+            currentPsychologistRow = allPsychologists.find((p) => {
+                const samePerfil = proUser?.id && String(p.perfil_id || '') === String(proUser.id);
+                const sameEmail = proUser?.email && String(p.email || '').trim().toLowerCase() === String(proUser.email).trim().toLowerCase();
+                return samePerfil || sameEmail;
+            }) || null;
+
+            await cargarDisponibilidadSemanal(allPsychologists);
 
             proConsents = consentErr ? [] : (consents || []);
 
@@ -981,7 +1135,8 @@
                         fecha: slot.fecha || '',
                         hora: slot.hora || '',
                         estado: slot.estado || 'Disponible',
-                        nota: slot.nota || row.codigo_caso || ''
+                        nota: slot.nota || row.codigo_caso || '',
+                        psicologo_nombre: row.psicologo_nombre || ''
                     });
                 });
             });
@@ -994,13 +1149,15 @@
                 const horaStr = dt && !Number.isNaN(dt.getTime())
                     ? dt.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
                     : '';
+                const prof = a.psychologist_id ? profilesById.get(String(a.psychologist_id)) : null;
                 return {
                     id: a.id,
                     source: 'appointments',
                     fecha: fechaStr,
                     hora: horaStr,
                     estado: a.status || 'Disponible',
-                    nota: a.notes || a.codigo_caso || a.patient_email || ''
+                    nota: a.notes || a.codigo_caso || a.patient_email || '',
+                    psicologo_nombre: prof?.nombre_completo || ''
                 };
             });
 
@@ -1016,6 +1173,162 @@
             if (isAdminUser) {
                 await cargarDatosAdmin();
             }
+        }
+
+        // DISPONIBILIDAD SEMANAL RECURRENTE (disponibilidad_psicologos)
+        async function cargarDisponibilidadSemanal(allPsychologists = []) {
+            const container = document.getElementById('pro-weekly-availability-container');
+            if (!container) return;
+
+            let query = supabaseClient
+                .from('disponibilidad_psicologos')
+                .select('*')
+                .order('dia_semana', { ascending: true })
+                .order('hora_inicio', { ascending: true });
+
+            if (!isAdminUser) {
+                if (!currentPsychologistRow?.id) {
+                    weeklyAvailabilityRows = [];
+                    container.innerHTML = '<p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">Tu perfil aún no está vinculado a un registro en <code>psicologos</code> para configurar disponibilidad semanal.</p>';
+                    return;
+                }
+                query = query.eq('psicologo_id', currentPsychologistRow.id);
+            }
+
+            const { data, error } = await query;
+
+            if (error) {
+                weeklyAvailabilityRows = [];
+                container.innerHTML = `<p class="text-xs text-slate-500">Tabla <code>disponibilidad_psicologos</code> pendiente o sin permisos (${escapeHtml(error.message)}).</p>`;
+                return;
+            }
+
+            const psiById = new Map((allPsychologists || []).map((p) => [String(p.id), p]));
+            weeklyAvailabilityRows = (data || []).map((row) => ({
+                ...row,
+                psicologo_nombre: psiById.get(String(row.psicologo_id))?.nombre || `Psicólogo #${row.psicologo_id}`
+            }));
+
+            renderWeeklyAvailability();
+        }
+
+        function renderWeeklyAvailability() {
+            const container = document.getElementById('pro-weekly-availability-container');
+            if (!container) return;
+
+            if (!weeklyAvailabilityRows.length) {
+                container.innerHTML = '<p class="text-xs text-slate-500">Aún no hay franjas semanales configuradas.</p>';
+                return;
+            }
+
+            container.innerHTML = weeklyAvailabilityRows.map((row) => {
+                const diaLabel = DIAS_SEMANA_LABELS[Number(row.dia_semana)] || `Día ${row.dia_semana}`;
+                const inicio = formatTimeShort(row.hora_inicio);
+                const fin = formatTimeShort(row.hora_fin);
+                const isActive = row.activo !== false;
+                const safeId = escapeHtml(row.id);
+
+                const controlsHtml = isAdminUser
+                    ? `<span class="text-[11px] font-semibold text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-full">Solo lectura</span>`
+                    : `
+                        <button type="button" onclick="toggleDisponibilidadSemanal('${safeId}', ${!isActive})" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl text-xs transition">
+                            ${isActive ? 'Pausar franja' : 'Activar franja'}
+                        </button>
+                        <button type="button" onclick="eliminarDisponibilidadSemanal('${safeId}')" class="bg-white hover:bg-red-50 text-red-700 border border-red-200 font-semibold px-3 py-1.5 rounded-xl text-xs transition">
+                            Eliminar
+                        </button>
+                    `;
+
+                return `
+                    <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                            <span class="font-extrabold text-slate-900">${escapeHtml(diaLabel)}</span>
+                            <span class="font-semibold text-serena-700">${escapeHtml(inicio)} – ${escapeHtml(fin)}</span>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${isActive ? 'bg-emerald-100 text-serena-900' : 'bg-slate-200 text-slate-700'}">
+                                ${isActive ? 'Activa' : 'Inactiva'}
+                            </span>
+                            ${isAdminUser ? `<span class="text-xs text-slate-500">· ${escapeHtml(row.psicologo_nombre)}</span>` : ''}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${controlsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function guardarDisponibilidadSemanal(event) {
+            event.preventDefault();
+            if (isAdminUser) {
+                showProToast('El perfil de administrador solo puede visualizar la disponibilidad.', true);
+                return;
+            }
+            if (!currentPsychologistRow?.id) {
+                showProToast('No se encontró tu ficha vinculada en psicologos.', true);
+                return;
+            }
+
+            const diaSemana = Number(document.getElementById('disp-dia-semana').value);
+            const horaInicio = document.getElementById('disp-hora-inicio').value;
+            const horaFin = document.getElementById('disp-hora-fin').value;
+
+            if (!horaInicio || !horaFin || horaFin <= horaInicio) {
+                showProToast('La hora de fin debe ser posterior a la hora de inicio.', true);
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from('disponibilidad_psicologos')
+                .insert({
+                    psicologo_id: currentPsychologistRow.id,
+                    dia_semana: diaSemana,
+                    hora_inicio: horaInicio,
+                    hora_fin: horaFin,
+                    activo: true
+                });
+
+            if (error) {
+                showProToast(`No se pudo guardar la franja semanal (${error.message}).`, true);
+                return;
+            }
+
+            await cargarDatosProfesional();
+            showProToast('Franja semanal agregada a tu agenda.');
+        }
+
+        async function toggleDisponibilidadSemanal(id, nextActivo) {
+            if (isAdminUser) return;
+            const { error } = await supabaseClient
+                .from('disponibilidad_psicologos')
+                .update({
+                    activo: nextActivo,
+                    actualizado_en: new Date().toISOString()
+                })
+                .eq('id', id);
+
+            if (error) {
+                showProToast(`No se pudo actualizar la franja (${error.message}).`, true);
+                return;
+            }
+
+            await cargarDatosProfesional();
+            showProToast(nextActivo ? 'Franja activada.' : 'Franja pausada.');
+        }
+
+        async function eliminarDisponibilidadSemanal(id) {
+            if (isAdminUser) return;
+            const { error } = await supabaseClient
+                .from('disponibilidad_psicologos')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                showProToast(`No se pudo eliminar la franja (${error.message}).`, true);
+                return;
+            }
+
+            await cargarDatosProfesional();
+            showProToast('Franja semanal eliminada.');
         }
 
         // ADMINISTRACIÓN
@@ -1064,12 +1377,14 @@
                 const safeId = escapeHtml(p.id);
                 const safeEmail = escapeHtml(p.email || '');
                 const safePerfilId = escapeHtml(p.perfil_id || '');
+                const tarifaTexto = escapeHtml(formatCop(p.tarifa_cop, DEFAULT_TARIFA_COP));
                 return `
                     <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div class="space-y-1">
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="text-sm font-extrabold text-slate-900">${escapeHtml(p.nombre)}</span>
                                 <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-serena-800 border border-emerald-200">${escapeHtml(p.area)}</span>
+                                <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-sky-50 text-serena-darkblue border border-sky-200">${tarifaTexto}</span>
                                 <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${p.activo !== false ? 'bg-emerald-100 text-serena-900' : 'bg-slate-200 text-slate-700'}">
                                     ${p.activo !== false ? 'Activo' : 'Inactivo'}
                                 </span>
@@ -1093,12 +1408,14 @@
         }
 
         function abrirEditarPsicologoAdmin(id) {
+            if (!isAdminUser) return;
             const p = adminPsychologists.find((item) => String(item.id) === String(id));
             if (!p) return;
             document.getElementById('edit-psi-id').value = p.id;
             document.getElementById('edit-psi-nombre').value = p.nombre || '';
             document.getElementById('edit-psi-email').value = p.email || '';
             document.getElementById('edit-psi-area').value = p.area || '';
+            document.getElementById('edit-psi-tarifa').value = p.tarifa_cop !== null && p.tarifa_cop !== undefined ? p.tarifa_cop : DEFAULT_TARIFA_COP;
             document.getElementById('edit-psi-password').value = '';
             document.getElementById('edit-psi-modelo').value = p.modelo_trabajo || '';
             document.getElementById('edit-psi-activo').checked = p.activo !== false;
@@ -1111,16 +1428,19 @@
 
         async function guardarEdicionPsicologoAdmin(event) {
             event.preventDefault();
+            if (!isAdminUser) return;
             const btn = document.getElementById('btn-guardar-edicion-psicologo');
             const id = document.getElementById('edit-psi-id').value;
             const nombre = document.getElementById('edit-psi-nombre').value.trim();
             const email = document.getElementById('edit-psi-email').value.trim().toLowerCase();
             const area = document.getElementById('edit-psi-area').value.trim();
+            const tarifaRaw = document.getElementById('edit-psi-tarifa').value;
+            const tarifaCop = tarifaRaw === '' ? DEFAULT_TARIFA_COP : Math.max(0, Math.round(Number(tarifaRaw)));
             const password = document.getElementById('edit-psi-password').value;
             const modeloTrabajo = document.getElementById('edit-psi-modelo').value.trim();
             const activo = document.getElementById('edit-psi-activo').checked;
 
-            if (!id || !nombre || !email || !area || !modeloTrabajo) return;
+            if (!id || !nombre || !email || !area || !modeloTrabajo || !Number.isFinite(tarifaCop)) return;
 
             btn.disabled = true;
             btn.textContent = 'Guardando...';
@@ -1132,6 +1452,7 @@
                     nombre,
                     email,
                     area,
+                    tarifa_cop: tarifaCop,
                     password: password || undefined,
                     modelo_trabajo: modeloTrabajo,
                     activo
@@ -1143,7 +1464,7 @@
                 btn.textContent = 'Guardar cambios';
                 closeEditPsychologistModal();
                 await cargarDatosAdmin();
-                showProToast('Datos del psicólogo actualizados.');
+                showProToast('Datos y tarifa del psicólogo actualizados.');
                 return;
             }
 
@@ -1154,6 +1475,7 @@
                     nombre,
                     email,
                     area,
+                    tarifa_cop: tarifaCop,
                     modelo_trabajo: modeloTrabajo,
                     activo
                 })
@@ -1180,19 +1502,22 @@
             btn.textContent = 'Guardar cambios';
             closeEditPsychologistModal();
             await cargarDatosAdmin();
-            showProToast('Datos del psicólogo actualizados.');
+            showProToast('Datos y tarifa del psicólogo actualizados.');
         }
 
         async function crearPsicologoAdmin(event) {
             event.preventDefault();
+            if (!isAdminUser) return;
             const btn = document.getElementById('btn-crear-psicologo');
             const nombre = document.getElementById('admin-psi-nombre').value.trim();
             const email = document.getElementById('admin-psi-email').value.trim().toLowerCase();
             const password = document.getElementById('admin-psi-password').value;
             const area = document.getElementById('admin-psi-area').value.trim();
+            const tarifaRaw = document.getElementById('admin-psi-tarifa').value;
+            const tarifaCop = tarifaRaw === '' ? DEFAULT_TARIFA_COP : Math.max(0, Math.round(Number(tarifaRaw)));
             const modeloTrabajo = document.getElementById('admin-psi-modelo').value.trim();
 
-            if (!nombre || !email || !password || !area || !modeloTrabajo) return;
+            if (!nombre || !email || !password || !area || !modeloTrabajo || !Number.isFinite(tarifaCop)) return;
 
             btn.disabled = true;
             btn.textContent = 'Creando psicólogo...';
@@ -1204,6 +1529,7 @@
                     email,
                     password,
                     area,
+                    tarifa_cop: tarifaCop,
                     modelo_trabajo: modeloTrabajo
                 }
             });
@@ -1236,10 +1562,12 @@
             }
 
             document.getElementById('form-crear-psicologo').reset();
-            showProToast(`Psicólogo ${nombre} creado y habilitado para ingresar.`);
+            document.getElementById('admin-psi-tarifa').value = DEFAULT_TARIFA_COP;
+            showProToast(`Psicólogo ${nombre} creado con tarifa ${formatCop(tarifaCop)}.`);
         }
 
         async function eliminarPsicologoAdmin(id, email, perfilId) {
+            if (!isAdminUser) return;
             if (!confirm(`¿Eliminar al psicólogo ${email} y revocar su acceso?`)) return;
 
             const { data, error } = await supabaseClient.functions.invoke(ADMIN_EDGE_FUNCTION, {
@@ -1290,6 +1618,7 @@
 
         async function guardarConfiguracionPlataforma(event) {
             event.preventDefault();
+            if (!isAdminUser) return;
             const btn = document.getElementById('btn-guardar-config');
 
             const entries = [
@@ -1375,33 +1704,27 @@
                     appt.discurso_relato || appt.observacion_clinica || appt.documento_o_nit || appt.edad_o_cargo
                 );
 
-                return `
-                    <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 sm:p-5 space-y-4">
-                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
-                            <div>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="text-xs font-bold uppercase text-serena-700">Ref: ${code}</span>
-                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-serena-800 border border-emerald-200">${tipo}</span>
-                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneHcCompleta ? 'bg-sky-50 text-serena-darkblue border border-sky-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}">
-                                        ${tieneHcCompleta ? 'Historia clínica diligenciada' : 'Historia clínica por diligenciar'}
-                                    </span>
-                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneConsent ? 'bg-emerald-100 text-serena-900' : 'bg-amber-100 text-amber-900'}">
-                                        ${tieneConsent ? 'Consentimiento firmado' : 'Consentimiento pendiente'}
-                                    </span>
-                                </div>
-                                <p class="text-base font-extrabold text-slate-900 mt-1">${clientName}</p>
-                                <p class="text-xs text-slate-600">
-                                    ${clientEmail ? `Correo: <strong>${clientEmail}</strong>` : 'Sin correo registrado'}
-                                    ${clientPhone ? ` · Tel: ${clientPhone}` : ''}
-                                    · Profesional: <strong>${proName}</strong>
-                                </p>
-                                <p class="text-xs text-slate-500 mt-0.5">Fecha/Hora: ${fecha} ${hora}</p>
-                            </div>
-                            <span class="self-start lg:self-auto text-xs font-bold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-800">
-                                Pago: ${pagoActual}
-                            </span>
+                const controlsSection = isAdminUser
+                    ? `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-white border border-slate-200 rounded-xl p-3">
+                            <p><strong>Estado de pago:</strong> ${pagoActual}</p>
+                            <p><strong>Enlace Meet:</strong> ${meetActual ? `<a href="${meetActual}" target="_blank" rel="noopener noreferrer" class="text-serena-700 underline break-all">${meetActual}</a>` : 'Pendiente por asignar'}</p>
                         </div>
-
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
+                            <button type="button" onclick="openCaseModal('${safeId}')" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                Ver historia clínica (solo lectura)
+                            </button>
+                            <button type="button" onclick="irAEvolucionCaso('${safeId}')" class="bg-white hover:bg-slate-100 text-serena-800 border border-emerald-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                Ver evolución / seguimiento
+                            </button>
+                            ${appt.consentimiento_firmado ? `
+                                <button type="button" onclick="openConsentModalByRef('${escapeHtml(appt.codigo_caso || '')}')" class="bg-emerald-50 hover:bg-emerald-100 text-serena-900 border border-emerald-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                    Ver consentimiento
+                                </button>
+                            ` : ''}
+                        </div>
+                    `
+                    : `
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Estado de pago (editable en cualquier momento)</label>
@@ -1440,12 +1763,45 @@
                                 Enviar correo
                             </button>
                         </div>
+                    `;
+
+                return `
+                    <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 sm:p-5 space-y-4">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-xs font-bold uppercase text-serena-700">Ref: ${code}</span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-serena-800 border border-emerald-200">${tipo}</span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneHcCompleta ? 'bg-sky-50 text-serena-darkblue border border-sky-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}">
+                                        ${tieneHcCompleta ? 'Historia clínica diligenciada' : 'Historia clínica por diligenciar'}
+                                    </span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneConsent ? 'bg-emerald-100 text-serena-900' : 'bg-amber-100 text-amber-900'}">
+                                        ${tieneConsent ? 'Consentimiento firmado' : 'Consentimiento pendiente'}
+                                    </span>
+                                </div>
+                                <p class="text-base font-extrabold text-slate-900 mt-1">${clientName}</p>
+                                <p class="text-xs text-slate-600">
+                                    ${clientEmail ? `Correo: <strong>${clientEmail}</strong>` : 'Sin correo registrado'}
+                                    ${clientPhone ? ` · Tel: ${clientPhone}` : ''}
+                                    · Profesional: <strong>${proName}</strong>
+                                </p>
+                                <p class="text-xs text-slate-500 mt-0.5">Fecha/Hora: ${fecha} ${hora}</p>
+                            </div>
+                            <span class="self-start lg:self-auto text-xs font-bold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-800">
+                                Pago: ${pagoActual}
+                            </span>
+                        </div>
+                        ${controlsSection}
                     </div>
                 `;
             }).join('');
         }
 
         async function guardarCambiosRapidosCita(idStr, notificar) {
+            if (isAdminUser) {
+                showProToast('El perfil de administrador solo tiene acceso de lectura en citas.', true);
+                return;
+            }
             const appt = proAppointments.find((a) => String(a.id) === String(idStr));
             if (!appt) return;
 
@@ -1501,12 +1857,31 @@
             }
         }
 
+        function setCaseFormReadonly(readonly) {
+            const form = document.getElementById('form-caso');
+            if (!form) return;
+            form.querySelectorAll('input, select, textarea').forEach((el) => {
+                if (el.type === 'hidden') return;
+                el.disabled = readonly;
+            });
+            const saveBtn = document.getElementById('btn-guardar-caso');
+            const notifyWrap = document.getElementById('caso-notificar-wrapper');
+            if (saveBtn) saveBtn.classList.toggle('hidden', readonly);
+            if (notifyWrap) notifyWrap.classList.toggle('hidden', readonly);
+        }
+
         function openCaseModal(idStr) {
+            if (!idStr && isAdminUser) {
+                showProToast('El perfil de administrador solo tiene acceso de lectura en historias clínicas.', true);
+                return;
+            }
             const modal = document.getElementById('modal-caso');
             const titleEl = document.getElementById('modal-caso-title');
+            const subEl = document.getElementById('modal-caso-subtitle');
 
             if (!idStr) {
                 titleEl.textContent = 'Nueva cita y formato de historia clínica';
+                subEl.innerHTML = 'Diligenciamiento obligatorio para citas agendadas por consultante o profesional en <code>historias_clinicas</code>.';
                 document.getElementById('caso-id').value = '';
                 document.getElementById('caso-tipo').value = 'Orientación individual';
                 document.getElementById('caso-codigo').value = '';
@@ -1532,6 +1907,9 @@
                 const appt = proAppointments.find((a) => String(a.id) === String(idStr));
                 if (!appt) return;
                 titleEl.textContent = `Historia clínica y cita · ${appt.codigo_caso || ''}`;
+                subEl.textContent = isAdminUser
+                    ? 'Vista de supervisión en modo solo lectura.'
+                    : 'Diligenciamiento de historia clínica y datos de sesión.';
                 document.getElementById('caso-id').value = appt.id;
                 document.getElementById('caso-tipo').value = normalizeOrientationLabel(appt.tipo_caso);
                 document.getElementById('caso-codigo').value = appt.codigo_caso || '';
@@ -1555,6 +1933,7 @@
                 document.getElementById('caso-notificar').checked = true;
             }
 
+            setCaseFormReadonly(isAdminUser);
             modal.classList.remove('hidden');
         }
 
@@ -1564,6 +1943,10 @@
 
         async function guardarCaso(event) {
             event.preventDefault();
+            if (isAdminUser) {
+                showProToast('El perfil de administrador solo tiene acceso de lectura en historias clínicas.', true);
+                return;
+            }
             const btn = document.getElementById('btn-guardar-caso');
             const existingId = document.getElementById('caso-id').value.trim();
             const tipoCaso = normalizeOrientationLabel(document.getElementById('caso-tipo').value);
@@ -1690,11 +2073,11 @@
             showProToast(existingId ? 'Historia clínica y cita actualizadas.' : 'Cita e historia clínica guardadas.');
         }
 
-        // AGENDA Y DISPONIBILIDAD
+        // AGENDA Y DISPONIBILIDAD PUNTUAL
         function renderScheduleSlots() {
             const container = document.getElementById('pro-agenda-container');
             if (!proScheduleSlots.length) {
-                container.innerHTML = '<p class="text-xs text-slate-500">Aún no has registrado franjas de disponibilidad u ocupación.</p>';
+                container.innerHTML = '<p class="text-xs text-slate-500">Aún no hay franjas puntuales de disponibilidad u ocupación registradas.</p>';
                 return;
             }
 
@@ -1705,20 +2088,26 @@
                     ? 'bg-emerald-100 text-serena-900 border-emerald-300'
                     : 'bg-amber-100 text-amber-900 border-amber-300';
 
+                const selectHtml = isAdminUser
+                    ? `<span class="text-[11px] font-semibold text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-full">Solo lectura</span>`
+                    : `
+                        <select onchange="cambiarEstadoFranja('${safeId}', this.value)" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs">
+                            <option value="Disponible" ${estadoActual === 'Disponible' ? 'selected' : ''}>Disponible</option>
+                            <option value="Ocupado" ${estadoActual === 'Ocupado' ? 'selected' : ''}>Ocupado</option>
+                            <option value="Reservado" ${estadoActual === 'Reservado' ? 'selected' : ''}>Reservado</option>
+                            <option value="Bloqueado" ${estadoActual === 'Bloqueado' ? 'selected' : ''}>Bloqueado</option>
+                        </select>
+                    `;
+
                 return `
                     <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
                             <p class="text-sm font-bold text-slate-900">${escapeHtml(slot.fecha || 'Sin fecha')} · <span class="text-serena-700">${escapeHtml(slot.hora || 'Sin hora')}</span></p>
-                            <p class="text-xs text-slate-600">${escapeHtml(slot.nota || 'Sin observación')}</p>
+                            <p class="text-xs text-slate-600">${escapeHtml(slot.nota || 'Sin observación')}${isAdminUser && slot.psicologo_nombre ? ` · Profesional: ${escapeHtml(slot.psicologo_nombre)}` : ''}</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-bold px-3 py-1 rounded-full border ${badgeClass}">${escapeHtml(estadoActual)}</span>
-                            <select onchange="cambiarEstadoFranja('${safeId}', this.value)" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs">
-                                <option value="Disponible" ${estadoActual === 'Disponible' ? 'selected' : ''}>Disponible</option>
-                                <option value="Ocupado" ${estadoActual === 'Ocupado' ? 'selected' : ''}>Ocupado</option>
-                                <option value="Reservado" ${estadoActual === 'Reservado' ? 'selected' : ''}>Reservado</option>
-                                <option value="Bloqueado" ${estadoActual === 'Bloqueado' ? 'selected' : ''}>Bloqueado</option>
-                            </select>
+                            ${selectHtml}
                         </div>
                     </div>
                 `;
@@ -1727,6 +2116,10 @@
 
         async function guardarFranjaAgenda(event) {
             event.preventDefault();
+            if (isAdminUser) {
+                showProToast('El perfil de administrador solo tiene acceso de lectura en agenda.', true);
+                return;
+            }
             const fecha = document.getElementById('agenda-fecha').value;
             const hora = document.getElementById('agenda-hora').value.trim();
             const estado = document.getElementById('agenda-estado').value;
@@ -1782,6 +2175,7 @@
         }
 
         async function cambiarEstadoFranja(slotId, nuevoEstado) {
+            if (isAdminUser) return;
             const slot = proScheduleSlots.find((s) => String(s.id) === String(slotId));
             if (!slot) return;
 
@@ -1882,7 +2276,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <p class="text-xs font-bold uppercase text-serena-700">Seguimiento del caso · ${escapeHtml(appt.codigo_caso || '')}</p>
                         <button type="button" onclick="openCaseModal('${escapeHtml(appt.id)}')" class="text-xs font-semibold text-serena-700 hover:underline">
-                            Abrir / editar historia clínica
+                            ${isAdminUser ? 'Ver historia clínica (solo lectura)' : 'Abrir / editar historia clínica'}
                         </button>
                     </div>
                     <h3 class="text-base font-extrabold text-slate-900">${escapeHtml(appt.nombre_consultante || 'Consultante')}</h3>
@@ -1900,6 +2294,10 @@
 
         async function guardarNotaEvolucion(event) {
             event.preventDefault();
+            if (isAdminUser) {
+                showProToast('El perfil de administrador solo tiene acceso de lectura en evolución.', true);
+                return;
+            }
             const select = document.getElementById('evo-select-caso');
             const appt = proAppointments.find((a) => String(a.id) === String(select?.value));
             if (!appt) {

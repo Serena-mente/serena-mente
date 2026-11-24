@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conoce nuestro equipo — Serena Mente</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -33,7 +32,6 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- SDK de EmailJS para enviar el comprobante y código por correo desde el navegador -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -53,7 +51,6 @@
 </head>
 <body class="bg-[#F5FAF8] text-[#10263D] antialiased">
 
-    <!-- Navigation Header -->
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#D9F5E8] shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -79,7 +76,6 @@
         </div>
     </header>
 
-    <!-- Main Content: Equipo y modelos de trabajo -->
     <main class="py-16 md:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div class="bg-white rounded-3xl p-8 md:p-10 border border-[#D9F5E8] shadow-sm text-center max-w-4xl mx-auto space-y-4">
             <h1 class="text-3xl sm:text-4xl font-extrabold text-[#10263D]">
@@ -90,11 +86,9 @@
             </p>
         </div>
 
-        <!-- Grid de profesionales detallados -->
         <div id="psychologists-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
     </main>
 
-    <!-- Booking & Review Modal -->
     <div id="booking-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#10263D]/60 backdrop-blur-sm hidden">
         <div class="bg-white w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl border border-[#D9F5E8] relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeModal()" class="absolute top-5 right-5 text-[#10263D]/60 hover:text-[#10263D] text-xl font-bold">✕</button>
@@ -102,13 +96,11 @@
         </div>
     </div>
 
-    <!-- Notification Toast -->
     <div id="notification-toast" class="fixed bottom-5 right-5 z-50 bg-[#10263D] border border-[#078E99]/40 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 transform translate-y-24 opacity-0 transition-all duration-300">
         <span class="w-2.5 h-2.5 rounded-full bg-[#07976B]"></span>
         <span id="toast-message" class="text-sm font-medium">Acción realizada con éxito</span>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-[#10263D] border-t border-[#078E99]/30 text-center py-9 px-4 text-[#D9F5E8]/80 space-y-3">
         <p class="space-x-4">
             <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes somos</a>
@@ -129,13 +121,11 @@
 
         const RECEIPTS_BUCKET = 'comprobantes';
 
-        // Franja de atención de 8:00 AM a 6:00 PM (cada hora en punto)
         const AGENDA_SLOTS = [
             '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
             '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
         ];
 
-        // Credenciales de EmailJS para enviar el comprobante y código por correo desde el navegador
         const EMAILJS_PUBLIC_KEY = 'hAUcIp_2DLmaRXodc';
         const EMAILJS_SERVICE_ID = 'service_p1gsqjg';
         const EMAILJS_TEMPLATE_ID = 'template_yc6ccmy';
@@ -143,19 +133,19 @@
             window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
         }
 
-        // UUIDs reales en Supabase Auth / perfiles para cada profesional
-        const SUPABASE_PRO_IDS = {
-            1: 'cbba4266-df13-4286-b246-d1f11cc90b2', // Psi. María Camila Jarma
-            2: '20f7c4d2-b450-4258-8f94-876eac1f2e73', // Psi. Alexander Sarmiento
+        const FALLBACK_PRO_UUIDS = {
+            1: 'cbba4266-df13-4286-b246-d1f11cc90b2',
+            2: '20f7c4d2-b450-4258-8f94-876eac1f2e73',
             3: null,
-            4: 'E67286bc-4a93-4867-b6a5-d1098e06615d', // Psi. Kenny Ariza
+            4: 'E67286bc-4a93-4867-b6a5-d1098e06615d',
             5: null,
             6: null
         };
 
-        const psychologists = [
+        const FALLBACK_PSYCHOLOGISTS = [
             {
                 id: 1,
+                proUuid: FALLBACK_PRO_UUIDS[1],
                 name: "Psi. María Camila Jarma",
                 area: "Área jurídica y forense",
                 email: "psicomariacjarma@gmail.com",
@@ -163,6 +153,7 @@
             },
             {
                 id: 2,
+                proUuid: FALLBACK_PRO_UUIDS[2],
                 name: "Psi. Alexander Sarmiento",
                 area: "Área clínica - Terapia cognitivo-conductual (TCC)",
                 email: "alexandersarmiento@serenamente.co",
@@ -170,6 +161,7 @@
             },
             {
                 id: 3,
+                proUuid: FALLBACK_PRO_UUIDS[3],
                 name: "Psi. Jesús Cervera",
                 area: "Área clínica - Enfoque conductual",
                 email: "jesuscervera@serenamente.co",
@@ -177,6 +169,7 @@
             },
             {
                 id: 4,
+                proUuid: FALLBACK_PRO_UUIDS[4],
                 name: "Psi. Kenny Ariza",
                 area: "Área clínica y bienestar emocional",
                 email: "psikennyariza@gmail.com",
@@ -184,6 +177,7 @@
             },
             {
                 id: 5,
+                proUuid: FALLBACK_PRO_UUIDS[5],
                 name: "Psi. María Fernanda Quintero",
                 area: "Área organizacional y laboral",
                 email: "mariafernanda@serenamente.co",
@@ -191,6 +185,7 @@
             },
             {
                 id: 6,
+                proUuid: FALLBACK_PRO_UUIDS[6],
                 name: "Psi. Angely Surmay",
                 area: "Área organizacional y gestión de equipos",
                 email: "angelysurmay@serenamente.co",
@@ -198,13 +193,46 @@
             }
         ];
 
+        let psychologists = [...FALLBACK_PSYCHOLOGISTS];
         let appointments = JSON.parse(localStorage.getItem('serena_appointments')) || [];
         let reviewsByPsychologist = JSON.parse(localStorage.getItem('serena_psychologist_reviews')) || {};
         let bookedSlotsForModal = new Set();
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             renderPsychologists();
+            await loadPsychologistsFromSupabase();
         });
+
+        async function loadPsychologistsFromSupabase() {
+            const { data, error } = await supabaseClient
+                .from('psicologos')
+                .select('*')
+                .order('orden', { ascending: true })
+                .order('id', { ascending: true });
+
+            if (error || !Array.isArray(data) || data.length === 0) {
+                return;
+            }
+
+            const activeRows = data.filter(row => row.activo !== false);
+            psychologists = activeRows.map((row, index) => {
+                const fallbackMatch =
+                    FALLBACK_PSYCHOLOGISTS.find(f => String(f.email || '').toLowerCase() === String(row.email || '').toLowerCase()) ||
+                    FALLBACK_PSYCHOLOGISTS[index] ||
+                    null;
+
+                return {
+                    id: row.id ?? (index + 1),
+                    proUuid: row.perfil_id || fallbackMatch?.proUuid || null,
+                    name: row.nombre || fallbackMatch?.name || 'Profesional',
+                    area: row.area || fallbackMatch?.area || 'Orientación psicológica',
+                    email: row.email || fallbackMatch?.email || '',
+                    modelDescription: row.modelo_trabajo || fallbackMatch?.modelDescription || ''
+                };
+            });
+
+            renderPsychologists();
+        }
 
         function escapeHtml(value) {
             return String(value ?? '')
@@ -266,7 +294,7 @@
         async function uploadReceiptToStorage(file, proUuid) {
             if (!file) return { path: null, error: 'No se seleccionó archivo' };
 
-            const maxBytes = 5 * 1024 * 1024; // 5 MB
+            const maxBytes = 5 * 1024 * 1024;
             if (file.size > maxBytes) {
                 return { path: null, error: 'El comprobante supera el límite de 5 MB.' };
             }
@@ -329,14 +357,15 @@
             const grid = document.getElementById('psychologists-grid');
             if (!grid) return;
             grid.innerHTML = psychologists.map(p => {
+                const safeId = escapeHtml(p.id);
                 const summary = getRatingSummary(p.id);
                 const ratingBadgeHtml = summary.count > 0
-                    ? `<button type="button" onclick="openReviewModal(${p.id})" class="flex items-center space-x-1 text-[#07976B] hover:text-[#10263D] text-xs font-semibold transition" title="Ver o dejar comentario">
+                    ? `<button type="button" onclick="openReviewModal('${safeId}')" class="flex items-center space-x-1 text-[#07976B] hover:text-[#10263D] text-xs font-semibold transition" title="Ver o dejar comentario">
                            <span>${summary.starsText}</span>
                            <span class="text-[#10263D]">${escapeHtml(summary.average)}</span>
                            <span class="text-[#10263D]/50">(${summary.count})</span>
                        </button>`
-                    : `<button type="button" onclick="openReviewModal(${p.id})" class="text-[11px] font-medium text-[#10263D]/55 hover:text-[#078E99] transition">
+                    : `<button type="button" onclick="openReviewModal('${safeId}')" class="text-[11px] font-medium text-[#10263D]/55 hover:text-[#078E99] transition">
                            Dejar comentario
                        </button>`;
 
@@ -360,7 +389,7 @@
                                 </div>
                                 ${ratingBadgeHtml}
                             </div>
-                            <button onclick="openBookingModal(${p.id})" class="w-full brand-btn-primary font-medium px-5 py-2.5 rounded-xl text-sm transition shadow-sm">
+                            <button onclick="openBookingModal('${safeId}')" class="w-full brand-btn-primary font-medium px-5 py-2.5 rounded-xl text-sm transition shadow-sm">
                                 Agendar cita
                             </button>
                         </div>
@@ -370,11 +399,12 @@
         }
 
         function openReviewModal(psiId) {
-            const psi = psychologists.find(p => p.id === psiId);
+            const psi = psychologists.find(p => String(p.id) === String(psiId));
             if (!psi) return;
+            const safeId = escapeHtml(psi.id);
             const modal = document.getElementById('booking-modal');
             const content = document.getElementById('modal-content');
-            const reviews = getPsychologistReviews(psiId);
+            const reviews = getPsychologistReviews(psi.id);
 
             const reviewsListHtml = reviews.length
                 ? reviews.map(r => `
@@ -398,7 +428,7 @@
                     ${reviewsListHtml}
                 </div>
 
-                <form onsubmit="submitReview(event, ${psi.id})" class="space-y-3 border-t border-[#D9F5E8] pt-4">
+                <form onsubmit="submitReview(event, '${safeId}')" class="space-y-3 border-t border-[#D9F5E8] pt-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-[#10263D] mb-1">Tu nombre</label>
@@ -452,7 +482,9 @@
         }
 
         async function openBookingModal(psiId) {
-            const psi = psychologists.find(p => p.id === psiId);
+            const psi = psychologists.find(p => String(p.id) === String(psiId));
+            if (!psi) return;
+            const safeId = escapeHtml(psi.id);
             const modal = document.getElementById('booking-modal');
             const content = document.getElementById('modal-content');
             const today = getTodayIsoDate();
@@ -463,7 +495,7 @@
                     <h3 class="text-2xl font-bold text-[#10263D]">Agendar con ${escapeHtml(psi.name)}</h3>
                     <p class="text-xs text-[#078E99] font-medium mt-1">${escapeHtml(psi.area)}</p>
                 </div>
-                <form id="booking-form" onsubmit="submitBooking(event, ${psi.id})" class="space-y-4">
+                <form id="booking-form" onsubmit="submitBooking(event, '${safeId}')" class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-[#10263D] mb-1">Tipo de consulta / orientación</label>
                         <select id="book-orientation" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#078E99]">
@@ -487,13 +519,12 @@
                         </div>
                     </div>
 
-                    <!-- Fecha y calendario de disponibilidad (8:00 AM - 6:00 PM) -->
                     <div class="bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl p-4 space-y-3">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                             <div>
                                 <label class="block text-xs font-semibold text-[#10263D] mb-1">Fecha de sesión</label>
                                 <input type="date" id="book-date" min="${today}" value="${today}" required
-                                    onchange="refreshAvailability(${psi.id})"
+                                    onchange="refreshAvailability('${safeId}')"
                                     class="w-full bg-white border border-[#D9F5E8] rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-[#078E99]">
                             </div>
                             <div>
@@ -526,17 +557,18 @@
                 </form>
             `;
             modal.classList.remove('hidden');
-            await refreshAvailability(psiId);
+            await refreshAvailability(psi.id);
         }
 
         async function refreshAvailability(psiId) {
+            const psi = psychologists.find(p => String(p.id) === String(psiId));
             const dateInput = document.getElementById('book-date');
             const statusEl = document.getElementById('slots-status');
             const selectEl = document.getElementById('book-time');
             if (!dateInput || !statusEl || !selectEl) return;
 
             const chosenDate = dateInput.value;
-            const proUuid = SUPABASE_PRO_IDS[psiId];
+            const proUuid = psi?.proUuid || FALLBACK_PRO_UUIDS[psiId] || null;
             bookedSlotsForModal = new Set();
 
             if (!chosenDate) {
@@ -559,7 +591,7 @@
             }
 
             appointments
-                .filter(a => a.psiId === psiId && a.date === chosenDate && a.time)
+                .filter(a => String(a.psiId) === String(psiId) && a.date === chosenDate && a.time)
                 .forEach(a => bookedSlotsForModal.add(a.time.trim()));
 
             const firstFree = AGENDA_SLOTS.find(slot => !bookedSlotsForModal.has(slot));
@@ -627,15 +659,15 @@
         async function submitBooking(event, psiId) {
             event.preventDefault();
 
-            const psi = psychologists.find(p => p.id === psiId);
-            const proUuid = SUPABASE_PRO_IDS[psiId];
+            const psi = psychologists.find(p => String(p.id) === String(psiId));
+            const proUuid = psi?.proUuid || FALLBACK_PRO_UUIDS[psiId] || null;
             const errorBox = document.getElementById('booking-error');
             const submitBtn = document.getElementById('btn-submit-booking');
 
             errorBox.classList.add('hidden');
 
             if (!proUuid) {
-                errorBox.textContent = `Este profesional (${psi.name}) aún no tiene su UUID configurado en SUPABASE_PRO_IDS para registrar citas en la base de datos.`;
+                errorBox.textContent = `Este profesional (${psi?.name || 'Profesional'}) aún no tiene su perfil_id vinculado para registrar citas en la base de datos.`;
                 errorBox.classList.remove('hidden');
                 return;
             }
@@ -704,7 +736,7 @@
                 id: created.cita_id || Date.now(),
                 codigoCaso,
                 comprobantePath: uploadResult.path,
-                psiId,
+                psiId: psi.id,
                 psiName: psi.name,
                 psiEmail: psi.email,
                 orientationType,

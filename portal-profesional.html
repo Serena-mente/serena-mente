@@ -1147,7 +1147,7 @@
                 return;
             }
 
-            // Respaldo directo si la Edge Function devuelve error o estado no-2xx
+            // Respaldo directo en tabla si la Edge Function devuelve error o estado no-2xx
             const currentPsi = adminPsychologists.find((item) => String(item.id) === String(id));
             const { error: directPsiErr } = await supabaseClient
                 .from('psicologos')
@@ -1209,45 +1209,20 @@
                 }
             });
 
-            if (!error && data?.ok !== false) {
-                btn.disabled = false;
-                btn.textContent = 'Crear psicólogo y asignar correo';
-                document.getElementById('form-crear-psicologo').reset();
-                await cargarDatosAdmin();
-                showProToast(`Psicólogo ${nombre} creado y asignado a ${email}.`);
-                return;
-            }
-
-            // Respaldo directo si la Edge Function devuelve error o estado no-2xx
-            const maxOrden = adminPsychologists.reduce(
-                (max, item) => Math.max(max, Number(item.orden || 0)),
-                0
-            );
-
-            const { data: insertedPsi, error: directInsErr } = await supabaseClient
-                .from('psicologos')
-                .insert({
-                    nombre,
-                    email,
-                    area,
-                    modelo_trabajo: modeloTrabajo,
-                    activo: true,
-                    orden: maxOrden + 1
-                })
-                .select()
-                .single();
-
             btn.disabled = false;
             btn.textContent = 'Crear psicólogo y asignar correo';
 
-            if (directInsErr) {
-                showProToast(data?.error || error?.message || directInsErr.message || 'No se pudo crear el psicólogo.', true);
+            if (error || data?.ok === false) {
+                showProToast(
+                    data?.error || error?.message || 'Despliega admin-psicologos en Supabase para crear el acceso automáticamente.',
+                    true
+                );
                 return;
             }
 
             document.getElementById('form-crear-psicologo').reset();
             await cargarDatosAdmin();
-            showProToast(`Psicólogo ${insertedPsi?.nombre || nombre} registrado en el equipo.`);
+            showProToast(`Psicólogo ${nombre} creado y habilitado para ingresar.`);
         }
 
         async function eliminarPsicologoAdmin(id, email, perfilId) {

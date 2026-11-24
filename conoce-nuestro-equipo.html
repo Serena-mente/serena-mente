@@ -82,7 +82,7 @@
                 Conoce nuestro equipo y modelos de trabajo
             </h1>
             <p class="text-[#10263D]/75 text-base sm:text-lg leading-relaxed">
-                Cada profesional de nuestra plataforma fundamenta su práctica en marcos teóricos rigurosos, adaptados a las necesidades particulares de cada consultante. Horario de atención: <strong class="text-[#10263D]">8:00 AM a 6:00 PM</strong>. Tarifa única de consulta: <strong class="text-[#07976B]">$80.000 COP</strong>.
+                Cada profesional de nuestra plataforma fundamenta su práctica en marcos teóricos rigurosos, adaptados a las necesidades particulares de cada consultante. Horario de atención: <strong class="text-[#10263D]">8:00 AM a 6:00 PM</strong>. Consulta desde <strong id="header-base-rate" class="text-[#07976B]">$80.000 COP</strong> según profesional.
             </p>
         </div>
 
@@ -120,6 +120,7 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const RECEIPTS_BUCKET = 'comprobantes';
+        const DEFAULT_RATE_COP = 80000;
 
         const AGENDA_SLOTS = [
             '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -149,6 +150,7 @@
                 name: "Psi. María Camila Jarma",
                 area: "Área jurídica y forense",
                 email: "psicomariacjarma@gmail.com",
+                rateCop: DEFAULT_RATE_COP,
                 modelDescription: "Su modelo de trabajo se centra en la evaluación, asesoría y orientación especializada en contextos legales y forenses. Aplica metodologías de análisis de perfil y valoración de testimonio bajo rigor técnico, apoyando procesos jurídicos con imparcialidad y fundamentación científica."
             },
             {
@@ -157,6 +159,7 @@
                 name: "Psi. Alexander Sarmiento",
                 area: "Área clínica - Terapia cognitivo-conductual (TCC)",
                 email: "alexandersarmiento@serenamente.co",
+                rateCop: DEFAULT_RATE_COP,
                 modelDescription: "Abordaje clínico especializado en infancia y adolescencia bajo el modelo Cognitivo-Conductual. Emplea evaluación funcional, recursos psicoeducativos estructurados y estrategias de intervención focalizadas en el desarrollo de conductas adaptativas, habilidades de afrontamiento y autorregulación emocional."
             },
             {
@@ -165,6 +168,7 @@
                 name: "Psi. Jesús Cervera",
                 area: "Área clínica - Enfoque conductual",
                 email: "jesuscervera@serenamente.co",
+                rateCop: DEFAULT_RATE_COP,
                 modelDescription: "Su modelo de trabajo prioriza el análisis funcional de la conducta y la intervención breve enfocada en la resolución de problemas. Trabaja activamente en la gestión de la ansiedad, la regulación emocional y la adquisición de hábitos adaptativos para adultos."
             },
             {
@@ -173,6 +177,7 @@
                 name: "Psi. Kenny Ariza",
                 area: "Área clínica y bienestar emocional",
                 email: "psikennyariza@gmail.com",
+                rateCop: DEFAULT_RATE_COP,
                 modelDescription: "Su modelo de trabajo integra la orientación psicológica basada en evidencia y el acompañamiento humanista. Su enfoque acompaña al consultante en la superación de crisis vitales, fortalecimiento de recursos personales y búsqueda de estabilidad emocional."
             },
             {
@@ -181,6 +186,7 @@
                 name: "Psi. María Fernanda Quintero",
                 area: "Área organizacional y laboral",
                 email: "mariafernanda@serenamente.co",
+                rateCop: DEFAULT_RATE_COP,
                 modelDescription: "Su modelo de trabajo se orienta al desarrollo profesional, optimización del clima laboral, prevención del burnout y manejo del estrés ocupacional. Ofrece herramientas prácticas de liderazgo, comunicación asertiva y gestión del desempeño."
             },
             {
@@ -189,6 +195,7 @@
                 name: "Psi. Angely Surmay",
                 area: "Área organizacional y gestión de equipos",
                 email: "angelysurmay@serenamente.co",
+                rateCop: DEFAULT_RATE_COP,
                 modelDescription: "Su modelo de trabajo enfoca la salud mental en el entorno laboral y corporativo. Diseña estrategias para la armonización de equipos de trabajo, mitigación de riesgos psicosociales y fomento de entornos de productividad saludable."
             }
         ];
@@ -198,7 +205,36 @@
         let reviewsByPsychologist = JSON.parse(localStorage.getItem('serena_psychologist_reviews')) || {};
         let bookedSlotsForModal = new Set();
 
+        function normalizeRateCop(value, fallback = DEFAULT_RATE_COP) {
+            if (value === null || value === undefined || value === '') return fallback;
+            const cleaned = typeof value === 'string'
+                ? Number(value.replace(/[^\d.-]/g, ''))
+                : Number(value);
+            if (!Number.isFinite(cleaned) || cleaned < 0) return fallback;
+            return Math.round(cleaned);
+        }
+
+        function formatCop(amount) {
+            const safeAmount = normalizeRateCop(amount, DEFAULT_RATE_COP);
+            return `$${safeAmount.toLocaleString('es-CO')} COP`;
+        }
+
+        function getPsychologistRateCop(psi) {
+            return normalizeRateCop(psi?.rateCop, DEFAULT_RATE_COP);
+        }
+
+        function updateHeaderBaseRate() {
+            const baseRateEl = document.getElementById('header-base-rate');
+            if (!baseRateEl) return;
+            const rates = psychologists
+                .map(p => getPsychologistRateCop(p))
+                .filter(n => Number.isFinite(n) && n > 0);
+            const lowestRate = rates.length ? Math.min(...rates) : DEFAULT_RATE_COP;
+            baseRateEl.textContent = formatCop(lowestRate);
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
+            updateHeaderBaseRate();
             renderPsychologists();
             await loadPsychologistsFromSupabase();
         });
@@ -227,10 +263,12 @@
                     name: row.nombre || fallbackMatch?.name || 'Profesional',
                     area: row.area || fallbackMatch?.area || 'Orientación psicológica',
                     email: row.email || fallbackMatch?.email || '',
+                    rateCop: normalizeRateCop(row.tarifa_cop, fallbackMatch?.rateCop ?? DEFAULT_RATE_COP),
                     modelDescription: row.modelo_trabajo || fallbackMatch?.modelDescription || ''
                 };
             });
 
+            updateHeaderBaseRate();
             renderPsychologists();
         }
 
@@ -319,7 +357,7 @@
             return { path: data?.path || filePath, error: null };
         }
 
-        async function sendBookingEmail({ codigoCaso, comprobantePath, psiName, psiEmail, orientationType, clientName, clientEmail, clientPhone, date, time, receiptName }) {
+        async function sendBookingEmail({ codigoCaso, comprobantePath, psiName, psiEmail, orientationType, clientName, clientEmail, clientPhone, date, time, receiptName, tarifaTexto }) {
             const isConfigured =
                 EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY' &&
                 EMAILJS_SERVICE_ID && EMAILJS_SERVICE_ID !== 'TU_SERVICE_ID' &&
@@ -336,6 +374,7 @@
                     comprobante_ruta: comprobantePath || '',
                     psicologo_nombre: psiName,
                     psicologo_email: psiEmail,
+                    tarifa_sesion: tarifaTexto || '',
                     tipo_orientacion: orientationType,
                     consultante_nombre: clientName,
                     consultante_email: clientEmail,
@@ -359,6 +398,7 @@
             grid.innerHTML = psychologists.map(p => {
                 const safeId = escapeHtml(p.id);
                 const summary = getRatingSummary(p.id);
+                const rateFormatted = formatCop(getPsychologistRateCop(p));
                 const ratingBadgeHtml = summary.count > 0
                     ? `<button type="button" onclick="openReviewModal('${safeId}')" class="flex items-center space-x-1 text-[#07976B] hover:text-[#10263D] text-xs font-semibold transition" title="Ver o dejar comentario">
                            <span>${summary.starsText}</span>
@@ -385,7 +425,7 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <span class="text-xs text-[#10263D]/60 block">8:00 AM - 6:00 PM</span>
-                                    <span class="text-base font-extrabold text-[#10263D]">$80.000 COP</span>
+                                    <span class="text-base font-extrabold text-[#10263D]">${escapeHtml(rateFormatted)}</span>
                                 </div>
                                 ${ratingBadgeHtml}
                             </div>
@@ -489,11 +529,12 @@
             const content = document.getElementById('modal-content');
             const today = getTodayIsoDate();
             const defaultOrientation = getDefaultOrientationForPsychologist(psi);
+            const rateFormatted = formatCop(getPsychologistRateCop(psi));
 
             content.innerHTML = `
                 <div class="mb-6">
                     <h3 class="text-2xl font-bold text-[#10263D]">Agendar con ${escapeHtml(psi.name)}</h3>
-                    <p class="text-xs text-[#078E99] font-medium mt-1">${escapeHtml(psi.area)}</p>
+                    <p class="text-xs text-[#078E99] font-medium mt-1">${escapeHtml(psi.area)} · Tarifa: <strong class="text-[#10263D]">${escapeHtml(rateFormatted)}</strong></p>
                 </div>
                 <form id="booking-form" onsubmit="submitBooking(event, '${safeId}')" class="space-y-4">
                     <div>
@@ -548,7 +589,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-[#10263D] mb-1">Adjuntar comprobante de pago (Nequi / Daviplata)</label>
                         <input type="file" id="book-receipt" accept="image/*,.pdf" required class="w-full bg-[#F5FAF8] border border-[#D9F5E8] rounded-xl px-4 py-2 text-xs text-[#10263D]/80">
-                        <p class="text-[10px] text-[#10263D]/60 mt-1">Sube la captura de tu transferencia de $80.000 COP al 300 000 0000 (máx. 5 MB).</p>
+                        <p class="text-[10px] text-[#10263D]/60 mt-1">Sube la captura de tu transferencia de ${escapeHtml(rateFormatted)} al 300 000 0000 (máx. 5 MB).</p>
                     </div>
                     <div id="booking-error" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl p-3"></div>
                     <button type="submit" id="btn-submit-booking" class="w-full brand-btn-primary font-medium py-3.5 rounded-xl transition text-sm shadow-md">
@@ -663,6 +704,7 @@
             const proUuid = psi?.proUuid || FALLBACK_PRO_UUIDS[psiId] || null;
             const errorBox = document.getElementById('booking-error');
             const submitBtn = document.getElementById('btn-submit-booking');
+            const rateFormatted = formatCop(getPsychologistRateCop(psi));
 
             errorBox.classList.add('hidden');
 
@@ -707,7 +749,7 @@
 
             submitBtn.textContent = 'Registrando reserva...';
 
-            const mensajeInicial = `Reserva solicitada (${orientationType} · ${timeLabel}) · Área: ${psi.area} · WhatsApp: ${phone} · Comprobante: ${receiptName}`;
+            const mensajeInicial = `Reserva solicitada (${orientationType} · ${timeLabel}) · Área: ${psi.area} · Tarifa: ${rateFormatted} · WhatsApp: ${phone} · Comprobante: ${receiptName}`;
 
             const { data: rpcData, error: rpcError } = await supabaseClient.rpc('agendar_cita_consultante', {
                 p_psicologo_id: proUuid,
@@ -739,6 +781,7 @@
                 psiId: psi.id,
                 psiName: psi.name,
                 psiEmail: psi.email,
+                rateCop: getPsychologistRateCop(psi),
                 orientationType,
                 clientName: name,
                 clientEmail: email,
@@ -761,7 +804,8 @@
                 clientPhone: phone,
                 date,
                 time: timeLabel,
-                receiptName
+                receiptName,
+                tarifaTexto: rateFormatted
             });
 
             const emailNotice = emailResult.sent
@@ -774,7 +818,7 @@
                     <span class="text-xs font-bold text-[#07976B]">Reserva registrada</span>
                     <h3 class="text-2xl font-bold text-[#10263D]">¡Solicitud enviada a ${escapeHtml(psi.name)}!</h3>
                     <p class="text-sm text-[#10263D]/75">
-                        Tu consulta de <strong>${escapeHtml(orientationType)}</strong> y comprobante (<strong>${escapeHtml(receiptName)}</strong>) quedaron registrados para el <strong>${escapeHtml(date)}</strong> a las <strong>${escapeHtml(timeLabel)}</strong>.
+                        Tu consulta de <strong>${escapeHtml(orientationType)}</strong> (tarifa <strong>${escapeHtml(rateFormatted)}</strong>) y comprobante (<strong>${escapeHtml(receiptName)}</strong>) quedaron registrados para el <strong>${escapeHtml(date)}</strong> a las <strong>${escapeHtml(timeLabel)}</strong>.
                     </p>
                     <div class="bg-[#F5FAF8] border border-[#078E99]/30 rounded-2xl p-4 space-y-1">
                         <p class="text-xs font-semibold text-[#078E99]">Tu código de consulta</p>

@@ -1138,17 +1138,55 @@
                 }
             });
 
-            btn.disabled = false;
-            btn.textContent = 'Guardar cambios';
-
-            if (error || data?.ok === false) {
-                showProToast(data?.error || error?.message || 'No se pudo actualizar el psicólogo.', true);
+            if (!error && data?.ok !== false) {
+                btn.disabled = false;
+                btn.textContent = 'Guardar cambios';
+                closeEditPsychologistModal();
+                await cargarDatosAdmin();
+                showProToast('Datos del psicólogo actualizados.');
                 return;
             }
 
+            // Respaldo directo si la Edge Function devuelve 404 o no está disponible
+            const currentPsi = adminPsychologists.find((item) => String(item.id) === String(id));
+            const { error: directPsiErr } = await supabaseClient
+                .from('psicologos')
+                .update({
+                    nombre,
+                    email,
+                    area,
+                    modelo_trabajo: modeloTrabajo,
+                    activo
+                })
+                .eq('id', id);
+
+            if (directPsiErr) {
+                btn.disabled = false;
+                btn.textContent = 'Guardar cambios';
+                showProToast(data?.error || error?.message || directPsiErr.message || 'No se pudo actualizar el psicólogo.', true);
+                return;
+            }
+
+            if (currentPsi?.perfil_id) {
+                await supabaseClient
+                    .from('perfiles')
+                    .update({
+                        nombre_completo: nombre,
+                        email
+                    })
+                    .eq('id', currentPsi.perfil_id);
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Guardar cambios';
             closeEditPsychologistModal();
             await cargarDatosAdmin();
-            showProToast('Datos del psicólogo actualizados.');
+
+            if (password) {
+                showProToast('Datos guardados en tabla; la contraseña en Auth requiere la Edge Function activa.', true);
+            } else {
+                showProToast('Datos del psicólogo actualizados en la base de datos.');
+            }
         }
 
         async function crearPsicologoAdmin(event) {

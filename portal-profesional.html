@@ -1138,7 +1138,7 @@
                 }
             });
 
-            if (!error && data?.ok !== false) {
+            if (!error && data?.ok === true) {
                 btn.disabled = false;
                 btn.textContent = 'Guardar cambios';
                 closeEditPsychologistModal();
@@ -1147,7 +1147,6 @@
                 return;
             }
 
-            // Respaldo directo en tabla si la Edge Function devuelve error o estado no-2xx
             const currentPsi = adminPsychologists.find((item) => String(item.id) === String(id));
             const { error: directPsiErr } = await supabaseClient
                 .from('psicologos')
@@ -1209,19 +1208,34 @@
                 }
             });
 
+            if (error || data?.ok !== true || !data?.user_id) {
+                btn.disabled = false;
+                btn.textContent = 'Crear psicólogo y asignar correo';
+                showProToast(
+                    data?.error || error?.message || 'No se pudo crear el psicólogo ni su acceso en Auth.',
+                    true
+                );
+                return;
+            }
+
+            await cargarDatosAdmin();
+
+            const createdInList = adminPsychologists.some(
+                (item) => String(item.email || '').trim().toLowerCase() === email
+            );
+
             btn.disabled = false;
             btn.textContent = 'Crear psicólogo y asignar correo';
 
-            if (error || data?.ok === false) {
+            if (!createdInList) {
                 showProToast(
-                    data?.error || error?.message || 'Despliega admin-psicologos en Supabase para crear el acceso automáticamente.',
+                    'La función respondió pero el registro no aparece en psicologos; revisa políticas RLS o logs de admin-psicologos.',
                     true
                 );
                 return;
             }
 
             document.getElementById('form-crear-psicologo').reset();
-            await cargarDatosAdmin();
             showProToast(`Psicólogo ${nombre} creado y habilitado para ingresar.`);
         }
 
@@ -1237,13 +1251,12 @@
                 }
             });
 
-            if (!error && data?.ok !== false) {
+            if (!error && data?.ok === true) {
                 await cargarDatosAdmin();
                 showProToast('Psicólogo eliminado correctamente.');
                 return;
             }
 
-            // Respaldo directo si la Edge Function devuelve error o estado no-2xx
             let query = supabaseClient.from('psicologos').delete();
             query = id ? query.eq('id', id) : query.ilike('email', String(email || '').trim());
 
@@ -1255,7 +1268,6 @@
                 return;
             }
 
-            // Si hay restricción por historial/citas vinculadas, desactivar en lugar de borrar
             let deactivateQuery = supabaseClient.from('psicologos').update({ activo: false });
             deactivateQuery = id
                 ? deactivateQuery.eq('id', id)

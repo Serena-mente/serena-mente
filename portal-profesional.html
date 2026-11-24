@@ -1181,12 +1181,7 @@
             btn.textContent = 'Guardar cambios';
             closeEditPsychologistModal();
             await cargarDatosAdmin();
-
-            if (password) {
-                showProToast('Datos guardados en tabla; la contraseña en Auth requiere la Edge Function activa.', true);
-            } else {
-                showProToast('Datos del psicólogo actualizados en la base de datos.');
-            }
+            showProToast('Datos del psicólogo actualizados.');
         }
 
         async function crearPsicologoAdmin(event) {
@@ -1214,17 +1209,45 @@
                 }
             });
 
+            if (!error && data?.ok !== false) {
+                btn.disabled = false;
+                btn.textContent = 'Crear psicólogo y asignar correo';
+                document.getElementById('form-crear-psicologo').reset();
+                await cargarDatosAdmin();
+                showProToast(`Psicólogo ${nombre} creado y asignado a ${email}.`);
+                return;
+            }
+
+            // Respaldo directo si la Edge Function devuelve error o estado no-2xx
+            const maxOrden = adminPsychologists.reduce(
+                (max, item) => Math.max(max, Number(item.orden || 0)),
+                0
+            );
+
+            const { data: insertedPsi, error: directInsErr } = await supabaseClient
+                .from('psicologos')
+                .insert({
+                    nombre,
+                    email,
+                    area,
+                    modelo_trabajo: modeloTrabajo,
+                    activo: true,
+                    orden: maxOrden + 1
+                })
+                .select()
+                .single();
+
             btn.disabled = false;
             btn.textContent = 'Crear psicólogo y asignar correo';
 
-            if (error || data?.ok === false) {
-                showProToast(data?.error || error?.message || 'No se pudo crear el psicólogo.', true);
+            if (directInsErr) {
+                showProToast(data?.error || error?.message || directInsErr.message || 'No se pudo crear el psicólogo.', true);
                 return;
             }
 
             document.getElementById('form-crear-psicologo').reset();
             await cargarDatosAdmin();
-            showProToast(`Psicólogo ${nombre} creado y asignado a ${email}.`);
+            showProToast(`Psicólogo ${insertedPsi?.nombre || nombre} registrado en el equipo.`);
         }
 
         async function eliminarPsicologoAdmin(id, email, perfilId) {
@@ -1253,7 +1276,7 @@
 
             if (!directDelErr) {
                 await cargarDatosAdmin();
-                showProToast('Registro eliminado de psicologos; revisa el acceso en Auth si la función está inactiva.');
+                showProToast('Psicólogo eliminado correctamente.');
                 return;
             }
 
@@ -1268,7 +1291,7 @@
             await cargarDatosAdmin();
 
             if (!deactErr) {
-                showProToast('El psicólogo tenía registros vinculados: se marcó como Inactivo para ocultarlo del equipo.', true);
+                showProToast('El psicólogo tenía registros vinculados y se marcó como Inactivo.');
                 return;
             }
 

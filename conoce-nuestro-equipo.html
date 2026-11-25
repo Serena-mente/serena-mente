@@ -59,6 +59,7 @@
             max-height: 72px;
             aspect-ratio: 1 / 1;
             object-fit: cover;
+            object-position: top center;
             align-self: flex-start;
         }
     </style>
@@ -148,13 +149,25 @@
             window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
         }
 
+        const EXCLUDED_PRO_EMAILS = new Set([
+            'mariafernanda@serenamente.co',
+            'angelysurmay@serenamente.co'
+        ]);
+
+        const EXCLUDED_PRO_NAMES = new Set([
+            'psi. maría fernanda quintero',
+            'psi. maria fernanda quintero',
+            'maría fernanda quintero',
+            'maria fernanda quintero',
+            'psi. angely surmay',
+            'angely surmay'
+        ]);
+
         const FALLBACK_PRO_UUIDS = {
             1: 'cbba4266-df13-4286-b246-d1f11cc90b2',
             2: '20f7c4d2-b450-4258-8f94-876eac1f2e73',
             3: null,
-            4: 'E67286bc-4a93-4867-b6a5-d1098e06615d',
-            5: null,
-            6: null
+            4: 'E67286bc-4a93-4867-b6a5-d1098e06615d'
         };
 
         const FALLBACK_PSYCHOLOGISTS = [
@@ -167,7 +180,7 @@
                 rateCop: DEFAULT_RATE_COP,
                 photo: "assets/equipo/Psi. María Camila Jarma.jpg",
                 photoFallback: "assets/equipo/Psi. Maria Jarma.jpg",
-                cropClass: "object-[50%_18%]",
+                cropClass: "object-[50%_15%]",
                 modelDescription: "Su modelo de trabajo se centra en la evaluación, asesoría y orientación especializada en contextos legales y forenses. Aplica metodologías de análisis de perfil y valoración de testimonio bajo rigor técnico, apoyando procesos jurídicos con imparcialidad y fundamentación científica."
             },
             {
@@ -179,7 +192,7 @@
                 rateCop: DEFAULT_RATE_COP,
                 photo: "assets/equipo/Psi. Alexander Sarmiento.jpg",
                 photoFallback: "",
-                cropClass: "object-[50%_18%]",
+                cropClass: "object-[50%_15%]",
                 modelDescription: "Abordaje clínico especializado en infancia y adolescencia bajo el modelo Cognitivo-Conductual. Emplea evaluación funcional, recursos psicoeducativos estructurados y estrategias de intervención focalizadas en el desarrollo de conductas adaptativas, habilidades de afrontamiento y autorregulación emocional."
             },
             {
@@ -191,7 +204,7 @@
                 rateCop: DEFAULT_RATE_COP,
                 photo: "assets/equipo/Psi. Jesús Cervera.jpg",
                 photoFallback: "assets/equipo/Psi. Jesus Cervera.jpg",
-                cropClass: "object-[50%_18%]",
+                cropClass: "object-[50%_15%]",
                 modelDescription: "Su modelo de trabajo prioriza el análisis funcional de la conducta y la intervención breve enfocada en la resolución de problemas. Trabaja activamente en la gestión de la ansiedad, la regulación emocional y la adquisición de hábitos adaptativos para adultos."
             },
             {
@@ -203,32 +216,8 @@
                 rateCop: DEFAULT_RATE_COP,
                 photo: "assets/equipo/Psi. Kenny Ariza.jpg",
                 photoFallback: "",
-                cropClass: "object-[50%_18%]",
+                cropClass: "object-[50%_15%]",
                 modelDescription: "Su modelo de trabajo integra la orientación psicológica basada en evidencia y el acompañamiento humanista. Su enfoque acompaña al consultante en la superación de crisis vitales, fortalecimiento de recursos personales y búsqueda de estabilidad emocional."
-            },
-            {
-                id: 5,
-                proUuid: FALLBACK_PRO_UUIDS[5],
-                name: "Psi. María Fernanda Quintero",
-                area: "Área organizacional y laboral",
-                email: "mariafernanda@serenamente.co",
-                rateCop: DEFAULT_RATE_COP,
-                photo: "",
-                photoFallback: "",
-                cropClass: "object-[50%_18%]",
-                modelDescription: "Su modelo de trabajo se orienta al desarrollo profesional, optimización del clima laboral, prevención del burnout y manejo del estrés ocupacional. Ofrece herramientas prácticas de liderazgo, comunicación asertiva y gestión del desempeño."
-            },
-            {
-                id: 6,
-                proUuid: FALLBACK_PRO_UUIDS[6],
-                name: "Psi. Angely Surmay",
-                area: "Área organizacional y gestión de equipos",
-                email: "angelysurmay@serenamente.co",
-                rateCop: DEFAULT_RATE_COP,
-                photo: "",
-                photoFallback: "",
-                cropClass: "object-[50%_18%]",
-                modelDescription: "Su modelo de trabajo enfoca la salud mental en el entorno laboral y corporativo. Diseña estrategias para la armonización de equipos de trabajo, mitigación de riesgos psicosociales y fomento de entornos de productividad saludable."
             }
         ];
 
@@ -236,6 +225,12 @@
         let appointments = JSON.parse(localStorage.getItem('serena_appointments')) || [];
         let reviewsByPsychologist = JSON.parse(localStorage.getItem('serena_psychologist_reviews')) || {};
         let bookedSlotsForModal = new Set();
+
+        function isExcludedPsychologist(rowOrPsi) {
+            const email = String(rowOrPsi?.email || '').trim().toLowerCase();
+            const name = String(rowOrPsi?.nombre || rowOrPsi?.name || '').trim().toLowerCase();
+            return EXCLUDED_PRO_EMAILS.has(email) || EXCLUDED_PRO_NAMES.has(name);
+        }
 
         function normalizeRateCop(value, fallback = DEFAULT_RATE_COP) {
             if (value === null || value === undefined || value === '') return fallback;
@@ -275,48 +270,89 @@
         }
 
         function getCropClass(psi) {
-            if (psi.cropClass) return psi.cropClass;
-            const n = String(psi.name || '').toLowerCase();
-            if (n.includes('alexander')) return 'object-[50%_18%]';
-            if (n.includes('kenny')) return 'object-[50%_18%]';
-            if (n.includes('maría') || n.includes('maria')) return 'object-[50%_18%]';
-            return 'object-[50%_18%]';
+            return psi.cropClass || 'object-[50%_15%]';
         }
 
-        function resolvePsychologistPhoto(psi) {
-            if (psi.foto_url && String(psi.foto_url).trim()) {
-                return {
-                    principal: encodeURI(String(psi.foto_url).trim()),
-                    alternativa: ''
-                };
+        function buildPhotoCandidates(psi) {
+            const rawCandidates = [];
+
+            const directUrl = psi.foto_url && String(psi.foto_url).trim()
+                ? String(psi.foto_url).trim()
+                : (psi.photo ? String(psi.photo).trim() : '');
+
+            if (directUrl) {
+                rawCandidates.push(directUrl);
+                if (!/^https?:\/\//i.test(directUrl)) {
+                    const withoutExt = directUrl.replace(/\.(jpg|jpeg|png|webp)$/i, '');
+                    const unaccentedPath = withoutExt.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    [withoutExt, unaccentedPath].forEach(base => {
+                        ['.jpg', '.jpeg', '.png', '.webp'].forEach(ext => {
+                            rawCandidates.push(`${base}${ext}`);
+                        });
+                    });
+                }
             }
-            if (psi.photo) {
-                return {
-                    principal: encodeURI(psi.photo),
-                    alternativa: psi.photoFallback ? encodeURI(psi.photoFallback) : ''
-                };
+
+            if (psi.photoFallback) {
+                rawCandidates.push(String(psi.photoFallback).trim());
             }
 
             const rawName = String(psi.name || '').trim();
             const prefixed = /^psi\.?\s+/i.test(rawName)
                 ? rawName.replace(/^psi\.?\s+/i, 'Psi. ')
                 : `Psi. ${rawName}`;
-            const unaccented = prefixed
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '');
+            const unaccentedName = prefixed.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
+            [prefixed, unaccentedName].forEach(baseName => {
+                ['.jpg', '.jpeg', '.png', '.webp'].forEach(ext => {
+                    rawCandidates.push(`assets/equipo/${baseName}${ext}`);
+                });
+            });
+
+            const uniqueEncoded = [];
+            const seen = new Set();
+            rawCandidates.forEach(c => {
+                const encoded = /^https?:\/\//i.test(c) ? c : encodeURI(c);
+                if (encoded && !seen.has(encoded)) {
+                    seen.add(encoded);
+                    uniqueEncoded.push(encoded);
+                }
+            });
+
+            return uniqueEncoded;
+        }
+
+        function resolvePsychologistPhoto(psi) {
+            const candidates = buildPhotoCandidates(psi);
             return {
-                principal: encodeURI(`assets/equipo/${prefixed}.jpg`),
-                alternativa: unaccented !== prefixed ? encodeURI(`assets/equipo/${unaccented}.jpg`) : ''
+                principal: candidates[0] || '',
+                fallbacksJson: JSON.stringify(candidates.slice(1))
             };
         }
 
-        function handlePsychologistPhotoError(imgEl, altUrl) {
-            if (altUrl && imgEl.dataset.triedAlt !== '1') {
-                imgEl.dataset.triedAlt = '1';
-                imgEl.src = altUrl;
+        function handlePsychologistPhotoError(imgEl, fallbacksJson) {
+            let queue = [];
+            if (imgEl.dataset.fallbackQueue) {
+                try {
+                    queue = JSON.parse(imgEl.dataset.fallbackQueue);
+                } catch (_) {
+                    queue = [];
+                }
+            } else {
+                try {
+                    queue = JSON.parse(fallbacksJson || '[]');
+                } catch (_) {
+                    queue = [];
+                }
+            }
+
+            if (Array.isArray(queue) && queue.length > 0) {
+                const nextSrc = queue.shift();
+                imgEl.dataset.fallbackQueue = JSON.stringify(queue);
+                imgEl.src = nextSrc;
                 return;
             }
+
             imgEl.style.display = 'none';
             if (imgEl.nextElementSibling) {
                 imgEl.nextElementSibling.style.display = 'flex';
@@ -367,7 +403,9 @@
                 return;
             }
 
-            const activeRows = data.filter(row => row.activo !== false);
+            const activeRows = data.filter(row => row.activo !== false && !isExcludedPsychologist(row));
+            if (activeRows.length === 0) return;
+
             psychologists = activeRows.map((row, index) => {
                 const fallbackMatch =
                     FALLBACK_PSYCHOLOGISTS.find(f => String(f.email || '').toLowerCase() === String(row.email || '').toLowerCase()) ||
@@ -383,7 +421,7 @@
                     rateCop: normalizeRateCop(row.tarifa_cop, fallbackMatch?.rateCop ?? DEFAULT_RATE_COP),
                     photo: row.foto_url || fallbackMatch?.photo || '',
                     photoFallback: fallbackMatch?.photoFallback || '',
-                    cropClass: fallbackMatch?.cropClass || 'object-[50%_18%]',
+                    cropClass: fallbackMatch?.cropClass || 'object-[50%_15%]',
                     modelDescription: row.modelo_trabajo || fallbackMatch?.modelDescription || ''
                 };
             });
@@ -541,7 +579,7 @@
                                     src="${escapeHtml(photoRoutes.principal)}"
                                     alt="${escapeHtml(p.name)}"
                                     loading="lazy"
-                                    onerror="handlePsychologistPhotoError(this, '${escapeHtml(photoRoutes.alternativa)}')"
+                                    onerror='handlePsychologistPhotoError(this, ${escapeHtml(photoRoutes.fallbacksJson)})'
                                     class="foto-equipo-uniforme ${cropClass} rounded-2xl border border-[#E3F3EE] bg-[#F4F9F7]"
                                 >
                                 <div style="display:none;" class="foto-equipo-uniforme rounded-2xl bg-[#E3F3EE] text-[#0B2442] font-extrabold text-lg items-center justify-center">

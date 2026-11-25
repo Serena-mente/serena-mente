@@ -116,12 +116,6 @@
                 </div>
             </div>
 
-            <!-- Banner informativo en modo solo lectura para Administrador -->
-            <div id="admin-readonly-banner" class="hidden bg-sky-50 border border-sky-200 text-serena-darkblue rounded-2xl px-4 py-3 text-xs sm:text-sm flex items-start gap-2.5">
-                <span class="font-extrabold uppercase tracking-wider text-[11px] bg-white border border-sky-200 px-2 py-0.5 rounded-full shrink-0 mt-0.5">Solo lectura</span>
-                <p>En las secciones clínicas (<strong>Citas y casos</strong>, <strong>Agenda y disponibilidad</strong>, <strong>Evolución y seguimiento</strong> y <strong>Consentimientos</strong>) tu perfil de administración opera en modo supervisión de solo lectura. La edición está habilitada en <strong>Administración</strong>.</p>
-            </div>
-
             <!-- Navegación interna del portal profesional -->
             <div class="flex flex-wrap gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
                 <button id="tab-btn-citas" type="button" onclick="switchProTab('citas')" class="pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-serena-600 text-white transition">
@@ -180,7 +174,7 @@
                     </div>
                 </div>
 
-                <!-- Bloque A: Disponibilidad semanal recurrente (tabla disponibilidad_psicologos) -->
+                <!-- Bloque A: Disponibilidad semanal recurrente -->
                 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
                     <div>
                         <h3 class="text-sm font-extrabold text-slate-900">Disponibilidad semanal recurrente</h3>
@@ -312,7 +306,7 @@
                 </div>
             </div>
 
-            <!-- TAB 5: ADMINISTRACIÓN (EXCLUSIVA PARA ADMIN / serenelyserenamente@gmail.com) -->
+            <!-- TAB 5: ADMINISTRACIÓN -->
             <div id="pro-tab-admin" class="pro-tab-panel hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-8">
                 <div class="border-b border-slate-100 pb-4">
                     <h2 class="text-lg font-extrabold text-slate-900">Administración de la plataforma</h2>
@@ -749,42 +743,20 @@
 
         function applyRoleUiMode() {
             const adminTabBtn = document.getElementById('tab-btn-admin');
-            const readonlyBanner = document.getElementById('admin-readonly-banner');
             const newCaseTopBtn = document.getElementById('btn-new-case-top');
             const roleKicker = document.getElementById('pro-role-kicker');
             const welcomeSub = document.getElementById('pro-welcome-sub');
-            const citasSub = document.getElementById('pro-citas-subtitle');
-            const agendaSub = document.getElementById('pro-agenda-subtitle');
-            const evoSub = document.getElementById('pro-evo-subtitle');
-            const formWeekly = document.getElementById('form-disponibilidad-semanal');
-            const formPuntual = document.getElementById('form-franja-puntual');
-            const formEvo = document.getElementById('form-nota-evolucion');
 
             if (isAdminUser) {
                 adminTabBtn.classList.remove('hidden');
-                readonlyBanner.classList.remove('hidden');
-                newCaseTopBtn.classList.add('hidden');
-                roleKicker.textContent = 'Panel de Administración y Supervisión';
-                welcomeSub.textContent = 'Supervisión en solo lectura de citas, agenda y seguimiento, y edición completa en Administración.';
-                citasSub.textContent = 'Vista de supervisión (solo lectura) de citas y casos registrados en la plataforma.';
-                agendaSub.textContent = 'Vista de supervisión (solo lectura) de la disponibilidad semanal y horarios de cada profesional.';
-                evoSub.textContent = 'Consulta en modo solo lectura las notas de evolución y seguimiento de cada caso.';
-                if (formWeekly) formWeekly.classList.add('hidden');
-                if (formPuntual) formPuntual.classList.add('hidden');
-                if (formEvo) formEvo.classList.add('hidden');
+                roleKicker.textContent = 'Panel de Administración';
+                welcomeSub.textContent = 'Gestiona el equipo de psicólogos, tarifas individuales, configuración general y consultas del portal.';
             } else {
                 adminTabBtn.classList.add('hidden');
-                readonlyBanner.classList.add('hidden');
-                newCaseTopBtn.classList.remove('hidden');
                 roleKicker.textContent = 'Espacio clínico profesional';
                 welcomeSub.textContent = 'Gestiona citas, historias clínicas, disponibilidad horaria, evolución, consentimientos y correos.';
-                citasSub.textContent = 'Diligencia la historia clínica en cualquier cita (apartada por consultante o profesional), ajusta estado de pago y enlace Meet.';
-                agendaSub.textContent = 'Configura qué días de la semana atiendes y tus franjas horarias (puedes dividir el día en dos bloques para dejar horas libres).';
-                evoSub.textContent = 'Selecciona un consultante/caso para revisar su seguimiento y registrar nuevas notas de evolución.';
-                if (formWeekly) formWeekly.classList.remove('hidden');
-                if (formPuntual) formPuntual.classList.remove('hidden');
-                if (formEvo) formEvo.classList.remove('hidden');
             }
+            if (newCaseTopBtn) newCaseTopBtn.classList.remove('hidden');
         }
 
         function switchProTab(tabName) {
@@ -1228,17 +1200,6 @@
                 const isActive = row.activo !== false;
                 const safeId = escapeHtml(row.id);
 
-                const controlsHtml = isAdminUser
-                    ? `<span class="text-[11px] font-semibold text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-full">Solo lectura</span>`
-                    : `
-                        <button type="button" onclick="toggleDisponibilidadSemanal('${safeId}', ${!isActive})" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl text-xs transition">
-                            ${isActive ? 'Pausar franja' : 'Activar franja'}
-                        </button>
-                        <button type="button" onclick="eliminarDisponibilidadSemanal('${safeId}')" class="bg-white hover:bg-red-50 text-red-700 border border-red-200 font-semibold px-3 py-1.5 rounded-xl text-xs transition">
-                            Eliminar
-                        </button>
-                    `;
-
                 return `
                     <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
@@ -1247,10 +1208,15 @@
                             <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${isActive ? 'bg-emerald-100 text-serena-900' : 'bg-slate-200 text-slate-700'}">
                                 ${isActive ? 'Activa' : 'Inactiva'}
                             </span>
-                            ${isAdminUser ? `<span class="text-xs text-slate-500">· ${escapeHtml(row.psicologo_nombre)}</span>` : ''}
+                            ${row.psicologo_nombre ? `<span class="text-xs text-slate-500">· ${escapeHtml(row.psicologo_nombre)}</span>` : ''}
                         </div>
                         <div class="flex items-center gap-2">
-                            ${controlsHtml}
+                            <button type="button" onclick="toggleDisponibilidadSemanal('${safeId}', ${!isActive})" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl text-xs transition">
+                                ${isActive ? 'Pausar franja' : 'Activar franja'}
+                            </button>
+                            <button type="button" onclick="eliminarDisponibilidadSemanal('${safeId}')" class="bg-white hover:bg-red-50 text-red-700 border border-red-200 font-semibold px-3 py-1.5 rounded-xl text-xs transition">
+                                Eliminar
+                            </button>
                         </div>
                     </div>
                 `;
@@ -1259,12 +1225,8 @@
 
         async function guardarDisponibilidadSemanal(event) {
             event.preventDefault();
-            if (isAdminUser) {
-                showProToast('El perfil de administrador solo puede visualizar la disponibilidad.', true);
-                return;
-            }
             if (!currentPsychologistRow?.id) {
-                showProToast('No se encontró tu ficha vinculada en psicologos.', true);
+                showProToast('No se encontró una ficha vinculada en psicologos para guardar franja semanal.', true);
                 return;
             }
 
@@ -1293,11 +1255,10 @@
             }
 
             await cargarDatosProfesional();
-            showProToast('Franja semanal agregada a tu agenda.');
+            showProToast('Franja semanal agregada.');
         }
 
         async function toggleDisponibilidadSemanal(id, nextActivo) {
-            if (isAdminUser) return;
             const { error } = await supabaseClient
                 .from('disponibilidad_psicologos')
                 .update({
@@ -1316,7 +1277,6 @@
         }
 
         async function eliminarDisponibilidadSemanal(id) {
-            if (isAdminUser) return;
             const { error } = await supabaseClient
                 .from('disponibilidad_psicologos')
                 .delete()
@@ -1408,7 +1368,6 @@
         }
 
         function abrirEditarPsicologoAdmin(id) {
-            if (!isAdminUser) return;
             const p = adminPsychologists.find((item) => String(item.id) === String(id));
             if (!p) return;
             document.getElementById('edit-psi-id').value = p.id;
@@ -1428,7 +1387,6 @@
 
         async function guardarEdicionPsicologoAdmin(event) {
             event.preventDefault();
-            if (!isAdminUser) return;
             const btn = document.getElementById('btn-guardar-edicion-psicologo');
             const id = document.getElementById('edit-psi-id').value;
             const nombre = document.getElementById('edit-psi-nombre').value.trim();
@@ -1507,7 +1465,6 @@
 
         async function crearPsicologoAdmin(event) {
             event.preventDefault();
-            if (!isAdminUser) return;
             const btn = document.getElementById('btn-crear-psicologo');
             const nombre = document.getElementById('admin-psi-nombre').value.trim();
             const email = document.getElementById('admin-psi-email').value.trim().toLowerCase();
@@ -1567,7 +1524,6 @@
         }
 
         async function eliminarPsicologoAdmin(id, email, perfilId) {
-            if (!isAdminUser) return;
             if (!confirm(`¿Eliminar al psicólogo ${email} y revocar su acceso?`)) return;
 
             const { data, error } = await supabaseClient.functions.invoke(ADMIN_EDGE_FUNCTION, {
@@ -1618,7 +1574,6 @@
 
         async function guardarConfiguracionPlataforma(event) {
             event.preventDefault();
-            if (!isAdminUser) return;
             const btn = document.getElementById('btn-guardar-config');
 
             const entries = [
@@ -1704,27 +1659,33 @@
                     appt.discurso_relato || appt.observacion_clinica || appt.documento_o_nit || appt.edad_o_cargo
                 );
 
-                const controlsSection = isAdminUser
-                    ? `
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-white border border-slate-200 rounded-xl p-3">
-                            <p><strong>Estado de pago:</strong> ${pagoActual}</p>
-                            <p><strong>Enlace Meet:</strong> ${meetActual ? `<a href="${meetActual}" target="_blank" rel="noopener noreferrer" class="text-serena-700 underline break-all">${meetActual}</a>` : 'Pendiente por asignar'}</p>
+                return `
+                    <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 sm:p-5 space-y-4">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-xs font-bold uppercase text-serena-700">Ref: ${code}</span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-serena-800 border border-emerald-200">${tipo}</span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneHcCompleta ? 'bg-sky-50 text-serena-darkblue border border-sky-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}">
+                                        ${tieneHcCompleta ? 'Historia clínica diligenciada' : 'Historia clínica por diligenciar'}
+                                    </span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneConsent ? 'bg-emerald-100 text-serena-900' : 'bg-amber-100 text-amber-900'}">
+                                        ${tieneConsent ? 'Consentimiento firmado' : 'Consentimiento pendiente'}
+                                    </span>
+                                </div>
+                                <p class="text-base font-extrabold text-slate-900 mt-1">${clientName}</p>
+                                <p class="text-xs text-slate-600">
+                                    ${clientEmail ? `Correo: <strong>${clientEmail}</strong>` : 'Sin correo registrado'}
+                                    ${clientPhone ? ` · Tel: ${clientPhone}` : ''}
+                                    · Profesional: <strong>${proName}</strong>
+                                </p>
+                                <p class="text-xs text-slate-500 mt-0.5">Fecha/Hora: ${fecha} ${hora}</p>
+                            </div>
+                            <span class="self-start lg:self-auto text-xs font-bold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-800">
+                                Pago: ${pagoActual}
+                            </span>
                         </div>
-                        <div class="flex flex-wrap items-center gap-2 pt-1">
-                            <button type="button" onclick="openCaseModal('${safeId}')" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
-                                Ver historia clínica (solo lectura)
-                            </button>
-                            <button type="button" onclick="irAEvolucionCaso('${safeId}')" class="bg-white hover:bg-slate-100 text-serena-800 border border-emerald-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
-                                Ver evolución / seguimiento
-                            </button>
-                            ${appt.consentimiento_firmado ? `
-                                <button type="button" onclick="openConsentModalByRef('${escapeHtml(appt.codigo_caso || '')}')" class="bg-emerald-50 hover:bg-emerald-100 text-serena-900 border border-emerald-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
-                                    Ver consentimiento
-                                </button>
-                            ` : ''}
-                        </div>
-                    `
-                    : `
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Estado de pago (editable en cualquier momento)</label>
@@ -1763,45 +1724,12 @@
                                 Enviar correo
                             </button>
                         </div>
-                    `;
-
-                return `
-                    <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 sm:p-5 space-y-4">
-                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
-                            <div>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="text-xs font-bold uppercase text-serena-700">Ref: ${code}</span>
-                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-serena-800 border border-emerald-200">${tipo}</span>
-                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneHcCompleta ? 'bg-sky-50 text-serena-darkblue border border-sky-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}">
-                                        ${tieneHcCompleta ? 'Historia clínica diligenciada' : 'Historia clínica por diligenciar'}
-                                    </span>
-                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneConsent ? 'bg-emerald-100 text-serena-900' : 'bg-amber-100 text-amber-900'}">
-                                        ${tieneConsent ? 'Consentimiento firmado' : 'Consentimiento pendiente'}
-                                    </span>
-                                </div>
-                                <p class="text-base font-extrabold text-slate-900 mt-1">${clientName}</p>
-                                <p class="text-xs text-slate-600">
-                                    ${clientEmail ? `Correo: <strong>${clientEmail}</strong>` : 'Sin correo registrado'}
-                                    ${clientPhone ? ` · Tel: ${clientPhone}` : ''}
-                                    · Profesional: <strong>${proName}</strong>
-                                </p>
-                                <p class="text-xs text-slate-500 mt-0.5">Fecha/Hora: ${fecha} ${hora}</p>
-                            </div>
-                            <span class="self-start lg:self-auto text-xs font-bold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-800">
-                                Pago: ${pagoActual}
-                            </span>
-                        </div>
-                        ${controlsSection}
                     </div>
                 `;
             }).join('');
         }
 
         async function guardarCambiosRapidosCita(idStr, notificar) {
-            if (isAdminUser) {
-                showProToast('El perfil de administrador solo tiene acceso de lectura en citas.', true);
-                return;
-            }
             const appt = proAppointments.find((a) => String(a.id) === String(idStr));
             if (!appt) return;
 
@@ -1857,24 +1785,7 @@
             }
         }
 
-        function setCaseFormReadonly(readonly) {
-            const form = document.getElementById('form-caso');
-            if (!form) return;
-            form.querySelectorAll('input, select, textarea').forEach((el) => {
-                if (el.type === 'hidden') return;
-                el.disabled = readonly;
-            });
-            const saveBtn = document.getElementById('btn-guardar-caso');
-            const notifyWrap = document.getElementById('caso-notificar-wrapper');
-            if (saveBtn) saveBtn.classList.toggle('hidden', readonly);
-            if (notifyWrap) notifyWrap.classList.toggle('hidden', readonly);
-        }
-
         function openCaseModal(idStr) {
-            if (!idStr && isAdminUser) {
-                showProToast('El perfil de administrador solo tiene acceso de lectura en historias clínicas.', true);
-                return;
-            }
             const modal = document.getElementById('modal-caso');
             const titleEl = document.getElementById('modal-caso-title');
             const subEl = document.getElementById('modal-caso-subtitle');
@@ -1907,9 +1818,7 @@
                 const appt = proAppointments.find((a) => String(a.id) === String(idStr));
                 if (!appt) return;
                 titleEl.textContent = `Historia clínica y cita · ${appt.codigo_caso || ''}`;
-                subEl.textContent = isAdminUser
-                    ? 'Vista de supervisión en modo solo lectura.'
-                    : 'Diligenciamiento de historia clínica y datos de sesión.';
+                subEl.textContent = 'Diligenciamiento de historia clínica y datos de sesión.';
                 document.getElementById('caso-id').value = appt.id;
                 document.getElementById('caso-tipo').value = normalizeOrientationLabel(appt.tipo_caso);
                 document.getElementById('caso-codigo').value = appt.codigo_caso || '';
@@ -1933,7 +1842,6 @@
                 document.getElementById('caso-notificar').checked = true;
             }
 
-            setCaseFormReadonly(isAdminUser);
             modal.classList.remove('hidden');
         }
 
@@ -1943,10 +1851,6 @@
 
         async function guardarCaso(event) {
             event.preventDefault();
-            if (isAdminUser) {
-                showProToast('El perfil de administrador solo tiene acceso de lectura en historias clínicas.', true);
-                return;
-            }
             const btn = document.getElementById('btn-guardar-caso');
             const existingId = document.getElementById('caso-id').value.trim();
             const tipoCaso = normalizeOrientationLabel(document.getElementById('caso-tipo').value);
@@ -2088,26 +1992,20 @@
                     ? 'bg-emerald-100 text-serena-900 border-emerald-300'
                     : 'bg-amber-100 text-amber-900 border-amber-300';
 
-                const selectHtml = isAdminUser
-                    ? `<span class="text-[11px] font-semibold text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-full">Solo lectura</span>`
-                    : `
-                        <select onchange="cambiarEstadoFranja('${safeId}', this.value)" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs">
-                            <option value="Disponible" ${estadoActual === 'Disponible' ? 'selected' : ''}>Disponible</option>
-                            <option value="Ocupado" ${estadoActual === 'Ocupado' ? 'selected' : ''}>Ocupado</option>
-                            <option value="Reservado" ${estadoActual === 'Reservado' ? 'selected' : ''}>Reservado</option>
-                            <option value="Bloqueado" ${estadoActual === 'Bloqueado' ? 'selected' : ''}>Bloqueado</option>
-                        </select>
-                    `;
-
                 return `
                     <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
                             <p class="text-sm font-bold text-slate-900">${escapeHtml(slot.fecha || 'Sin fecha')} · <span class="text-serena-700">${escapeHtml(slot.hora || 'Sin hora')}</span></p>
-                            <p class="text-xs text-slate-600">${escapeHtml(slot.nota || 'Sin observación')}${isAdminUser && slot.psicologo_nombre ? ` · Profesional: ${escapeHtml(slot.psicologo_nombre)}` : ''}</p>
+                            <p class="text-xs text-slate-600">${escapeHtml(slot.nota || 'Sin observación')}${slot.psicologo_nombre ? ` · Profesional: ${escapeHtml(slot.psicologo_nombre)}` : ''}</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-bold px-3 py-1 rounded-full border ${badgeClass}">${escapeHtml(estadoActual)}</span>
-                            ${selectHtml}
+                            <select onchange="cambiarEstadoFranja('${safeId}', this.value)" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs">
+                                <option value="Disponible" ${estadoActual === 'Disponible' ? 'selected' : ''}>Disponible</option>
+                                <option value="Ocupado" ${estadoActual === 'Ocupado' ? 'selected' : ''}>Ocupado</option>
+                                <option value="Reservado" ${estadoActual === 'Reservado' ? 'selected' : ''}>Reservado</option>
+                                <option value="Bloqueado" ${estadoActual === 'Bloqueado' ? 'selected' : ''}>Bloqueado</option>
+                            </select>
                         </div>
                     </div>
                 `;
@@ -2116,10 +2014,6 @@
 
         async function guardarFranjaAgenda(event) {
             event.preventDefault();
-            if (isAdminUser) {
-                showProToast('El perfil de administrador solo tiene acceso de lectura en agenda.', true);
-                return;
-            }
             const fecha = document.getElementById('agenda-fecha').value;
             const hora = document.getElementById('agenda-hora').value.trim();
             const estado = document.getElementById('agenda-estado').value;
@@ -2175,7 +2069,6 @@
         }
 
         async function cambiarEstadoFranja(slotId, nuevoEstado) {
-            if (isAdminUser) return;
             const slot = proScheduleSlots.find((s) => String(s.id) === String(slotId));
             if (!slot) return;
 
@@ -2276,7 +2169,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <p class="text-xs font-bold uppercase text-serena-700">Seguimiento del caso · ${escapeHtml(appt.codigo_caso || '')}</p>
                         <button type="button" onclick="openCaseModal('${escapeHtml(appt.id)}')" class="text-xs font-semibold text-serena-700 hover:underline">
-                            ${isAdminUser ? 'Ver historia clínica (solo lectura)' : 'Abrir / editar historia clínica'}
+                            Abrir / editar historia clínica
                         </button>
                     </div>
                     <h3 class="text-base font-extrabold text-slate-900">${escapeHtml(appt.nombre_consultante || 'Consultante')}</h3>
@@ -2294,10 +2187,6 @@
 
         async function guardarNotaEvolucion(event) {
             event.preventDefault();
-            if (isAdminUser) {
-                showProToast('El perfil de administrador solo tiene acceso de lectura en evolución.', true);
-                return;
-            }
             const select = document.getElementById('evo-select-caso');
             const appt = proAppointments.find((a) => String(a.id) === String(select?.value));
             if (!appt) {

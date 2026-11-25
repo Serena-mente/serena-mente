@@ -92,7 +92,7 @@
             </div>
 
             <div class="pt-6">
-                <p class="text-[#0B2442]/75 text-sm sm:text-base leading-relaxed">
+                <p id="contacto-mensaje-atencion-dinamico" class="text-[#0B2442]/75 text-sm sm:text-base leading-relaxed">
                     ¿Tienes dudas sobre el proceso de reserva, los modelos de orientación psicológica o la validación de comprobantes? Escríbenos a través de nuestros canales oficiales y nuestro equipo de coordinación responderá a la brevedad.
                 </p>
             </div>
@@ -107,7 +107,7 @@
 
                     <div class="bg-[#F4F9F7] rounded-2xl p-4 border border-[#E3F3EE] space-y-1">
                         <p class="text-xs font-semibold text-[#0B2442]">Correo electrónico</p>
-                        <a href="mailto:serenelyserenamente@gmail.com" class="text-sm text-[#00838F] font-medium hover:underline break-all">
+                        <a id="contacto-correo-coordinacion" href="mailto:serenelyserenamente@gmail.com" class="text-sm text-[#00838F] font-medium hover:underline break-all">
                             serenelyserenamente@gmail.com
                         </a>
                     </div>
@@ -115,7 +115,7 @@
                     <div class="bg-[#F4F9F7] rounded-2xl p-4 border border-[#E3F3EE] space-y-1">
                         <p class="text-xs font-semibold text-[#0B2442]">Teléfono y WhatsApp</p>
                         <p class="text-sm text-[#0B2442] font-semibold">322 500 0756</p>
-                        <p class="text-xs text-[#0B2442]/60">Lunes a sábado · 8:00 AM a 6:00 PM</p>
+                        <p id="contacto-horario-atencion" class="text-xs text-[#0B2442]/60">Lunes a sábado · 8:00 AM a 6:00 PM</p>
                     </div>
 
                     <div class="bg-[#F4F9F7] rounded-2xl p-4 border border-[#E3F3EE] space-y-1">
@@ -340,6 +340,52 @@
             form.reset();
             showToast('Tu mensaje fue enviado con éxito');
         }
+
+        async function aplicarContenidosYConfiguracionContacto() {
+            try {
+                const [{ data: cntRows }, { data: cfgRows }] = await Promise.all([
+                    supabaseClient
+                        .from('contenidos_plataforma')
+                        .select('clave, valor')
+                        .eq('clave', 'contacto_mensaje_atencion'),
+                    supabaseClient
+                        .from('configuracion_plataforma')
+                        .select('clave, valor')
+                        .in('clave', ['correo_coordinacion', 'horario_atencion'])
+                ]);
+
+                const msgAtencion = Array.isArray(cntRows) && cntRows.length > 0
+                    ? String(cntRows[0].valor ?? '').trim()
+                    : '';
+                if (msgAtencion) {
+                    const el = document.getElementById('contacto-mensaje-atencion-dinamico');
+                    if (el) el.textContent = msgAtencion;
+                }
+
+                if (Array.isArray(cfgRows)) {
+                    const correoRow = cfgRows.find((r) => r.clave === 'correo_coordinacion');
+                    const correoVal = String(correoRow?.valor ?? '').trim();
+                    if (correoVal) {
+                        const mailEl = document.getElementById('contacto-correo-coordinacion');
+                        if (mailEl) {
+                            mailEl.textContent = correoVal;
+                            mailEl.setAttribute('href', `mailto:${correoVal}`);
+                        }
+                    }
+
+                    const horarioRow = cfgRows.find((r) => r.clave === 'horario_atencion');
+                    const horarioVal = String(horarioRow?.valor ?? '').trim();
+                    if (horarioVal) {
+                        const horEl = document.getElementById('contacto-horario-atencion');
+                        if (horEl) horEl.textContent = horarioVal;
+                    }
+                }
+            } catch (_) {
+                // Mantiene los textos originales si falla la consulta
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', aplicarContenidosYConfiguracionContacto);
     </script>
 </body>
 </html>

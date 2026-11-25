@@ -33,7 +33,6 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -141,13 +140,6 @@
             '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
             '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
         ];
-
-        const EMAILJS_PUBLIC_KEY = 'hAUcIp_2DLmaRXodc';
-        const EMAILJS_SERVICE_ID = 'service_p1gsqjg';
-        const EMAILJS_TEMPLATE_ID = 'template_yc6ccmy';
-        if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY' && window.emailjs) {
-            window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-        }
 
         const EXCLUDED_PRO_EMAILS = new Set([
             'mariafernanda@serenamente.co',
@@ -298,12 +290,10 @@
             const localUrl = sanitizePhotoUrlForPsychologist(psi.photo, psi.name);
             const fallbackUrl = sanitizePhotoUrlForPsychologist(psi.photoFallback, psi.name);
 
-            // Prioriza la ruta local configurada o la URL de BD si es distinta a la local
             [localUrl, dbUrl, fallbackUrl].forEach(u => {
                 if (u) rawCandidates.push(u);
             });
 
-            // Variantes de extensión y ruta relativa para Jesús Cervera por si varía respecto a index.html
             const lowerName = String(psi.name || '').toLowerCase();
             if (lowerName.includes('jesús') || lowerName.includes('jesus') || lowerName.includes('cervera')) {
                 const bases = [
@@ -533,38 +523,10 @@
         }
 
         async function sendBookingEmail({ codigoCaso, comprobantePath, psiName, psiEmail, orientationType, clientName, clientEmail, clientPhone, date, time, receiptName, tarifaTexto }) {
-            const isConfigured =
-                EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY' &&
-                EMAILJS_SERVICE_ID && EMAILJS_SERVICE_ID !== 'TU_SERVICE_ID' &&
-                EMAILJS_TEMPLATE_ID && EMAILJS_TEMPLATE_ID !== 'TU_TEMPLATE_ID' &&
-                window.emailjs;
-
-            if (!isConfigured) {
-                return { sent: false, reason: 'EmailJS no configurado aún' };
-            }
-
-            try {
-                await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-                    codigo_caso: codigoCaso,
-                    comprobante_ruta: comprobantePath || '',
-                    psicologo_nombre: psiName,
-                    psicologo_email: psiEmail,
-                    tarifa_sesion: tarifaTexto || '',
-                    tipo_orientacion: orientationType,
-                    consultante_nombre: clientName,
-                    consultante_email: clientEmail,
-                    consultante_telefono: clientPhone,
-                    fecha_sesion: date,
-                    hora_sesion: time,
-                    comprobante_nombre: receiptName,
-                    to_email: clientEmail,
-                    reply_to: psiEmail
-                });
-                return { sent: true };
-            } catch (err) {
-                const detail = err?.text || err?.message || (err?.status ? `HTTP ${err.status}` : 'Error al enviar correo');
-                return { sent: false, reason: detail };
-            }
+            return {
+                sent: false,
+                reason: 'EmailJS desconectado; envío de correo pendiente o gestionado por otro canal'
+            };
         }
 
         function renderPsychologists() {

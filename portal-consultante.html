@@ -14,15 +14,20 @@
                 extend: {
                     colors: {
                         serena: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                            900: '#064e3b',
-                            light: '#e0f2fe',
-                            blue: '#0284c7',
-                            darkblue: '#0369a1'
+                            50: '#F4F9F7',
+                            100: '#E3F3EE',
+                            500: '#009A84',
+                            600: '#009A84',
+                            700: '#00838F',
+                            900: '#0B2442',
+                            light: '#E3F3EE',
+                            blue: '#00838F',
+                            darkblue: '#0B2442',
+                            navy: '#0B2442',
+                            teal: '#00838F',
+                            mint: '#009A84',
+                            calm: '#E3F3EE',
+                            harmony: '#F4F9F7'
                         }
                     }
                 }
@@ -33,16 +38,27 @@
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F4F9F7;
+            color: #0B2442;
+        }
+        .brand-btn-primary {
+            background: linear-gradient(135deg, #00838F 0%, #009A84 100%);
+            color: #ffffff;
+        }
+        .brand-btn-primary:hover {
+            background: linear-gradient(135deg, #0B2442 0%, #00838F 100%);
+        }
         .firma-canvas {
             touch-action: none;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="bg-[#F4F9F7] text-[#0B2442] antialiased min-h-screen flex flex-col">
 
     <!-- Header -->
-    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-[#E3F3EE] shadow-sm">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
                 <a href="index.html" class="flex items-center space-x-2.5 focus:outline-none" aria-label="Serena Mente">
@@ -53,11 +69,11 @@
                         <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-8 w-8 object-contain" onerror="this.style.display='none'">
                     </span>
                 </a>
-                <span class="text-xs font-semibold bg-emerald-50 text-serena-700 border border-emerald-200 px-2.5 py-1 rounded-full">
+                <span class="text-xs font-semibold bg-[#E3F3EE] text-[#009A84] border border-[#009A84]/25 px-2.5 py-1 rounded-full">
                     Portal del Consultante
                 </span>
             </div>
-            <a href="index.html" class="text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white transition">
+            <a href="index.html" class="text-xs sm:text-sm font-semibold text-[#0B2442] hover:bg-[#E3F3EE]/70 px-3.5 py-1.5 rounded-xl border border-[#E3F3EE] bg-white transition">
                 Volver a Inicio
             </a>
         </div>
@@ -67,23 +83,23 @@
     <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
 
         <!-- Intro & Access Form -->
-        <section class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+        <section class="bg-white rounded-3xl border border-[#E3F3EE] p-6 sm:p-8 shadow-sm space-y-5">
             <div class="flex items-center gap-3">
                 <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="w-11 h-11 object-contain shrink-0" onerror="this.style.display='none'">
                 <div>
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-[#0B2442]">
                         Tu espacio de consulta
                     </h1>
                 </div>
             </div>
 
-            <p class="text-sm text-slate-600 leading-relaxed">
+            <p class="text-sm text-[#0B2442]/75 leading-relaxed">
                 Ingresa el correo con el que agendaste y la clave o código de tu cita para revisar los detalles de tu sesión, firmar tu consentimiento informado y acceder a tu videollamada.
             </p>
 
             <form onsubmit="consultarCita(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                 <div>
-                    <label for="consultante-email" class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                    <label for="consultante-email" class="block text-xs font-semibold text-[#0B2442] uppercase mb-1">
                         Correo electrónico registrado
                     </label>
                     <input
@@ -91,11 +107,11 @@
                         id="consultante-email"
                         required
                         placeholder="tu.correo@ejemplo.com"
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white focus:border-serena-600"
+                        class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-xl px-4 py-2.5 text-sm text-[#0B2442] focus:outline-none focus:bg-white focus:border-[#00838F]"
                     >
                 </div>
                 <div>
-                    <label for="consultante-codigo" class="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                    <label for="consultante-codigo" class="block text-xs font-semibold text-[#0B2442] uppercase mb-1">
                         Clave o código de tu cita
                     </label>
                     <input
@@ -103,14 +119,14 @@
                         id="consultante-codigo"
                         required
                         placeholder="Ej. HC-2026-1234"
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm uppercase focus:outline-none focus:bg-white focus:border-serena-600"
+                        class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-xl px-4 py-2.5 text-sm text-[#0B2442] uppercase focus:outline-none focus:bg-white focus:border-[#00838F]"
                     >
                 </div>
                 <div class="sm:col-span-2 pt-1">
                     <button
                         type="submit"
                         id="btn-consultar-cita"
-                        class="w-full sm:w-auto bg-serena-600 hover:bg-serena-700 text-white font-semibold px-7 py-3 rounded-xl text-sm shadow-sm transition"
+                        class="w-full sm:w-auto brand-btn-primary font-semibold px-7 py-3 rounded-xl text-sm shadow-sm transition"
                     >
                         Ver mi sesión
                     </button>
@@ -126,17 +142,17 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-5 mt-12">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+    <footer class="bg-[#0B2442] border-t border-[#00838F]/40 py-6 mt-12">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#E3F3EE]/80">
             <div class="flex items-center space-x-2.5">
                 <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="w-7 h-7 object-contain shrink-0" onerror="this.style.display='none'">
             </div>
             <div class="flex flex-wrap items-center justify-center gap-4">
-                <a href="quienes-somos.html" class="hover:text-serena-700 transition">Quiénes Somos</a>
-                <a href="conoce-nuestro-equipo.html" class="hover:text-serena-700 transition">Conoce Nuestro Equipo</a>
-                <a href="faq.html" class="hover:text-serena-700 transition">Preguntas Frecuentes</a>
-                <a href="contacto.html" class="hover:text-serena-700 transition">Contacto</a>
-                <a href="legal.html" class="text-serena-700 hover:underline font-semibold">Términos y Condiciones</a>
+                <a href="quienes-somos.html" class="hover:text-white transition">Quiénes Somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-white transition">Conoce Nuestro Equipo</a>
+                <a href="faq.html" class="hover:text-white transition">Preguntas Frecuentes</a>
+                <a href="contacto.html" class="hover:text-white transition">Contacto</a>
+                <a href="legal.html" class="text-[#009A84] hover:underline font-semibold">Términos y Condiciones</a>
             </div>
         </div>
     </footer>
@@ -279,7 +295,7 @@
             ctx.lineWidth = 2.2;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.strokeStyle = '#0f172a';
+            ctx.strokeStyle = '#0B2442';
 
             let drawing = false;
             let hasDrawn = false;
@@ -410,13 +426,13 @@
                 } catch (_) {
                     doc.setFont('helvetica', 'bold');
                     doc.setFontSize(15);
-                    doc.setTextColor(6, 78, 59);
+                    doc.setTextColor(11, 36, 66);
                     doc.text('Serena Mente', margin, y + 20);
                 }
             } else {
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(15);
-                doc.setTextColor(6, 78, 59);
+                doc.setTextColor(11, 36, 66);
                 doc.text('Serena Mente', margin, y + 20);
             }
 
@@ -429,7 +445,7 @@
             y += 50;
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(13);
-            doc.setTextColor(4, 120, 87);
+            doc.setTextColor(0, 154, 132);
             doc.text('CONSENTIMIENTO INFORMADO FIRMADO', margin, y);
 
             y += 16;
@@ -463,7 +479,7 @@
                 );
             }
 
-            doc.setFillColor(248, 250, 252);
+            doc.setFillColor(244, 249, 247);
             doc.setDrawColor(203, 213, 225);
             const boxHeight = infoRows.length * 16 + 14;
             ensureSpace(boxHeight + 12);
@@ -473,7 +489,7 @@
             infoRows.forEach(([label, val]) => {
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(9.5);
-                doc.setTextColor(15, 23, 42);
+                doc.setTextColor(11, 36, 66);
                 doc.text(`${label}:`, margin + 12, rowY);
 
                 doc.setFont('helvetica', 'normal');
@@ -490,7 +506,7 @@
                 ensureSpace(24);
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(11);
-                doc.setTextColor(15, 23, 42);
+                doc.setTextColor(11, 36, 66);
                 doc.text('DOCUMENTO COMPLETO DEL CONSENTIMIENTO INFORMADO', margin, y);
                 y += 14;
 
@@ -531,7 +547,7 @@
                 ensureSpace(105);
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(10);
-                doc.setTextColor(15, 23, 42);
+                doc.setTextColor(11, 36, 66);
                 doc.text(sig.title, margin, y);
                 y += 8;
 
@@ -556,7 +572,7 @@
         function buildConsentEmailHtml(payload) {
             const safeLogo = isSafeUrl(BRAND_LOGO_URL)
                 ? `<img src="${escapeHtml(BRAND_LOGO_URL)}" alt="Serena Mente" style="max-height: 44px; width: auto; display: block; border: 0;">`
-                : `<span style="font-size: 18px; font-weight: 800; color: #064e3b;">Serena Mente</span>`;
+                : `<span style="font-size: 18px; font-weight: 800; color: #0B2442;">Serena <span style="color: #009A84;">Mente</span></span>`;
 
             const rows = [
                 { label: 'Referencia de cita', value: payload.codigoCaso || payload.appointment_reference },
@@ -583,29 +599,29 @@
                 .join('');
 
             const fullTextHtml = payload.consent_document_html
-                ? `<div style="margin-top: 16px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; font-size: 12px; color: #334155; white-space: pre-line;">${escapeHtml(payload.consent_document_html)}</div>`
+                ? `<div style="margin-top: 16px; background-color: #ffffff; border: 1px solid #E3F3EE; border-radius: 12px; padding: 14px; font-size: 12px; color: #334155; white-space: pre-line;">${escapeHtml(payload.consent_document_html)}</div>`
                 : '';
 
             return `
-                <div style="background-color: #f0fdf4; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #0f172a;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border: 1px solid #bbf7d0; border-radius: 16px; overflow: hidden;">
+                <div style="background-color: #F4F9F7; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #0B2442;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border: 1px solid #E3F3EE; border-radius: 16px; overflow: hidden;">
                         <tr>
-                            <td style="padding: 20px 24px; background-color: #f0fdf4; border-bottom: 1px solid #bbf7d0;">
+                            <td style="padding: 20px 24px; background-color: #F4F9F7; border-bottom: 1px solid #E3F3EE;">
                                 ${safeLogo}
                             </td>
                         </tr>
                         <tr>
                             <td style="padding: 24px; line-height: 1.6; font-size: 14px;">
-                                <h2 style="margin: 0 0 6px 0; font-size: 18px; color: #047857;">Consentimiento informado firmado</h2>
+                                <h2 style="margin: 0 0 6px 0; font-size: 18px; color: #009A84;">Consentimiento informado firmado</h2>
                                 <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">Adjuntamos el documento completo en formato PDF con el consentimiento informado, los datos registrados y las firmas.</p>
-                                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                                <div style="background-color: #F4F9F7; border: 1px solid #E3F3EE; border-radius: 12px; padding: 16px;">
                                     ${rowsHtml}
                                 </div>
                                 ${fullTextHtml}
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding: 14px 24px; background-color: #064e3b; color: #dcfce7; font-size: 12px;">
+                            <td style="padding: 14px 24px; background-color: #0B2442; color: #E3F3EE; font-size: 12px;">
                                 Serena Mente · Constancia completa de consentimiento informado en PDF
                             </td>
                         </tr>
@@ -761,7 +777,7 @@
                 saveBtn.textContent = 'Enviando...';
             }
             statusEl.textContent = 'Guardando consentimiento informado y generando PDF...';
-            statusEl.className = 'text-xs text-slate-500';
+            statusEl.className = 'text-xs text-[#0B2442]/65';
 
             const signatureDataUrl = pad.toDataUrl();
             const guardianSignatureUrl = esMenor ? signaturePads[`acudiente-${recordId}`]?.toDataUrl() : null;
@@ -876,7 +892,7 @@
 
             resultSection.classList.remove('hidden');
             contentEl.innerHTML = `
-                <div class="bg-white rounded-3xl border border-slate-200 p-6 text-sm text-slate-500 shadow-sm">
+                <div class="bg-white rounded-3xl border border-[#E3F3EE] p-6 text-sm text-[#0B2442]/65 shadow-sm">
                     Buscando los datos de tu sesión...
                 </div>
             `;
@@ -927,8 +943,8 @@
                 const safePago = escapeHtml(rawPago);
                 const esPagado = ['pagado', 'confirmado', 'verificado', 'aprobado'].includes(rawPago.toLowerCase());
                 const badgePagoClass = esPagado
-                    ? 'bg-emerald-100 text-serena-900 border-emerald-300'
-                    : 'bg-emerald-50 text-serena-700 border-emerald-200';
+                    ? 'bg-[#E3F3EE] text-[#0B2442] border-[#009A84]/40'
+                    : 'bg-[#F4F9F7] text-[#00838F] border-[#00838F]/25';
                 const meetUrl = getMeetUrl(item);
                 const yaFirmado = Boolean(item.consentimiento_aceptado);
 
@@ -938,25 +954,25 @@
                             href="${escapeHtml(meetUrl)}"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="inline-flex items-center justify-center w-full sm:w-auto bg-serena-600 hover:bg-serena-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
+                            class="inline-flex items-center justify-center w-full sm:w-auto brand-btn-primary font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
                         >
                             Unirme a la videollamada (Google Meet)
                         </a>
                     `
                     : `
-                        <p class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                        <p class="text-xs text-[#0B2442]/65 bg-[#F4F9F7] border border-[#E3F3EE] rounded-xl p-3">
                             El enlace de videollamada se mostrará aquí cuando corresponda a tu sesión.
                         </p>
                     `;
 
                 return `
-                    <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-4">
+                    <div class="bg-white rounded-3xl border border-[#E3F3EE] p-6 sm:p-8 shadow-sm space-y-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#E3F3EE] pb-4">
                             <div class="flex items-center gap-2.5">
                                 <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="w-8 h-8 object-contain shrink-0" onerror="this.style.display='none'">
                                 <div>
-                                    <span class="text-xs font-bold uppercase tracking-wider text-serena-700">Cita encontrada</span>
-                                    <h2 class="text-xl font-bold text-slate-900 mt-0.5">Referencia: ${safeCode}</h2>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-[#009A84]">Cita encontrada</span>
+                                    <h2 class="text-xl font-bold text-[#0B2442] mt-0.5">Referencia: ${safeCode}</h2>
                                 </div>
                             </div>
                             <span id="estado-pago-badge-${safeId}" class="inline-block self-start sm:self-auto px-3 py-1 rounded-full text-xs font-bold border ${badgePagoClass}">
@@ -964,24 +980,24 @@
                             </span>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
-                            <p><strong class="text-slate-900">Psicólogo/a:</strong> ${safeProName}</p>
-                            <p><strong class="text-slate-900">Correo profesional:</strong> ${safeProEmail}</p>
-                            <p><strong class="text-slate-900">Modalidad / Tipo:</strong> ${safeTipo}</p>
-                            <p><strong class="text-slate-900">Fecha y hora:</strong> ${safeFecha} ${safeHora}</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-[#0B2442]/80 bg-[#F4F9F7] p-4 rounded-2xl border border-[#E3F3EE]">
+                            <p><strong class="text-[#0B2442]">Psicólogo/a:</strong> ${safeProName}</p>
+                            <p><strong class="text-[#0B2442]">Correo profesional:</strong> ${safeProEmail}</p>
+                            <p><strong class="text-[#0B2442]">Modalidad / Tipo:</strong> ${safeTipo}</p>
+                            <p><strong class="text-[#0B2442]">Fecha y hora:</strong> ${safeFecha} ${safeHora}</p>
                         </div>
 
                         <div class="space-y-2">
-                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Acceso a tu sesión</p>
+                            <p class="text-xs font-bold uppercase tracking-wider text-[#00838F]">Acceso a tu sesión</p>
                             ${meetBlock}
                         </div>
 
-                        <div class="pt-4 border-t border-slate-100 space-y-4">
+                        <div class="pt-4 border-t border-[#E3F3EE] space-y-4">
                             <div class="flex flex-wrap items-center justify-between gap-2">
-                                <h3 class="text-sm font-bold text-slate-900">Consentimiento informado</h3>
+                                <h3 class="text-sm font-bold text-[#0B2442]">Consentimiento informado</h3>
                             </div>
 
-                            <div id="consent-completed-box-${safeId}" class="${yaFirmado ? '' : 'hidden '}bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-xs sm:text-sm text-serena-900 font-medium">
+                            <div id="consent-completed-box-${safeId}" class="${yaFirmado ? '' : 'hidden '}bg-[#E3F3EE] border border-[#009A84]/30 rounded-2xl p-4 text-xs sm:text-sm text-[#0B2442] font-medium">
                                 Consentimiento informado firmado y enviado. Ya no es necesario realizar otro envío para esta cita.
                             </div>
 
@@ -990,24 +1006,24 @@
                                     <button
                                         type="button"
                                         onclick="toggleConsentimientoPanel('${safeId}')"
-                                        class="text-xs font-semibold text-serena-700 hover:text-serena-900 underline"
+                                        class="text-xs font-semibold text-[#00838F] hover:text-[#0B2442] underline"
                                     >
                                         <span id="consent-toggle-label-${safeId}">Desplegar y firmar consentimiento informado</span>
                                     </button>
                                 </div>
 
-                                <label class="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                                <label class="flex items-start gap-2.5 text-xs sm:text-sm text-[#0B2442]/85 cursor-pointer bg-[#F4F9F7] border border-[#E3F3EE] rounded-xl p-3.5">
                                     <input
                                         type="checkbox"
                                         id="consent-check-${safeId}"
                                         onchange="if(this.checked){ toggleConsentimientoPanel('${safeId}', true); }"
-                                        class="mt-0.5 w-4 h-4 accent-serena-600 rounded"
+                                        class="mt-0.5 w-4 h-4 accent-[#009A84] rounded"
                                     >
                                     <span>Confirmo que he leído y acepto el consentimiento informado para la prestación de servicios de atención psicológica en modalidad virtual en Serena Mente.</span>
                                 </label>
 
-                                <div id="consent-panel-${safeId}" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-5">
-                                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                                <div id="consent-panel-${safeId}" class="hidden bg-[#F4F9F7] border border-[#E3F3EE] rounded-2xl p-4 sm:p-6 space-y-5">
+                                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#E3F3EE] pb-4">
                                         <div class="flex items-center gap-3">
                                             <img src="assets/imagotipo.png" alt="Serena Mente" class="h-9 w-auto object-contain" onerror="this.style.display='none'">
                                         </div>
@@ -1015,19 +1031,19 @@
                                             <span id="badge-menor-${safeId}" class="hidden text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full">
                                                 Menor de edad detectado
                                             </span>
-                                            <span class="text-xs font-semibold text-slate-500">Ref: ${safeCode}</span>
+                                            <span class="text-xs font-semibold text-[#0B2442]/60">Ref: ${safeCode}</span>
                                         </div>
                                     </div>
 
-                                    <div id="ci-documento-integro-${safeId}" class="max-h-96 overflow-y-auto bg-white border border-slate-200 rounded-xl p-5 text-xs text-slate-700 space-y-4 leading-relaxed">
+                                    <div id="ci-documento-integro-${safeId}" class="max-h-96 overflow-y-auto bg-white border border-[#E3F3EE] rounded-xl p-5 text-xs text-[#0B2442]/80 space-y-4 leading-relaxed">
                                         <div class="space-y-1">
-                                            <p class="font-bold text-sm text-slate-900">CONSENTIMIENTO INFORMADO PARA LA PRESTACIÓN DE SERVICIOS DE ATENCIÓN PSICOLÓGICA EN MODALIDAD VIRTUAL</p>
+                                            <p class="font-bold text-sm text-[#0B2442]">CONSENTIMIENTO INFORMADO PARA LA PRESTACIÓN DE SERVICIOS DE ATENCIÓN PSICOLÓGICA EN MODALIDAD VIRTUAL</p>
                                             <p>Documento de información, aceptación y autorización para la atención psicológica mediante tecnologías de la información y la comunicación.</p>
                                         </div>
 
                                         <div class="space-y-2">
-                                            <p class="font-bold text-slate-900">1. DATOS DE IDENTIFICACIÓN</p>
-                                            <p class="font-semibold text-slate-800">DATOS DEL PROFESIONAL DE PSICOLOGÍA</p>
+                                            <p class="font-bold text-[#0B2442]">1. DATOS DE IDENTIFICACIÓN</p>
+                                            <p class="font-semibold text-[#0B2442]">DATOS DEL PROFESIONAL DE PSICOLOGÍA</p>
                                             <p>Nombre completo: ${safeProName}</p>
                                             <p>Tipo y número de documento: Por confirmar</p>
                                             <p>Tarjeta profesional: Por confirmar</p>
@@ -1037,16 +1053,16 @@
                                             <p>Número de contacto: Por confirmar</p>
                                             <p>Dirección profesional: Modalidad virtual</p>
 
-                                            <p class="font-semibold text-slate-800 pt-2">DATOS DEL CONSULTANTE</p>
+                                            <p class="font-semibold text-[#0B2442] pt-2">DATOS DEL CONSULTANTE</p>
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                                 <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nombre completo *</label>
-                                                    <input type="text" id="ci-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                    <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Nombre completo *</label>
+                                                    <input type="text" id="ci-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                 </div>
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                     <div>
-                                                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipo de documento *</label>
-                                                        <select id="ci-tipo-doc-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs">
+                                                        <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Tipo de documento *</label>
+                                                        <select id="ci-tipo-doc-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                             <option value="">Selecciona</option>
                                                             <option value="CC">Cédula de Ciudadanía (CC)</option>
                                                             <option value="TI">Tarjeta de Identidad (TI)</option>
@@ -1058,55 +1074,55 @@
                                                         </select>
                                                     </div>
                                                     <div>
-                                                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de documento *</label>
-                                                        <input type="text" id="ci-num-doc-${safeId}" placeholder="Número" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                        <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Número de documento *</label>
+                                                        <input type="text" id="ci-num-doc-${safeId}" placeholder="Número" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Fecha de nacimiento</label>
-                                                    <input type="date" id="ci-fnac-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                    <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Fecha de nacimiento</label>
+                                                    <input type="date" id="ci-fnac-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                 </div>
                                                 <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Edad</label>
-                                                    <input type="number" min="0" max="120" id="ci-edad-${safeId}" oninput="evaluarMinoridad('${safeId}')" placeholder="Edad" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                    <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Edad</label>
+                                                    <input type="number" min="0" max="120" id="ci-edad-${safeId}" oninput="evaluarMinoridad('${safeId}')" placeholder="Edad" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                 </div>
                                                 <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Correo electrónico</label>
-                                                    <input type="text" value="${escapeHtml(email)}" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-600">
+                                                    <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Correo electrónico</label>
+                                                    <input type="text" value="${escapeHtml(email)}" readonly class="w-full bg-[#E3F3EE]/60 border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs text-[#0B2442]/70">
                                                 </div>
                                                 <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de contacto</label>
-                                                    <input type="text" id="ci-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                    <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Número de contacto</label>
+                                                    <input type="text" id="ci-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                 </div>
                                                 <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Ciudad y departamento de residencia</label>
-                                                    <input type="text" id="ci-ciudad-${safeId}" placeholder="Ciudad y departamento de residencia" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                    <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Ciudad y departamento de residencia</label>
+                                                    <input type="text" id="ci-ciudad-${safeId}" placeholder="Ciudad y departamento de residencia" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                 </div>
                                                 <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dirección o ubicación habitual</label>
-                                                    <input type="text" id="ci-dir-${safeId}" placeholder="Dirección o ubicación habitual" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                    <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Dirección o ubicación habitual</label>
+                                                    <input type="text" id="ci-dir-${safeId}" placeholder="Dirección o ubicación habitual" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                 </div>
                                             </div>
 
-                                            <p class="font-semibold text-slate-800 pt-2">CONTACTO DE EMERGENCIA</p>
+                                            <p class="font-semibold text-[#0B2442] pt-2">CONTACTO DE EMERGENCIA</p>
                                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                                                 <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nombre completo</label>
-                                                    <input type="text" id="ci-emerg-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                    <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Nombre completo</label>
+                                                    <input type="text" id="ci-emerg-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                 </div>
                                                 <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Parentesco o relación</label>
-                                                    <input type="text" id="ci-emerg-parentesco-${safeId}" placeholder="Parentesco o relación" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                    <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Parentesco o relación</label>
+                                                    <input type="text" id="ci-emerg-parentesco-${safeId}" placeholder="Parentesco o relación" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                 </div>
                                                 <div>
-                                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Número de contacto</label>
-                                                    <input type="text" id="ci-emerg-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                    <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Número de contacto</label>
+                                                    <input type="text" id="ci-emerg-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">2. FUNDAMENTO LEGAL Y NORMATIVO</p>
+                                            <p class="font-bold text-[#0B2442]">2. FUNDAMENTO LEGAL Y NORMATIVO</p>
                                             <p>El presente consentimiento informado se fundamenta en la legislación colombiana vigente, especialmente en las disposiciones que regulan el ejercicio profesional de la psicología, el derecho a la salud, la prestación de servicios mediante tecnologías de la información y la comunicación, la confidencialidad, la protección de datos personales y el manejo de la historia clínica.</p>
                                             <p>Se consideran, entre otras, las siguientes disposiciones:</p>
                                             <p>2.1. Constitución Política de Colombia de 1991: Artículo 15 (protege el derecho a la intimidad personal y familiar, al buen nombre y al conocimiento, actualización y rectificación de la información personal) y Artículo 49 (reconoce la salud como un servicio público a cargo del Estado y establece garantías para el acceso a los servicios de promoción, protección y recuperación de la salud).</p>
@@ -1125,82 +1141,82 @@
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">3. OBJETO Y DESCRIPCIÓN DEL SERVICIO</p>
+                                            <p class="font-bold text-[#0B2442]">3. OBJETO Y DESCRIPCIÓN DEL SERVICIO</p>
                                             <p>Manifiesto que he recibido información clara, suficiente y comprensible sobre la prestación de servicios de atención psicológica en modalidad virtual, también denominada telepsicología. Esta modalidad consiste en la prestación de servicios de atención psicológica mediante el uso de tecnologías de la información y la comunicación, que permiten la interacción entre el profesional de psicología y el consultante sin necesidad de compartir un mismo espacio físico. La atención psicológica podrá comprender entrevistas psicológicas, evaluación y valoración psicológica, orientación y asesoramiento psicológico, acompañamiento e intervención psicoterapéutica, seguimiento de procesos psicológicos, psicoeducación, intervenciones para la promoción de la salud mental y el bienestar emocional, y remisión a otros profesionales o servicios especializados cuando sea necesario, conforme a las competencias, conocimientos científicos, principios éticos y disposiciones legales vigentes.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">4. CARACTERÍSTICAS Y CONDICIONES DE LA ATENCIÓN VIRTUAL</p>
+                                            <p class="font-bold text-[#0B2442]">4. CARACTERÍSTICAS Y CONDICIONES DE LA ATENCIÓN VIRTUAL</p>
                                             <p>Declaro que comprendo y acepto que: (1) las sesiones se realizarán mediante plataformas digitales de videoconferencia o herramientas tecnológicas autorizadas para tal finalidad; (2) la plataforma se informará en la sesión/cita; (3) las sesiones tendrán la duración acordada; (4) la frecuencia será acordada entre el profesional y el consultante; (5) es necesario contar con conexión estable a internet y dispositivo con cámara y micrófono; (6) me comprometo a conectarme puntualmente; (7) procuraré disponer de un espacio privado, tranquilo y libre de interrupciones; (8) informaré al profesional si no puedo garantizar mi privacidad o seguridad; (9) me comprometo a informar mi ubicación cuando resulte necesario para gestionar una eventual emergencia; y (10) el profesional podrá recomendar atención presencial, remisión o valoración especializada cuando considere que la modalidad virtual no es adecuada.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">5. BENEFICIOS Y POSIBLES LIMITACIONES DE LA ATENCIÓN VIRTUAL</p>
+                                            <p class="font-bold text-[#0B2442]">5. BENEFICIOS Y POSIBLES LIMITACIONES DE LA ATENCIÓN VIRTUAL</p>
                                             <p>Comprendo que la atención psicológica virtual facilita el acceso, reduce barreras geográficas y desplazamientos, favorece la continuidad del proceso, permite atención desde distintos lugares y facilita el seguimiento. Asimismo, comprendo limitaciones y riesgos como fallas o interrupciones de conexión o plataformas, limitaciones para observar expresiones no verbales, dificultades para intervenir directamente en crisis, riesgos de privacidad y seguridad digital y limitaciones para valoraciones o procedimientos que requieren presencialidad.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">6. CONFIDENCIALIDAD Y SECRETO PROFESIONAL</p>
+                                            <p class="font-bold text-[#0B2442]">6. CONFIDENCIALIDAD Y SECRETO PROFESIONAL</p>
                                             <p>La información suministrada durante las sesiones y los registros derivados están protegidos por el deber de confidencialidad y secreto profesional conforme a la Ley 1090 de 2006 y normas aplicables. No será divulgada a terceros sin autorización del consultante, salvo en las excepciones legales aplicables (obligación legal, requerimiento de autoridad competente o riesgo grave para la vida o integridad del consultante o de terceras personas), limitándose a lo estrictamente necesario.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">7. PROTECCIÓN DE DATOS PERSONALES Y MANEJO DE LA HISTORIA CLÍNICA</p>
+                                            <p class="font-bold text-[#0B2442]">7. PROTECCIÓN DE DATOS PERSONALES Y MANEJO DE LA HISTORIA CLÍNICA</p>
                                             <p>Los datos personales y sensibles (salud, antecedentes personales, familiares, emocionales, psicológicos y sociales) se tratan conforme a la Ley 1581 de 2012 y normativa vigente para identificación, prestación y seguimiento del servicio, historia clínica, registro de intervenciones, gestión administrativa, obligaciones legales y remisiones. El consultante puede ejercer sus derechos de conocer, actualizar, rectificar, suprimir cuando proceda y revocar la autorización en los términos legales, sin que ello implique la eliminación de la historia clínica sujeta a custodia legal.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">8. SEGURIDAD Y PRIVACIDAD DE LOS MEDIOS TECNOLÓGICOS</p>
+                                            <p class="font-bold text-[#0B2442]">8. SEGURIDAD Y PRIVACIDAD DE LOS MEDIOS TECNOLÓGICOS</p>
                                             <p>Reconozco los riesgos inherentes a los medios digitales (acceso no autorizado, interceptación, fallas de plataforma, presencia de terceros en el espacio físico o pérdida temporal de información). Me comprometo a usar dispositivos personales o de confianza, evitar redes públicas cuando sea posible, no compartir enlaces de acceso, proteger mis cuentas y dispositivos e informar si terceros escuchan o participan.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">9. GRABACIÓN Y REGISTRO DE LAS SESIONES</p>
+                                            <p class="font-bold text-[#0B2442]">9. GRABACIÓN Y REGISTRO DE LAS SESIONES</p>
                                             <p>Las sesiones psicológicas no serán grabadas en audio o video de manera automática. Si existiera una finalidad profesional, académica, investigativa o asistencial que justifique una grabación, deberá informarse previamente y solicitar autorización expresa, específica e independiente, sin que la negativa implique pérdida automática del derecho a la atención. Los registros clínicos se realizarán conforme a la normatividad vigente.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">10. PROCEDIMIENTO ANTE FALLAS TECNOLÓGICAS</p>
+                                            <p class="font-bold text-[#0B2442]">10. PROCEDIMIENTO ANTE FALLAS TECNOLÓGICAS</p>
                                             <p>Ante dificultades técnicas: (1) se intentará restablecer la comunicación en la plataforma; (2) si no es posible, se establecerá contacto mediante el número telefónico registrado; (3) si la interrupción impide desarrollar adecuadamente la sesión, se acordará su reprogramación; y (4) si compromete la seguridad o continuidad, el profesional podrá recomendar una modalidad alternativa.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">11. PROCEDIMIENTO ANTE SITUACIONES DE CRISIS O EMERGENCIA</p>
+                                            <p class="font-bold text-[#0B2442]">11. PROCEDIMIENTO ANTE SITUACIONES DE CRISIS O EMERGENCIA</p>
                                             <p>La atención virtual tiene limitaciones para responder directamente a situaciones que requieren intervención presencial inmediata. Ante crisis emocional grave, riesgo suicida, autolesión, violencia o riesgo grave, el profesional podrá realizar valoración inicial del riesgo dentro de sus competencias, orientar a urgencias, recomendar activar servicios de emergencia, contactar al contacto de emergencia cuando resulte necesario y legalmente procedente y gestionar o recomendar remisión. En emergencia inmediata se debe acudir a urgencias o comunicarse a la línea 123.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">12. DERECHOS DEL CONSULTANTE</p>
+                                            <p class="font-bold text-[#0B2442]">12. DERECHOS DEL CONSULTANTE</p>
                                             <p>Derecho a atención digna, respetuosa y sin discriminación; información clara y suficiente; conocer objetivos, alcances y limitaciones; formular preguntas y aclaraciones; aceptar o rechazar procedimientos; retirar el consentimiento para la atención virtual en cualquier momento; conocer límites de confidencialidad y tratamiento de datos; solicitar información sobre su historia clínica y ejercer derechos legales; y recibir orientación sobre alternativas de atención.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">13. RESPONSABILIDADES DEL CONSULTANTE</p>
+                                            <p class="font-bold text-[#0B2442]">13. RESPONSABILIDADES DEL CONSULTANTE</p>
                                             <p>Suministrar información veraz, completa y suficiente; participar voluntariamente; respetar horarios y acuerdos; informar situaciones que afecten el desarrollo de la atención; procurar un espacio privado y seguro; informar oportunamente crisis o riesgo; mantener actualizados sus datos; no grabar ni divulgar sesiones sin autorización; informar presencia de terceros; y seguir recomendaciones de remisión o atención presencial cuando sean necesarias.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">14. RESPONSABILIDADES DEL PROFESIONAL DE PSICOLOGÍA</p>
+                                            <p class="font-bold text-[#0B2442]">14. RESPONSABILIDADES DEL PROFESIONAL DE PSICOLOGÍA</p>
                                             <p>Actuar conforme a los principios éticos, científicos y deontológicos de la psicología; atender dentro de los límites de su competencia; respetar autonomía, dignidad e integridad; informar características y limitaciones de la modalidad virtual; proteger confidencialidad y registros; aplicar medidas razonables de seguridad; documentar actuaciones; identificar situaciones de remisión o presencialidad; orientar ante riesgo o emergencia; y respetar el derecho a aceptar, rechazar o retirar el consentimiento.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">15. CONDICIONES ADMINISTRATIVAS Y ORGANIZACIÓN DE LAS SESIONES</p>
+                                            <p class="font-bold text-[#0B2442]">15. CONDICIONES ADMINISTRATIVAS Y ORGANIZACIÓN DE LAS SESIONES</p>
                                             <p>Las condiciones de programación, duración, honorarios, cancelaciones y reprogramaciones son informadas y acordadas previamente entre el profesional y el consultante, sin limitar sus derechos ni impedir la orientación necesaria ante situaciones de urgencia.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">16. VOLUNTARIEDAD Y REVOCATORIA DEL CONSENTIMIENTO</p>
+                                            <p class="font-bold text-[#0B2442]">16. VOLUNTARIEDAD Y REVOCATORIA DEL CONSENTIMIENTO</p>
                                             <p>La participación es libre, voluntaria y consciente. El consultante puede formular preguntas, manifestar desacuerdos, rechazar intervenciones o retirar su consentimiento para la atención virtual en cualquier momento sin sanciones ni represalias, sin perjuicio de la obligación legal de custodia de la historia clínica y registros previos, pudiendo recibir orientación sobre alternativas presenciales o remisión.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">17. DECLARACIÓN DE COMPRENSIÓN Y ACEPTACIÓN</p>
+                                            <p class="font-bold text-[#0B2442]">17. DECLARACIÓN DE COMPRENSIÓN Y ACEPTACIÓN</p>
                                             <p>Manifiesto que he recibido información clara, suficiente y comprensible sobre la atención psicológica virtual; comprendo objetivos, beneficios, riesgos y limitaciones; he sido informado sobre confidencialidad, secreto profesional y sus límites legales; conozco las condiciones de protección de datos personales y el procedimiento ante fallas tecnológicas y emergencias; he podido formular preguntas resueltas satisfactoriamente; comprendo que puedo retirar mi consentimiento en cualquier momento; y acepto libre y voluntariamente recibir atención psicológica en modalidad virtual.</p>
                                         </div>
 
                                         <div class="space-y-1.5">
-                                            <p class="font-bold text-slate-900">18. FIRMAS</p>
+                                            <p class="font-bold text-[#0B2442]">18. FIRMAS</p>
                                             <p>Fecha y hora de cita: ${safeFecha} ${safeHora} · Referencia: ${safeCode}</p>
                                             <p>Profesional: ${safeProName} · Consultante: se registra con los datos y firma en trazo diligenciados a continuación.</p>
                                         </div>
@@ -1208,20 +1224,20 @@
 
                                     <div class="space-y-2">
                                         <div class="flex items-center justify-between">
-                                            <label class="block text-xs font-semibold text-slate-700">
+                                            <label class="block text-xs font-semibold text-[#0B2442]">
                                                 Firma en trazo del consultante *
                                             </label>
                                             <button
                                                 type="button"
                                                 onclick="limpiarFirma('${safeId}')"
-                                                class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
+                                                class="text-xs font-semibold text-[#00838F] hover:text-[#0B2442] underline"
                                             >
                                                 Limpiar firma
                                             </button>
                                         </div>
                                         <canvas
                                             id="firma-canvas-${safeId}"
-                                            class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
+                                            class="firma-canvas w-full h-36 bg-white border border-[#E3F3EE] rounded-xl cursor-crosshair block"
                                         ></canvas>
                                     </div>
 
@@ -1230,65 +1246,65 @@
                                             <p class="text-xs font-bold uppercase tracking-wider text-amber-900">
                                                 Atención a niños, niñas y adolescentes (NNA)
                                             </p>
-                                            <p class="text-xs text-slate-700 leading-relaxed">
+                                            <p class="text-xs text-[#0B2442]/80 leading-relaxed">
                                                 Al identificarse una persona menor de 18 años, se requiere la autorización de su padre, madre o representante legal, además del espacio de participación/asentimiento del menor de acuerdo con su edad y desarrollo.
                                             </p>
                                         </div>
 
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                                             <div>
-                                                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Nombre completo padre, madre o representante legal *</label>
-                                                <input type="text" id="ci-acudiente-nombre-${safeId}" placeholder="Nombre del acudiente" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                <label class="block text-[11px] font-semibold text-[#0B2442]/80 mb-1">Nombre completo padre, madre o representante legal *</label>
+                                                <input type="text" id="ci-acudiente-nombre-${safeId}" placeholder="Nombre del acudiente" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                             </div>
                                             <div>
-                                                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Documento del padre, madre o representante legal *</label>
-                                                <input type="text" id="ci-acudiente-doc-${safeId}" placeholder="Tipo y número de documento" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                <label class="block text-[11px] font-semibold text-[#0B2442]/80 mb-1">Documento del padre, madre o representante legal *</label>
+                                                <input type="text" id="ci-acudiente-doc-${safeId}" placeholder="Tipo y número de documento" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                             </div>
                                             <div>
-                                                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Parentesco o calidad de representante</label>
-                                                <input type="text" id="ci-acudiente-parentesco-${safeId}" placeholder="Ej. Madre / Padre / Representante legal" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                <label class="block text-[11px] font-semibold text-[#0B2442]/80 mb-1">Parentesco o calidad de representante</label>
+                                                <input type="text" id="ci-acudiente-parentesco-${safeId}" placeholder="Ej. Madre / Padre / Representante legal" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                             </div>
                                             <div>
-                                                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Teléfono del padre, madre o representante</label>
-                                                <input type="text" id="ci-acudiente-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs">
+                                                <label class="block text-[11px] font-semibold text-[#0B2442]/80 mb-1">Teléfono del padre, madre o representante</label>
+                                                <input type="text" id="ci-acudiente-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
                                             </div>
                                         </div>
 
                                         <div class="space-y-1.5">
                                             <div class="flex items-center justify-between">
-                                                <label class="block text-xs font-semibold text-slate-800">
+                                                <label class="block text-xs font-semibold text-[#0B2442]">
                                                     Firma en trazo del padre, madre o representante legal *
                                                 </label>
                                                 <button
                                                     type="button"
                                                     onclick="limpiarFirma('acudiente-${safeId}')"
-                                                    class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
+                                                    class="text-xs font-semibold text-[#00838F] hover:text-[#0B2442] underline"
                                                 >
                                                     Limpiar firma acudiente
                                                 </button>
                                             </div>
                                             <canvas
                                                 id="firma-canvas-acudiente-${safeId}"
-                                                class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
+                                                class="firma-canvas w-full h-36 bg-white border border-[#E3F3EE] rounded-xl cursor-crosshair block"
                                             ></canvas>
                                         </div>
 
                                         <div class="space-y-1.5 pt-2 border-t border-amber-200/80">
                                             <div class="flex items-center justify-between">
-                                                <label class="block text-xs font-semibold text-slate-800">
+                                                <label class="block text-xs font-semibold text-[#0B2442]">
                                                     Firma / asentimiento en trazo del niño, niña o adolescente
                                                 </label>
                                                 <button
                                                     type="button"
                                                     onclick="limpiarFirma('menor-${safeId}')"
-                                                    class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
+                                                    class="text-xs font-semibold text-[#00838F] hover:text-[#0B2442] underline"
                                                 >
                                                     Limpiar firma menor
                                                 </button>
                                             </div>
                                             <canvas
                                                 id="firma-canvas-menor-${safeId}"
-                                                class="firma-canvas w-full h-36 bg-white border border-slate-300 rounded-xl cursor-crosshair block"
+                                                class="firma-canvas w-full h-36 bg-white border border-[#E3F3EE] rounded-xl cursor-crosshair block"
                                             ></canvas>
                                         </div>
                                     </div>
@@ -1299,11 +1315,11 @@
                                         type="button"
                                         id="btn-guardar-consentimiento-${safeId}"
                                         onclick="guardarConsentimientoFirmado('${safeId}', '${escapeHtml(email)}', '${safeCode}')"
-                                        class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition disabled:opacity-60"
+                                        class="brand-btn-primary font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition disabled:opacity-60"
                                     >
                                         Guardar consentimiento informado
                                     </button>
-                                    <p id="consent-status-${safeId}" class="text-xs text-slate-500"></p>
+                                    <p id="consent-status-${safeId}" class="text-xs text-[#0B2442]/65"></p>
                                 </div>
                             </div>
                         </div>

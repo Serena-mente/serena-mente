@@ -123,7 +123,7 @@
                 <a href="quienes-somos.html" class="hover:text-[#07976B] transition">Quiénes somos</a>
                 <a href="#equipo" class="hover:text-[#07976B] transition">Conoce nuestro equipo</a>
                 <a href="#nosotros" class="hover:text-[#07976B] transition">¿Cómo funciona?</a>
-                <a href="#tarifas" class="hover:text-[#07976B] transition">Tarifas</a>
+                <a href="#tarifas" class="hover:text-[#07976B] transition">Importancia</a>
                 <a href="faq.html" class="hover:text-[#07976B] transition">Preguntas frecuentes</a>
                 <a href="contacto.html" class="hover:text-[#07976B] transition">Contacto</a>
                 <a href="#portal-acceso" class="text-[#078E99] font-semibold hover:underline">Acceso plataforma</a>
@@ -149,12 +149,9 @@
                         Tu espacio seguro para el <span class="text-[#07976B]">bienestar emocional</span>
                     </h1>
                     <p class="text-base sm:text-lg text-[#10263D]/75 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                        Orientación psicológica virtual accesible a través de un grupo de psicólogos con distintos enfoques y áreas de trabajo. Sesiones confidenciales mediadas por Google Meet.
+                        Acompañamiento psicológico en línea con profesionales de distintos enfoques y áreas, pensado para que encuentres claridad, herramientas prácticas y un trato cercano sin importar dónde estés.
                     </p>
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                        <a href="#equipo" class="w-full sm:w-auto brand-btn-primary font-semibold px-7 py-3.5 rounded-xl shadow-sm transition text-center text-sm">
-                            Conoce nuestro equipo
-                        </a>
                         <a href="#portal-acceso" class="w-full sm:w-auto bg-white hover:bg-[#D9F5E8]/40 text-[#10263D] border border-[#D9F5E8] font-semibold px-7 py-3.5 rounded-xl transition text-center text-sm shadow-sm">
                             Ingresar a mi cuenta
                         </a>
@@ -166,7 +163,7 @@
                         <div class="flex items-center justify-between gap-3 border-b border-[#D9F5E8] pb-3.5">
                             <div>
                                 <h2 class="font-bold text-[#10263D] text-base">Orientación psicológica virtual</h2>
-                                <p class="text-xs text-[#10263D]/65 mt-0.5">Profesionales según enfoque y área de trabajo</p>
+                                <p class="text-xs text-[#10263D]/65 mt-0.5">Elige al profesional según tu motivo de consulta</p>
                             </div>
                             <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-8 w-auto object-contain shrink-0">
                         </div>
@@ -174,10 +171,10 @@
                         <div class="p-4 bg-[#F5FAF8] border border-[#D9F5E8] rounded-2xl space-y-1">
                             <div class="flex items-center justify-between">
                                 <span class="text-xs font-bold text-[#078E99]">Sesión individual</span>
-                                <span class="text-sm font-extrabold text-[#10263D]">$80.000 COP</span>
+                                <span class="text-sm font-extrabold text-[#10263D]">Desde $80.000 COP</span>
                             </div>
                             <p class="text-xs text-[#10263D]/75 leading-relaxed">
-                                Encuentro virtual de 50 minutos por Google Meet con acompañamiento acorde a tu proceso.
+                                Espacio privado de 50 minutos con seguimiento adaptado a tu proceso y tarifa definida por profesional.
                             </p>
                         </div>
 
@@ -192,32 +189,34 @@
 
     <!-- Conoce nuestro equipo (Carrusel automático) -->
     <section id="equipo" class="py-16 bg-white border-t border-[#D9F5E8]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-                <span class="inline-block text-xs font-bold uppercase tracking-wider text-[#078E99] bg-[#F5FAF8] border border-[#D9F5E8] px-3 py-1 rounded-full">
-                    Equipo profesional
-                </span>
-                <h2 class="text-3xl font-bold text-[#10263D] mt-2">Conoce nuestro equipo</h2>
-                <p class="text-sm text-[#10263D]/75 mt-1 max-w-2xl">
-                    Pasa el cursor sobre las tarjetas para detener el movimiento, revisar el enfoque de cada profesional y elegir con quién deseas agendar.
-                </p>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div class="flex flex-col items-start">
+                    <span class="inline-block text-xs font-bold uppercase tracking-wider text-[#078E99] bg-[#F5FAF8] border border-[#D9F5E8] px-3 py-1 rounded-full">
+                        Equipo profesional
+                    </span>
+                    <h2 class="text-3xl font-bold text-[#10263D] mt-2">Conoce nuestro equipo</h2>
+                    <p class="text-sm text-[#10263D]/75 mt-1 max-w-2xl">
+                        Pasa el cursor sobre las tarjetas para detener el movimiento, revisar el enfoque de cada profesional y elegir con quién deseas agendar.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 self-start sm:self-end">
+                    <button type="button" onclick="moverCarruselEquipo(-1)" aria-label="Desplazar equipo a la izquierda" class="w-10 h-10 rounded-full border border-[#D9F5E8] bg-[#F5FAF8] hover:bg-[#D9F5E8] text-[#10263D] font-bold transition flex items-center justify-center">
+                        &lsaquo;
+                    </button>
+                    <button type="button" onclick="moverCarruselEquipo(1)" aria-label="Desplazar equipo a la derecha" class="w-10 h-10 rounded-full border border-[#D9F5E8] bg-[#F5FAF8] hover:bg-[#D9F5E8] text-[#10263D] font-bold transition flex items-center justify-center">
+                        &rsaquo;
+                    </button>
+                    <a href="conoce-nuestro-equipo.html" class="text-xs sm:text-sm font-semibold text-[#078E99] hover:text-[#10263D] px-3 py-2 transition whitespace-nowrap">
+                        Ver directorio completo &rarr;
+                    </a>
+                </div>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-                <button type="button" onclick="moverCarruselEquipo(-1)" aria-label="Desplazar equipo a la izquierda" class="w-10 h-10 rounded-full border border-[#D9F5E8] bg-[#F5FAF8] hover:bg-[#D9F5E8] text-[#10263D] font-bold transition flex items-center justify-center">
-                    &lsaquo;
-                </button>
-                <button type="button" onclick="moverCarruselEquipo(1)" aria-label="Desplazar equipo a la derecha" class="w-10 h-10 rounded-full border border-[#D9F5E8] bg-[#F5FAF8] hover:bg-[#D9F5E8] text-[#10263D] font-bold transition flex items-center justify-center">
-                    &rsaquo;
-                </button>
-                <a href="conoce-nuestro-equipo.html" class="text-xs sm:text-sm font-semibold text-[#078E99] hover:text-[#10263D] px-3 py-2 transition whitespace-nowrap">
-                    Ver directorio completo &rarr;
-                </a>
-            </div>
-        </div>
 
-        <div id="equipo-carousel-wrapper" class="equipo-marquee-wrapper max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div id="equipo-marquee-track" class="equipo-marquee-track py-2">
-                <p class="text-sm text-[#10263D]/65">Cargando profesionales...</p>
+            <div id="equipo-carousel-wrapper" class="equipo-marquee-wrapper">
+                <div id="equipo-marquee-track" class="equipo-marquee-track py-2">
+                    <p class="text-sm text-[#10263D]/65">Cargando profesionales...</p>
+                </div>
             </div>
         </div>
     </section>
@@ -242,7 +241,7 @@
                         </span>
                         <h3 class="text-xl font-bold text-[#10263D]">Portal de consultantes</h3>
                         <p class="text-sm text-[#10263D]/75 leading-relaxed">
-                            Ingresa a tu espacio independiente para consultar tu cita, confirmar tu consentimiento informado, enviar un mensaje a tu psicólogo y unirte a Google Meet.
+                            Ingresa a tu espacio independiente para consultar tu cita, confirmar tu consentimiento informado, enviar mensajes a tu psicólogo y unirte a tu sesión virtual.
                         </p>
                     </div>
                     <div class="pt-2">
@@ -292,51 +291,59 @@
             <div class="text-center max-w-3xl mx-auto mb-12">
                 <h2 class="text-3xl font-bold text-[#10263D]">¿Cómo funciona Serena Mente?</h2>
                 <p class="text-[#10263D]/75 mt-2 text-sm sm:text-base">
-                    Un modelo claro diseñado para brindar comodidad, organización y acceso a orientación psicológica virtual.
+                    Un paso a paso sencillo para que agendar orientación psicológica sea claro y sin complicaciones.
                 </p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="bg-[#F5FAF8] p-6 rounded-2xl border border-[#D9F5E8] shadow-sm text-center">
                     <div class="w-10 h-10 bg-white border border-[#D9F5E8] text-[#07976B] font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">1</div>
                     <h3 class="font-bold text-[#10263D] mb-2 text-base">Elige al profesional</h3>
-                    <p class="text-sm text-[#10263D]/75">Revisa las áreas de trabajo y elige el perfil acorde a lo que buscas.</p>
+                    <p class="text-sm text-[#10263D]/75">Revisa las áreas de trabajo, modelos y tarifas de cada especialista para elegir el indicado para ti.</p>
                 </div>
                 <div class="bg-[#F5FAF8] p-6 rounded-2xl border border-[#D9F5E8] shadow-sm text-center">
                     <div class="w-10 h-10 bg-white border border-[#D9F5E8] text-[#07976B] font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">2</div>
                     <h3 class="font-bold text-[#10263D] mb-2 text-base">Sube tu comprobante</h3>
-                    <p class="text-sm text-[#10263D]/75">Transfiere $80.000 COP y adjunta la captura del pago en el formulario de reserva.</p>
+                    <p class="text-sm text-[#10263D]/75">Transfiere el valor asignado al profesional elegido y adjunta la captura del pago en el formulario de reserva.</p>
                 </div>
                 <div class="bg-[#F5FAF8] p-6 rounded-2xl border border-[#D9F5E8] shadow-sm text-center">
                     <div class="w-10 h-10 bg-white border border-[#D9F5E8] text-[#07976B] font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">3</div>
-                    <h3 class="font-bold text-[#10263D] mb-2 text-base">Validación y Meet</h3>
-                    <p class="text-sm text-[#10263D]/75">El profesional valida el comprobante y se habilita tu enlace de Google Meet.</p>
+                    <h3 class="font-bold text-[#10263D] mb-2 text-base">Confirmación y sala</h3>
+                    <p class="text-sm text-[#10263D]/75">El profesional valida el comprobante y se habilita el acceso a tu consulta en el portal.</p>
                 </div>
                 <div class="bg-[#F5FAF8] p-6 rounded-2xl border border-[#D9F5E8] shadow-sm text-center">
                     <div class="w-10 h-10 bg-white border border-[#D9F5E8] text-[#07976B] font-bold rounded-xl flex items-center justify-center mx-auto mb-4 text-sm">4</div>
                     <h3 class="font-bold text-[#10263D] mb-2 text-base">Atención y reseña</h3>
-                    <p class="text-sm text-[#10263D]/75">Asiste a tu sesión virtual y comparte tu valoración sobre la atención recibida.</p>
+                    <p class="text-sm text-[#10263D]/75">Participa en tu sesión y comparte tu comentario o valoración sobre el acompañamiento recibido.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Tarifas Section -->
+    <!-- Relevancia de la salud mental y recomendación -->
     <section id="tarifas" class="py-16 bg-[#F5FAF8] border-t border-[#D9F5E8]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-[#10263D] border border-[#078E99]/30 text-white rounded-3xl p-8 lg:p-12 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-6">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 max-w-2xl">
+            <div class="bg-[#10263D] border border-[#078E99]/30 text-white rounded-3xl p-8 lg:p-12 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-8">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 max-w-3xl">
                     <img src="assets/imagotipo.png" alt="Imagotipo Serena Mente" class="h-12 w-auto object-contain brightness-0 invert shrink-0">
-                    <div class="space-y-2">
-                        <h2 class="text-2xl sm:text-3xl font-bold">Tarifa de orientación individual</h2>
+                    <div class="space-y-3">
+                        <span class="inline-block text-[11px] font-bold uppercase tracking-wider text-[#D9F5E8] bg-white/10 px-3 py-1 rounded-full">
+                            Cuidar la mente también es priorizarte
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-bold leading-snug">
+                            La salud mental sostiene cómo vives, decides y te relacionas
+                        </h2>
                         <p class="text-[#D9F5E8]/85 text-sm sm:text-base leading-relaxed">
-                            Cada sesión de orientación individual tiene un valor estándar de <strong class="text-white">$80.000 COP</strong>. El pago previo y la carga del comprobante son necesarios para confirmar tu espacio en agenda.
+                            Como señala la <strong class="text-white">Organización Mundial de la Salud (OMS)</strong>, la salud mental es un estado de bienestar que permite a las personas hacer frente a los momentos de estrés de la vida, desarrollar sus habilidades y aportar a su comunidad. No tienes que esperar a estar al límite para pedir apoyo: contar con un espacio psicológico confidencial ayuda a ordenar lo que sientes y construir respuestas más saludables. Te recomendamos elegir al profesional que mejor conecte con tu proceso en <strong class="text-white">Serena Mente</strong> y dar tu primer paso hoy.
                         </p>
                     </div>
                 </div>
-                <div class="shrink-0 w-full lg:w-auto">
-                    <a href="conoce-nuestro-equipo.html" class="block w-full lg:w-auto bg-white hover:bg-[#F5FAF8] text-[#10263D] font-bold px-6 py-3.5 rounded-xl text-center text-sm shadow-sm transition whitespace-nowrap">
-                        Agendar sesión ahora
+                <div class="shrink-0 w-full lg:w-auto flex flex-col gap-2.5">
+                    <a href="conoce-nuestro-equipo.html" class="block w-full lg:w-auto bg-white hover:bg-[#D9F5E8] text-[#10263D] font-bold px-6 py-3.5 rounded-xl text-center text-sm shadow-sm transition whitespace-nowrap">
+                        Elegir profesional y agendar
                     </a>
+                    <span class="text-[11px] text-[#D9F5E8]/70 text-center">
+                        Tarifa visible en el perfil de cada psicólogo
+                    </span>
                 </div>
             </div>
         </div>

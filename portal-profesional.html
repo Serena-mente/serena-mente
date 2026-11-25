@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal del Profesional | Serena Mente</title>
+    <link rel="icon" type="image/png" href="assets/imagotipo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        serena: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                            darkblue: '#0b2545',
+                            sand: '#f7f5f0'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-serena-sand text-slate-900 min-h-screen antialiased">
+    <div id="pro-toast" class="hidden fixed bottom-5 right-5 z-50 max-w-sm text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-xl border"></div>
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="index.html" class="flex items-center gap-2.5 shrink-0">
+                    <img src="assets/imagotipo.png" alt="Serena Mente" class="h-9 w-auto">
+                    <span class="font-extrabold text-serena-900 text-sm sm:text-base tracking-tight">Serena Mente</span>
+                </a>
+                <span class="hidden sm:inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-serena-800 border border-emerald-200">
+                    Portal Profesional
+                </span>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <span id="pro-header-name" class="hidden text-xs sm:text-sm font-bold text-slate-700 truncate max-w-[180px] sm:max-w-xs"></span>
+                <button id="btn-new-case-top" type="button" onclick="openCaseModal('')" class="hidden bg-serena-600 hover:bg-serena-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow-sm">
+                    + Nueva cita / HC
+                </button>
+                <button id="btn-pro-logout" type="button" onclick="handleProLogout()" class="hidden bg-white hover:bg-red-50 text-red-700 border border-red-200 text-xs font-semibold px-3 py-2 rounded-xl transition">
+                    Cerrar sesión
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <!-- INICIO DE SESIÓN -->
+        <section id="pro-auth-section" class="max-w-md mx-auto bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-5">
+            <div class="space-y-1.5">
+                <p class="text-xs font-bold uppercase tracking-wider text-serena-700">Acceso restringido</p>
+                <h1 class="text-2xl font-extrabold text-slate-900">Portal del Profesional</h1>
+                <p class="text-xs sm:text-sm text-slate-600">Ingresa con tu cuenta institucional o profesional registrada.</p>
+            </div>
+
+            <form onsubmit="handleProLogin(event)" class="space-y-4">
+                <div>
+                    <label for="pro-email" class="block text-xs font-semibold text-slate-700 mb-1">Correo electrónico</label>
+                    <input id="pro-email" type="email" required placeholder="profesional@correo.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label for="pro-password" class="block text-xs font-semibold text-slate-700 mb-1">Contraseña</label>
+                    <input id="pro-password" type="password" required placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm">
+                </div>
+                <button id="btn-pro-login" type="submit" class="w-full bg-serena-600 hover:bg-serena-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition shadow-sm">
+                    Ingresar al portal profesional
+                </button>
+            </form>
+        </section>
+
+        <!-- DASHBOARD -->
+        <section id="pro-dashboard-section" class="hidden space-y-6">
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <p id="pro-role-kicker" class="text-xs font-bold uppercase tracking-wider text-serena-700">Espacio clínico profesional</p>
+                    <h1 id="pro-welcome-title" class="text-2xl font-extrabold text-slate-900 mt-0.5">Hola, Profesional</h1>
+                    <p id="pro-welcome-sub" class="text-xs sm:text-sm text-slate-600 mt-1">Gestiona citas, historias clínicas, disponibilidad horaria, evolución, consentimientos y correos.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" onclick="openEmailModal('', '', '')" class="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                        Redactar correo
+                    </button>
+                    <button type="button" onclick="cargarDatosProfesional()" class="bg-serena-50 hover:bg-serena-100 text-serena-900 border border-emerald-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                        Actualizar datos
+                    </button>
+                </div>
+            </div>
+
+            <!-- NAVEGACIÓN DE PESTAÑAS -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-2 flex flex-wrap gap-1.5">
+                <button id="tab-btn-citas" type="button" onclick="switchProTab('citas')" class="pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-serena-600 text-white transition">
+                    Citas e Historias Clínicas
+                </button>
+                <button id="tab-btn-agenda" type="button" onclick="switchProTab('agenda')" class="pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
+                    Agenda y Disponibilidad
+                </button>
+                <button id="tab-btn-evolucion" type="button" onclick="switchProTab('evolucion')" class="pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
+                    Evolución y Seguimiento
+                </button>
+                <button id="tab-btn-consentimientos" type="button" onclick="switchProTab('consentimientos')" class="pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
+                    Consentimientos Firmados
+                </button>
+                <button id="tab-btn-admin" type="button" onclick="switchProTab('admin')" class="hidden pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-serena-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition">
+                    Administración
+                </button>
+            </div>
+
+            <!-- PESTAÑA 1: CITAS E HISTORIAS CLÍNICAS -->
+            <div id="pro-tab-citas" class="pro-tab-panel bg-white border border-slate-200 rounded-3xl p-6 space-y-5">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-900">Citas y registros de historia clínica</h2>
+                        <p class="text-xs text-slate-500">Filtra por consultante, código, línea de orientación o estado de pago.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <input id="pro-search" type="text" oninput="renderAppointmentsTable()" placeholder="Buscar consultante, código o correo..." class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm w-full sm:w-64">
+                        <select id="pro-filter-tipo" onchange="renderAppointmentsTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            <option value="">Todas las líneas</option>
+                            <option value="Orientación individual">Orientación individual</option>
+                            <option value="Orientación organizacional">Orientación organizacional</option>
+                            <option value="Orientación jurídica">Orientación jurídica</option>
+                        </select>
+                        <select id="pro-filter-pago" onchange="renderAppointmentsTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            <option value="">Todos los pagos</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En revisión">En revisión</option>
+                            <option value="Pagado">Pagado</option>
+                            <option value="Confirmado">Confirmado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="pro-appointments-container" class="space-y-4">
+                    <p class="text-sm text-slate-500">Cargando citas...</p>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 2: AGENDA Y DISPONIBILIDAD -->
+            <div id="pro-tab-agenda" class="pro-tab-panel hidden bg-white border border-slate-200 rounded-3xl p-6 space-y-6">
+                <div class="space-y-4">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-900">Disponibilidad semanal recurrente</h2>
+                        <p class="text-xs text-slate-500">Configura tus días y horas habituales de atención.</p>
+                    </div>
+
+                    <form onsubmit="guardarDisponibilidadSemanal(event)" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+                        <div>
+                            <label for="disp-dia-semana" class="block text-xs font-semibold text-slate-700 mb-1">Día de la semana</label>
+                            <select id="disp-dia-semana" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                                <option value="1">Lunes</option>
+                                <option value="2">Martes</option>
+                                <option value="3">Miércoles</option>
+                                <option value="4">Jueves</option>
+                                <option value="5">Viernes</option>
+                                <option value="6">Sábado</option>
+                                <option value="0">Domingo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="disp-hora-inicio" class="block text-xs font-semibold text-slate-700 mb-1">Hora inicio</label>
+                            <input id="disp-hora-inicio" type="time" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="disp-hora-fin" class="block text-xs font-semibold text-slate-700 mb-1">Hora fin</label>
+                            <input id="disp-hora-fin" type="time" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <button type="submit" class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition">
+                            Agregar franja
+                        </button>
+                    </form>
+
+                    <div id="pro-weekly-availability-container" class="space-y-2">
+                        <p class="text-xs text-slate-500">Cargando disponibilidad semanal...</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-6 space-y-4">
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-900">Franjas puntuales y bloqueos de agenda</h3>
+                        <p class="text-xs text-slate-500">Registra horarios específicos disponibles, ocupados o bloqueados.</p>
+                    </div>
+
+                    <form onsubmit="guardarFranjaAgenda(event)" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-5 gap-3 items-end">
+                        <div>
+                            <label for="agenda-fecha" class="block text-xs font-semibold text-slate-700 mb-1">Fecha</label>
+                            <input id="agenda-fecha" type="date" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="agenda-hora" class="block text-xs font-semibold text-slate-700 mb-1">Hora / rango</label>
+                            <input id="agenda-hora" type="text" required placeholder="Ej. 09:00 AM" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="agenda-estado" class="block text-xs font-semibold text-slate-700 mb-1">Estado</label>
+                            <select id="agenda-estado" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                                <option value="Disponible">Disponible</option>
+                                <option value="Ocupado">Ocupado</option>
+                                <option value="Reservado">Reservado</option>
+                                <option value="Bloqueado">Bloqueado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="agenda-nota" class="block text-xs font-semibold text-slate-700 mb-1">Nota</label>
+                            <input id="agenda-nota" type="text" placeholder="Opcional" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition">
+                            Guardar horario
+                        </button>
+                    </form>
+
+                    <div id="pro-agenda-container" class="space-y-3">
+                        <p class="text-xs text-slate-500">Cargando franjas puntuales...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 3: EVOLUCIÓN Y SEGUIMIENTO -->
+            <div id="pro-tab-evolucion" class="pro-tab-panel hidden bg-white border border-slate-200 rounded-3xl p-6 space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-900">Evolución y seguimiento clínico</h2>
+                        <p class="text-xs text-slate-500">Consulta el caso y registra notas cronológicas de evolución.</p>
+                    </div>
+                    <select id="evo-select-caso" onchange="renderEvolucionCaso()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm min-w-[260px]">
+                        <option value="">Selecciona un consultante / caso...</option>
+                    </select>
+                </div>
+
+                <form onsubmit="guardarNotaEvolucion(event)" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="evo-fecha" class="block text-xs font-semibold text-slate-700 mb-1">Fecha de nota</label>
+                            <input id="evo-fecha" type="date" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="evo-titulo" class="block text-xs font-semibold text-slate-700 mb-1">Título / sesión</label>
+                            <input id="evo-titulo" type="text" placeholder="Ej. Sesión 3 · Seguimiento" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="evo-texto" class="block text-xs font-semibold text-slate-700 mb-1">Nota de evolución *</label>
+                        <textarea id="evo-texto" rows="3" required placeholder="Describe avances, intervenciones, acuerdos o tareas..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition">
+                            Guardar nota de evolución
+                        </button>
+                    </div>
+                </form>
+
+                <div id="evo-historial-container" class="space-y-4">
+                    <p class="text-sm text-slate-500">Selecciona un caso para ver su seguimiento.</p>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 4: CONSENTIMIENTOS FIRMADOS -->
+            <div id="pro-tab-consentimientos" class="pro-tab-panel hidden bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
+                <div>
+                    <h2 class="text-lg font-extrabold text-slate-900">Consentimientos informados firmados</h2>
+                    <p class="text-xs text-slate-500">Revisa los datos registrados, firmas digitales y documentos firmados.</p>
+                </div>
+                <div id="pro-consents-container" class="space-y-3">
+                    <p class="text-xs text-slate-500">Cargando consentimientos...</p>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 5: ADMINISTRACIÓN (5 MEJORAS INTEGRADAS) -->
+            <div id="pro-tab-admin" class="pro-tab-panel hidden space-y-6">
+                <!-- 1. RESUMEN OPERATIVO Y MÉTRICAS RÁPIDAS -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-serena-700">1. Resumen operativo</p>
+                        <h2 class="text-lg font-extrabold text-slate-900">Métricas rápidas de operación</h2>
+                    </div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                            <p class="text-xs font-semibold text-slate-500">Citas / casos registrados</p>
+                            <p id="metric-total-citas" class="text-2xl font-extrabold text-slate-900 mt-1">0</p>
+                        </div>
+                        <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4">
+                            <p class="text-xs font-semibold text-amber-900">Pagos pendientes / revisión</p>
+                            <p id="metric-pagos-pendientes" class="text-2xl font-extrabold text-amber-950 mt-1">0</p>
+                        </div>
+                        <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4">
+                            <p class="text-xs font-semibold text-serena-900">Profesionales activos</p>
+                            <p id="metric-psi-activos" class="text-2xl font-extrabold text-serena-900 mt-1">0</p>
+                        </div>
+                        <div class="bg-sky-50/70 border border-sky-200 rounded-2xl p-4">
+                            <p class="text-xs font-semibold text-serena-darkblue">Consentimientos firmados</p>
+                            <p id="metric-consentimientos" class="text-2xl font-extrabold text-serena-darkblue mt-1">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. REASIGNACIÓN DE CITAS Y AGENDA POR PROFESIONAL -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 space-y-6">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-serena-700">2. Coordinación y agenda</p>
+                        <h2 class="text-lg font-extrabold text-slate-900">Reasignación de citas y supervisión de agenda por profesional</h2>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <h3 class="text-sm font-extrabold text-slate-900">Reasignar profesional en cita o caso</h3>
+                            <input id="admin-reasign-search" type="text" oninput="renderAdminReassignList()" placeholder="Filtrar por código, consultante o profesional..." class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-72">
+                        </div>
+                        <div id="admin-reassign-container" class="space-y-2 max-h-72 overflow-y-auto">
+                            <p class="text-xs text-slate-500">Cargando citas...</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <h3 class="text-sm font-extrabold text-slate-900">Agenda y disponibilidad por profesional</h3>
+                            <select id="admin-agenda-psi-filter" onchange="renderAdminAgendaByPsychologist()" class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs">
+                                <option value="">Todos los profesionales</option>
+                            </select>
+                        </div>
+                        <div id="admin-agenda-psi-container" class="space-y-2">
+                            <p class="text-xs text-slate-500">Cargando agenda...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. CONTROL FINANCIERO Y LIQUIDACIÓN POR PROFESIONAL -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-serena-700">3. Finanzas y liquidación</p>
+                            <h2 class="text-lg font-extrabold text-slate-900">Resumen por profesional y exportación CSV</h2>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <select id="admin-fin-pago-filter" onchange="renderAdminFinancialSummary()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
+                                <option value="">Todos los estados de pago</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En revisión">En revisión</option>
+                                <option value="Pagado">Pagado</option>
+                                <option value="Confirmado">Confirmado</option>
+                            </select>
+                            <button type="button" onclick="exportarFinanzasCsv()" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                Exportar CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div id="admin-financial-container" class="overflow-x-auto border border-slate-200 rounded-2xl">
+                        <p class="text-xs text-slate-500 p-4">Calculando liquidación...</p>
+                    </div>
+                </div>
+
+                <!-- EQUIPO DE PSICÓLOGOS Y CONFIGURACIÓN GLOBAL -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 space-y-6">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-serena-700">Equipo y parámetros generales</p>
+                        <h2 class="text-lg font-extrabold text-slate-900">Gestión de psicólogos y configuración de plataforma</h2>
+                    </div>
+
+                    <form id="form-crear-psicologo" onsubmit="crearPsicologoAdmin(event)" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                        <h3 class="text-sm font-extrabold text-slate-900">Crear nuevo psicólogo</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div>
+                                <label for="admin-psi-nombre" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Nombre completo *</label>
+                                <input id="admin-psi-nombre" type="text" required placeholder="Nombre del profesional" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="admin-psi-email" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Correo electrónico *</label>
+                                <input id="admin-psi-email" type="email" required placeholder="profesional@correo.com" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="admin-psi-password" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Contraseña inicial *</label>
+                                <input id="admin-psi-password" type="password" required minlength="6" placeholder="Mínimo 6 caracteres" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="admin-psi-area" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Área / especialidad *</label>
+                                <input id="admin-psi-area" type="text" required placeholder="Ej. Clínica / Organizacional / Jurídica" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="admin-psi-tarifa" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Tarifa por sesión (COP) *</label>
+                                <input id="admin-psi-tarifa" type="number" min="0" step="1000" required value="80000" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="admin-psi-modelo" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Modelo de trabajo *</label>
+                            <textarea id="admin-psi-modelo" rows="2" required placeholder="Enfoque terapéutico o línea de atención..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                        </div>
+                        <div class="flex justify-end">
+                            <button id="btn-crear-psicologo" type="submit" class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition shadow-sm">
+                                Crear psicólogo y asignar correo
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="admin-psychologists-container" class="space-y-3">
+                        <p class="text-xs text-slate-500">Cargando equipo...</p>
+                    </div>
+
+                    <form onsubmit="guardarConfiguracionPlataforma(event)" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                        <h3 class="text-sm font-extrabold text-slate-900">Configuración general y Términos y Condiciones</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="cfg-tarifa" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Tarifa de referencia</label>
+                                <input id="cfg-tarifa" type="text" placeholder="Ej. $80.000 COP" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="cfg-horario" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Horario de atención</label>
+                                <input id="cfg-horario" type="text" placeholder="Ej. Lunes a sábado, 8:00 a.m. - 7:00 p.m." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="cfg-cuenta" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Cuenta de pago</label>
+                                <input id="cfg-cuenta" type="text" placeholder="Datos de transferencia o cuenta" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="cfg-correo-coord" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Correo de coordinación</label>
+                                <input id="cfg-correo-coord" type="email" placeholder="serenelyserenamente@gmail.com" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="cfg-terminos" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Términos y Condiciones</label>
+                            <textarea id="cfg-terminos" rows="4" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                        </div>
+                        <div class="flex justify-end">
+                            <button id="btn-guardar-config" type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition">
+                                Guardar configuración y términos
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 4. GESTIÓN DE CONTENIDOS PÚBLICOS DEL SITIO WEB -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-serena-700">4. Contenidos públicos</p>
+                        <h2 class="text-lg font-extrabold text-slate-900">Textos de páginas públicas (<code>contenidos_plataforma</code>)</h2>
+                    </div>
+
+                    <form onsubmit="guardarContenidosPublicos(event)" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="cnt-index-hero" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Inicio (<code>index.html</code>)</label>
+                                <textarea id="cnt-index-hero" rows="2" placeholder="Mensaje principal en inicio..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                            </div>
+                            <div>
+                                <label for="cnt-quienes-somos" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Quiénes somos (<code>quienes-somos.html</code>)</label>
+                                <textarea id="cnt-quienes-somos" rows="2" placeholder="Propósito institucional..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                            </div>
+                            <div>
+                                <label for="cnt-faq-destacado" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Preguntas frecuentes (<code>faq.html</code>)</label>
+                                <textarea id="cnt-faq-destacado" rows="2" placeholder="Nota destacada de preguntas frecuentes..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                            </div>
+                            <div>
+                                <label for="cnt-contacto-mensaje" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Contacto (<code>contacto.html</code>)</label>
+                                <textarea id="cnt-contacto-mensaje" rows="2" placeholder="Mensaje de atención en contacto..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="cnt-legal-aviso" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Aviso legal (<code>legal.html</code>)</label>
+                            <textarea id="cnt-legal-aviso" rows="2" placeholder="Aviso legal y privacidad..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                        </div>
+                        <div class="flex justify-end">
+                            <button id="btn-guardar-contenidos" type="submit" class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm transition">
+                                Guardar contenidos públicos
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 5. AUDITORÍA / BITÁCORA DE CORREOS Y CAMBIOS -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-serena-700">5. Auditoría y trazabilidad</p>
+                        <h2 class="text-lg font-extrabold text-slate-900">Historial de correos enviados y bitácora administrativa</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Historial de correos enviados</h3>
+                                <input id="admin-mail-log-filter" type="text" oninput="renderAdminMailLog()" placeholder="Filtrar correo o código..." class="bg-white border border-slate-200 rounded-xl px-2.5 py-1 text-xs w-44">
+                            </div>
+                            <div id="admin-mail-log-container" class="space-y-2 max-h-64 overflow-y-auto text-xs">
+                                <p class="text-slate-500">Cargando correos...</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Bitácora de cambios administrativos</h3>
+                            <div id="admin-audit-log-container" class="space-y-2 max-h-64 overflow-y-auto text-xs">
+                                <p class="text-slate-500">Cargando bitácora...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL 1: FORMATO DE HISTORIA CLÍNICA / CREAR O EDITAR CITA -->
+    <div id="modal-caso" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 max-w-4xl w-full p-6 sm:p-8 shadow-2xl space-y-5 my-auto max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                    <h3 id="modal-caso-title" class="text-lg font-extrabold text-slate-900">Formato de Historia Clínica y Cita</h3>
+                    <p id="modal-caso-subtitle" class="text-xs text-slate-500">Diligenciamiento obligatorio para citas agendadas por consultante o profesional en <code>historias_clinicas</code>.</p>
+                </div>
+                <button type="button" onclick="closeCaseModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2">&times;</button>
+            </div>
+
+            <form id="form-caso" onsubmit="guardarCaso(event)" class="space-y-5">
+                <input type="hidden" id="caso-id">
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-serena-700">1. Línea de orientación y programación</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo / Línea de consulta *</label>
+                            <select id="caso-tipo" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                                <option value="Orientación individual">Orientación individual</option>
+                                <option value="Orientación organizacional">Orientación organizacional</option>
+                                <option value="Orientación jurídica">Orientación jurídica</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Código del caso / referencia *</label>
+                            <input id="caso-codigo" type="text" required placeholder="Ej. HC-2026-9021" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm uppercase">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Fecha de sesión</label>
+                            <input id="caso-fecha" type="date" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Hora de sesión</label>
+                            <input id="caso-hora" type="text" placeholder="Ej. 10:00 AM" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Estado de pago</label>
+                            <select id="caso-estado-pago" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En revisión">En revisión</option>
+                                <option value="Pagado">Pagado</option>
+                                <option value="Confirmado">Confirmado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Enlace Google Meet (https://)</label>
+                            <input id="caso-meet" type="url" placeholder="https://meet.google.com/..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-serena-700">2. Datos de identificación</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre completo / razón social *</label>
+                            <input id="caso-nombre-consultante" type="text" required placeholder="Nombre del consultante o entidad" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Correo electrónico *</label>
+                            <input id="caso-cliente-email" type="email" required placeholder="consultante@correo.com" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Teléfono</label>
+                            <input id="caso-telefono" type="text" placeholder="Número de contacto" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Documento o NIT</label>
+                            <input id="caso-documento-nit" type="text" placeholder="CC / TI / NIT" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Edad o cargo / área</label>
+                            <input id="caso-edad-cargo" type="text" placeholder="Ej. 28 años / Talento humano" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Ciudad</label>
+                            <input id="caso-ciudad" type="text" placeholder="Ciudad de residencia o sede" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Género</label>
+                            <input id="caso-genero" type="text" placeholder="Ej. Femenino / Masculino / Otro" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Edad</label>
+                            <input id="caso-edad" type="text" placeholder="Ej. 28" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Orientación / enfoque / eje</label>
+                            <input id="caso-orientacion" type="text" placeholder="Enfoque clínico, organizacional o jurídico" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <p class="text-xs font-bold uppercase tracking-wider text-serena-700">3. Valoración y registro de historia clínica</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Sueño y vigilia</label>
+                            <textarea id="caso-sueno-vigilia" rows="2" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Alimentación / hábitos / contexto</label>
+                            <textarea id="caso-alimentacion" rows="2" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Discurso / relato / motivo y hechos del caso</label>
+                        <textarea id="caso-discurso-relato" rows="3" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Observación clínica / análisis y concepto profesional</label>
+                        <textarea id="caso-observacion" rows="3" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                    </div>
+                </div>
+
+                <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                    <input id="caso-notificar" type="checkbox" checked class="w-4 h-4 accent-serena-600 rounded">
+                    <span>Enviar notificación por correo al consultante y a coordinación al guardar</span>
+                </label>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeCaseModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                        Cerrar
+                    </button>
+                    <button type="submit" id="btn-guardar-caso" class="px-5 py-2 rounded-xl bg-serena-600 hover:bg-serena-700 text-white text-xs font-semibold shadow-sm">
+                        Guardar historia clínica y cita
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: VER CONSENTIMIENTO INFORMADO FIRMADO -->
+    <div id="modal-consentimiento" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 max-w-3xl w-full p-6 sm:p-8 shadow-2xl space-y-5 my-auto max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="text-lg font-extrabold text-slate-900">Consentimiento Informado Firmado</h3>
+                    <p id="consent-modal-sub" class="text-xs text-slate-500"></p>
+                </div>
+                <button type="button" onclick="closeConsentModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2">&times;</button>
+            </div>
+            <div id="consent-modal-body" class="space-y-4 text-xs sm:text-sm text-slate-700"></div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: ENVIAR CORREO DESDE EL PORTAL -->
+    <div id="modal-correo" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 shadow-2xl space-y-5 my-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="text-lg font-extrabold text-slate-900">Enviar correo</h3>
+                    <p class="text-xs text-slate-500">Envío directo mediante Google Apps Script.</p>
+                </div>
+                <button type="button" onclick="closeEmailModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2">&times;</button>
+            </div>
+
+            <form onsubmit="enviarCorreoManual(event)" class="space-y-4">
+                <div>
+                    <label for="mail-to" class="block text-xs font-semibold text-slate-700 mb-1">Para (correo del consultante) *</label>
+                    <input id="mail-to" type="email" required placeholder="consultante@correo.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                </div>
+                <div>
+                    <label for="mail-subject" class="block text-xs font-semibold text-slate-700 mb-1">Asunto *</label>
+                    <input id="mail-subject" type="text" required placeholder="Asunto del mensaje" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                </div>
+                <div>
+                    <label for="mail-message" class="block text-xs font-semibold text-slate-700 mb-1">Mensaje *</label>
+                    <textarea id="mail-message" rows="5" required placeholder="Escribe el mensaje para el consultante..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                </div>
+                <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                    <input id="mail-cc-coord" type="checkbox" checked class="w-4 h-4 accent-serena-600 rounded">
+                    <span>Enviar copia a coordinación (serenelyserenamente@gmail.com)</span>
+                </label>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeEmailModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btn-enviar-correo-manual" class="px-5 py-2 rounded-xl bg-serena-600 hover:bg-serena-700 text-white text-xs font-semibold shadow-sm">
+                        Enviar correo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: EDITAR PSICÓLOGO (ADMIN) -->
+    <div id="modal-editar-psicologo" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-5 my-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="text-lg font-extrabold text-slate-900">Editar psicólogo</h3>
+                    <p class="text-xs text-slate-500">Modifica datos, correo asignado, tarifa individual, contraseña opcional, área, modelo de trabajo o estado.</p>
+                </div>
+                <button type="button" onclick="closeEditPsychologistModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold px-2">&times;</button>
+            </div>
+
+            <form id="form-editar-psicologo" onsubmit="guardarEdicionPsicologoAdmin(event)" class="space-y-4">
+                <input type="hidden" id="edit-psi-id">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="edit-psi-nombre" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Nombre completo *</label>
+                        <input id="edit-psi-nombre" type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="edit-psi-email" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Correo asignado *</label>
+                        <input id="edit-psi-email" type="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="edit-psi-area" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Área / Especialidad *</label>
+                        <input id="edit-psi-area" type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="edit-psi-tarifa" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Tarifa por sesión (COP) *</label>
+                        <input id="edit-psi-tarifa" type="number" min="0" step="1000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="edit-psi-password" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Nueva contraseña (opcional)</label>
+                        <input id="edit-psi-password" type="password" minlength="6" placeholder="Dejar vacía para no cambiar" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label for="edit-psi-modelo" class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Modelo de trabajo *</label>
+                    <textarea id="edit-psi-modelo" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm"></textarea>
+                </div>
+                <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                    <input id="edit-psi-activo" type="checkbox" class="w-4 h-4 accent-serena-600 rounded">
+                    <span>Profesional activo (visible en el equipo)</span>
+                </label>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeEditPsychologistModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btn-guardar-edicion-psicologo" class="px-5 py-2 rounded-xl bg-serena-600 hover:bg-serena-700 text-white text-xs font-semibold shadow-sm">
+                        Guardar cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx99j2dNkuSaKoqLNQTf7-Jpbv9sYBPYL_wq89yWh9O1JyxLF2ZBIePYGsMxJRzBLVX/exec';
+        const COORDINACION_EMAIL = 'serenelyserenamente@gmail.com';
+        const ADMIN_EDGE_FUNCTION = 'admin-psicologos';
+        const BRAND_LOGO_URL = new URL('assets/imagotipo.png', window.location.href).href;
+        const DEFAULT_TARIFA_COP = 80000;
+
+        const DIAS_SEMANA_LABELS = {
+            0: 'Domingo',
+            1: 'Lunes',
+            2: 'Martes',
+            3: 'Miércoles',
+            4: 'Jueves',
+            5: 'Viernes',
+            6: 'Sábado'
+        };
+
+        const PUBLIC_CONTENT_KEYS = [
+            { id: 'cnt-index-hero', key: 'index_hero_mensaje', page: 'index.html', desc: 'Mensaje principal en inicio' },
+            { id: 'cnt-quienes-somos', key: 'quienes_somos_proposito', page: 'quienes-somos.html', desc: 'Propósito en quiénes somos' },
+            { id: 'cnt-faq-destacado', key: 'faq_nota_destacada', page: 'faq.html', desc: 'Nota destacada en preguntas frecuentes' },
+            { id: 'cnt-contacto-mensaje', key: 'contacto_mensaje_atencion', page: 'contacto.html', desc: 'Mensaje de atención en contacto' },
+            { id: 'cnt-legal-aviso', key: 'legal_aviso_privacidad', page: 'legal.html', desc: 'Aviso legal y privacidad' }
+        ];
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let proUser = null;
+        let proProfile = null;
+        let isAdminUser = false;
+        let currentPsychologistRow = null;
+        let allProfilesList = [];
+        let proAppointments = [];
+        let proConsents = [];
+        let proScheduleSlots = [];
+        let weeklyAvailabilityRows = [];
+        let adminPsychologists = [];
+        let platformConfigMap = {};
+        let publicContentsMap = {};
+        let mailLogRows = [];
+        let auditLogRows = [];
+        let latestFinancialRows = [];
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatCop(value, fallback = DEFAULT_TARIFA_COP) {
+            const num = value === null || value === undefined || value === ''
+                ? fallback
+                : Number(String(value).replace(/[^\d.-]/g, ''));
+            const safe = Number.isFinite(num) && num >= 0 ? Math.round(num) : fallback;
+            return `$${safe.toLocaleString('es-CO')} COP`;
+        }
+
+        function parseTarifaNumber(value, fallback = DEFAULT_TARIFA_COP) {
+            const num = value === null || value === undefined || value === ''
+                ? fallback
+                : Number(String(value).replace(/[^\d.-]/g, ''));
+            return Number.isFinite(num) && num >= 0 ? Math.round(num) : fallback;
+        }
+
+        function formatTimeShort(rawTime) {
+            const val = String(rawTime || '').trim();
+            return val.length >= 5 ? val.slice(0, 5) : val;
+        }
+
+        function isSafeHttpUrl(url) {
+            try {
+                const parsed = new URL(url);
+                return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+            } catch {
+                return false;
+            }
+        }
+
+        function normalizeOrientationLabel(rawTipo) {
+            const val = String(rawTipo || '').trim();
+            const lower = val.toLowerCase();
+            if (lower.includes('organiz')) return 'Orientación organizacional';
+            if (lower.includes('jurid') || lower.includes('juríd')) return 'Orientación jurídica';
+            if (lower.includes('indiv')) return 'Orientación individual';
+            return val || 'Orientación individual';
+        }
+
+        function showProToast(message, isError = false) {
+            const toast = document.getElementById('pro-toast');
+            toast.textContent = message;
+            toast.className = `fixed bottom-5 right-5 z-50 max-w-sm text-white text-sm font-medium px-4 py-3 rounded-2xl shadow-xl border ${
+                isError ? 'bg-red-900 border-red-400/40' : 'bg-slate-900 border-serena-500/40'
+            }`;
+            toast.classList.remove('hidden');
+            clearTimeout(window.__proToastTimer);
+            window.__proToastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 4200);
+        }
+
+        async function registrarBitacoraAdmin(accion, detalle) {
+            const entry = {
+                actor_email: proUser?.email || COORDINACION_EMAIL,
+                accion,
+                detalle,
+                creado_en: new Date().toISOString()
+            };
+            try {
+                const { data, error } = await supabaseClient
+                    .from('bitacora_admin')
+                    .insert(entry)
+                    .select()
+                    .single();
+                if (!error && data) {
+                    auditLogRows = [data, ...auditLogRows];
+                    renderAdminAuditLog();
+                    return;
+                }
+            } catch (_) {}
+            auditLogRows = [{ id: `local-${Date.now()}`, ...entry }, ...auditLogRows];
+            renderAdminAuditLog();
+        }
+
+        function applyRoleUiMode() {
+            const adminTabBtn = document.getElementById('tab-btn-admin');
+            const newCaseTopBtn = document.getElementById('btn-new-case-top');
+            const roleKicker = document.getElementById('pro-role-kicker');
+            const welcomeSub = document.getElementById('pro-welcome-sub');
+
+            if (isAdminUser) {
+                adminTabBtn.classList.remove('hidden');
+                roleKicker.textContent = 'Panel de Administración';
+                welcomeSub.textContent = 'Gestiona el equipo, reasignación y agenda por profesional, liquidación financiera, contenidos públicos y auditoría.';
+            } else {
+                adminTabBtn.classList.add('hidden');
+                roleKicker.textContent = 'Espacio clínico profesional';
+                welcomeSub.textContent = 'Gestiona citas, historias clínicas, disponibilidad horaria, evolución, consentimientos y correos.';
+            }
+            if (newCaseTopBtn) newCaseTopBtn.classList.remove('hidden');
+        }
+
+        function switchProTab(tabName) {
+            if (tabName === 'admin' && !isAdminUser) {
+                tabName = 'citas';
+            }
+            document.querySelectorAll('.pro-tab-panel').forEach((el) => el.classList.add('hidden'));
+            document.querySelectorAll('.pro-tab-btn').forEach((btn) => {
+                if (btn.id === 'tab-btn-admin') {
+                    btn.className = 'pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-serena-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition';
+                } else {
+                    btn.className = 'pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 transition';
+                }
+            });
+
+            const panel = document.getElementById(`pro-tab-${tabName}`);
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            if (panel) panel.classList.remove('hidden');
+            if (activeBtn) {
+                activeBtn.className = 'pro-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-serena-600 text-white transition';
+            }
+
+            if (tabName === 'evolucion') {
+                populateEvolutionSelect();
+                renderEvolucionCaso();
+            } else if (tabName === 'admin' && isAdminUser) {
+                renderAdminSectionAll();
+            }
+        }
+
+        function buildProEmailHtml({ title, subtitle, rows }) {
+            const safeLogo = isSafeHttpUrl(BRAND_LOGO_URL)
+                ? `<img src="${escapeHtml(BRAND_LOGO_URL)}" alt="Serena Mente" style="max-height: 44px; width: auto; display: block; border: 0;">`
+                : `<span style="font-size: 18px; font-weight: 800; color: #064e3b;">Serena Mente</span>`;
+
+            const rowsHtml = (rows || [])
+                .map((r) => `<p style="margin: 5px 0;"><strong>${escapeHtml(r.label)}:</strong> ${escapeHtml(r.value)}</p>`)
+                .join('');
+
+            return `
+                <div style="background-color: #f0fdf4; padding: 24px 12px; font-family: Arial, Helvetica, sans-serif; color: #0f172a;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border: 1px solid #bbf7d0; border-radius: 16px; overflow: hidden;">
+                        <tr>
+                            <td style="padding: 20px 24px; background-color: #f0fdf4; border-bottom: 1px solid #bbf7d0;">
+                                ${safeLogo}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 24px; line-height: 1.6; font-size: 14px;">
+                                <h2 style="margin: 0 0 6px 0; font-size: 18px; color: #047857;">${escapeHtml(title)}</h2>
+                                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13px;">${escapeHtml(subtitle || '')}</p>
+                                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                                    ${rowsHtml}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 14px 24px; background-color: #064e3b; color: #dcfce7; font-size: 12px;">
+                                Serena Mente · Notificación del Portal del Profesional
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+        }
+
+        async function postToAppsScript({ toEmail, replyTo, subject, htmlBody }) {
+            if (!toEmail || !APPS_SCRIPT_URL) {
+                return { sent: false, reason: 'Destinatario o URL faltante' };
+            }
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify({
+                        modulo: 'portal_profesional',
+                        to_email: toEmail,
+                        reply_to: replyTo || '',
+                        subject: subject,
+                        html_body: htmlBody
+                    })
+                });
+                const rawText = await response.text();
+                let parsed = {};
+                try {
+                    parsed = JSON.parse(rawText);
+                } catch (_) {
+                    parsed = { raw: rawText };
+                }
+                if (!response.ok || parsed?.ok === false) {
+                    return { sent: false, reason: parsed?.error || parsed?.raw || `HTTP ${response.status}` };
+                }
+                return { sent: true };
+            } catch (err) {
+                console.error('Error enviando correo desde portal profesional:', err);
+                return { sent: false, reason: err?.message || 'Error de red' };
+            }
+        }
+
+        async function registrarCorreoEnHistorial({ destinatarioEmail, codigoCaso, historiaClinicaId }) {
+            if (!destinatarioEmail) return;
+            try {
+                const { data } = await supabaseClient.from('registro_correos').insert({
+                    psicologo_id: proUser?.id || null,
+                    historia_clinica_id: historiaClinicaId || null,
+                    codigo_caso: codigoCaso || null,
+                    destinatario_email: destinatarioEmail
+                }).select().single();
+                if (data) {
+                    mailLogRows = [data, ...mailLogRows];
+                    renderAdminMailLog();
+                }
+            } catch (_) {}
+        }
+
+        async function enviarNotificacionProfesional({ clientEmail, codigoCaso, historiaClinicaId, subject, title, subtitle, rows, includeCoord = true }) {
+            const htmlBody = buildProEmailHtml({ title, subtitle, rows });
+            const targets = [];
+
+            if (clientEmail) {
+                targets.push({ to: clientEmail, replyTo: proUser?.email || COORDINACION_EMAIL });
+            }
+            if (includeCoord) {
+                targets.push({ to: COORDINACION_EMAIL, replyTo: clientEmail || proUser?.email || COORDINACION_EMAIL });
+            }
+
+            const results = await Promise.all(
+                targets.map(async (t) => {
+                    const res = await postToAppsScript({
+                        toEmail: t.to,
+                        replyTo: t.replyTo,
+                        subject,
+                        htmlBody
+                    });
+                    if (res.sent) {
+                        await registrarCorreoEnHistorial({
+                            destinatarioEmail: t.to,
+                            codigoCaso,
+                            historiaClinicaId
+                        });
+                    }
+                    return res;
+                })
+            );
+
+            return results.every((r) => r.sent);
+        }
+
+        async function handleProLogin(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btn-pro-login');
+            const email = document.getElementById('pro-email').value.trim().toLowerCase();
+            const password = document.getElementById('pro-password').value;
+
+            btn.disabled = true;
+            btn.textContent = 'Ingresando...';
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            btn.disabled = false;
+            btn.textContent = 'Ingresar al portal profesional';
+
+            if (error) {
+                showProToast(error.message || 'No se pudo iniciar sesión.', true);
+                return;
+            }
+
+            proUser = data.user;
+            await enterProDashboard();
+        }
+
+        async function handleProLogout() {
+            await supabaseClient.auth.signOut();
+            proUser = null;
+            proProfile = null;
+            isAdminUser = false;
+            currentPsychologistRow = null;
+            document.getElementById('tab-btn-admin').classList.add('hidden');
+            document.getElementById('pro-dashboard-section').classList.add('hidden');
+            document.getElementById('pro-auth-section').classList.remove('hidden');
+            document.getElementById('btn-pro-logout').classList.add('hidden');
+            document.getElementById('pro-header-name').classList.add('hidden');
+            showProToast('Sesión cerrada.');
+        }
+
+        async function cargarPerfilProfesional() {
+            if (!proUser) return null;
+
+            const { data: byId } = await supabaseClient
+                .from('perfiles')
+                .select('id, email, rol, nombre_completo')
+                .eq('id', proUser.id)
+                .maybeSingle();
+
+            if (byId) return byId;
+
+            if (proUser.email) {
+                const { data: byEmail } = await supabaseClient
+                    .from('perfiles')
+                    .select('id, email, rol, nombre_completo')
+                    .ilike('email', proUser.email.trim())
+                    .maybeSingle();
+                if (byEmail) return byEmail;
+            }
+
+            return {
+                id: proUser.id,
+                email: proUser.email,
+                rol: 'psicologo',
+                nombre_completo: proUser.user_metadata?.nombre_completo || proUser.user_metadata?.full_name || 'Profesional'
+            };
+        }
+
+        async function enterProDashboard() {
+            if (!proUser) return;
+            document.getElementById('pro-auth-section').classList.add('hidden');
+            document.getElementById('pro-dashboard-section').classList.remove('hidden');
+            document.getElementById('btn-pro-logout').classList.remove('hidden');
+
+            proProfile = await cargarPerfilProfesional();
+            const emailLower = String(proUser.email || proProfile?.email || '').trim().toLowerCase();
+            const rolLower = String(proProfile?.rol || '').trim().toLowerCase();
+            isAdminUser = emailLower === COORDINACION_EMAIL || rolLower === 'admin';
+
+            applyRoleUiMode();
+
+            if (!isAdminUser) {
+                switchProTab('citas');
+            }
+
+            const displayName = (proProfile?.nombre_completo || (isAdminUser ? 'Administración Serena Mente' : 'Profesional')).trim();
+
+            const headerName = document.getElementById('pro-header-name');
+            headerName.textContent = displayName;
+            headerName.classList.remove('hidden');
+
+            document.getElementById('pro-welcome-title').textContent = `Hola, ${displayName}`;
+            await cargarDatosProfesional();
+        }
+
+        async function cargarDatosProfesional() {
+            const apptContainer = document.getElementById('pro-appointments-container');
+            const consentContainer = document.getElementById('pro-consents-container');
+
+            let hcQuery = supabaseClient
+                .from('historias_clinicas')
+                .select('*')
+                .order('fecha_sesion', { ascending: false })
+                .limit(200);
+
+            if (!isAdminUser && proUser?.id) {
+                hcQuery = hcQuery.eq('psicologo_id', proUser.id);
+            }
+
+            let apptSlotsQuery = supabaseClient
+                .from('appointments')
+                .select('*')
+                .order('scheduled_at', { ascending: true })
+                .limit(200);
+
+            if (!isAdminUser && proUser?.id) {
+                apptSlotsQuery = apptSlotsQuery.eq('psychologist_id', proUser.id);
+            }
+
+            const [
+                { data: hcRows, error: hcErr },
+                { data: profiles },
+                { data: consents, error: consentErr },
+                { data: apptSlots },
+                { data: psiRows }
+            ] = await Promise.all([
+                hcQuery,
+                supabaseClient
+                    .from('perfiles')
+                    .select('id, nombre_completo, email, rol'),
+                supabaseClient
+                    .from('informed_consents')
+                    .select('*')
+                    .order('signed_at', { ascending: false })
+                    .limit(100),
+                apptSlotsQuery,
+                supabaseClient
+                    .from('psicologos')
+                    .select('*')
+                    .order('orden', { ascending: true })
+                    .order('id', { ascending: true })
+            ]);
+
+            allProfilesList = profiles || [];
+            const allPsychologists = psiRows || [];
+            adminPsychologists = allPsychologists;
+
+            currentPsychologistRow = allPsychologists.find((p) => {
+                const samePerfil = proUser?.id && String(p.perfil_id || '') === String(proUser.id);
+                const sameEmail = proUser?.email && String(p.email || '').trim().toLowerCase() === String(proUser.email).trim().toLowerCase();
+                return samePerfil || sameEmail;
+            }) || null;
+
+            await cargarDisponibilidadSemanal(allPsychologists);
+
+            proConsents = consentErr ? [] : (consents || []);
+
+            const consentByRef = new Map();
+            proConsents.forEach((c) => {
+                const key = String(c.appointment_reference || '').trim().toUpperCase();
+                if (key && !consentByRef.has(key)) {
+                    consentByRef.set(key, c);
+                }
+            });
+
+            const profilesById = new Map(allProfilesList.map((p) => [String(p.id), p]));
+
+            if (hcErr) {
+                apptContainer.innerHTML = `<p class="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-4">No se pudieron cargar las citas (${escapeHtml(hcErr.message)}).</p>`;
+            } else {
+                proAppointments = (hcRows || []).map((row) => {
+                    const prof = row.psicologo_id ? profilesById.get(String(row.psicologo_id)) : null;
+                    const refKey = String(row.codigo_caso || '').trim().toUpperCase();
+                    const consentMatch = refKey ? consentByRef.get(refKey) : null;
+                    const detalleJson = (row.detalle_clinico_json && typeof row.detalle_clinico_json === 'object')
+                        ? row.detalle_clinico_json
+                        : {};
+                    const tipoNormalizado = normalizeOrientationLabel(
+                        row.tipo_caso || detalleJson.linea_orientacion || consentMatch?.session_modality
+                    );
+
+                    return {
+                        ...row,
+                        tipo_caso: tipoNormalizado,
+                        nombre_consultante: (row.nombre_consultante || consentMatch?.patient_full_name || 'Consultante sin nombre').trim(),
+                        correo_consultante: (row.cliente_email || consentMatch?.patient_email || '').trim(),
+                        psicologo_nombre: (prof?.nombre_completo || proProfile?.nombre_completo || 'Profesional').trim(),
+                        psicologo_email: (prof?.email || '').trim(),
+                        enlace_meet: (row.enlace_meet || row.link_meet || '').trim(),
+                        detalle_clinico_json: detalleJson,
+                        consentimiento_firmado: consentMatch || null
+                    };
+                });
+                renderAppointmentsTable();
+                populateEvolutionSelect();
+                renderEvolucionCaso();
+            }
+
+            const customSlots = [];
+            proAppointments.forEach((row) => {
+                const dispList = Array.isArray(row.detalle_clinico_json?.disponibilidad)
+                    ? row.detalle_clinico_json.disponibilidad
+                    : [];
+                dispList.forEach((slot, idx) => {
+                    customSlots.push({
+                        id: `hc-${row.id}-${idx}`,
+                        source: 'hc',
+                        hcId: row.id,
+                        idx,
+                        fecha: slot.fecha || '',
+                        hora: slot.hora || '',
+                        estado: slot.estado || 'Disponible',
+                        nota: slot.nota || row.codigo_caso || '',
+                        psicologo_id: row.psicologo_id || '',
+                        psicologo_nombre: row.psicologo_nombre || ''
+                    });
+                });
+            });
+
+            const dbSlots = (apptSlots || []).map((a) => {
+                const dt = a.scheduled_at ? new Date(a.scheduled_at) : null;
+                const fechaStr = dt && !Number.isNaN(dt.getTime())
+                    ? dt.toISOString().slice(0, 10)
+                    : '';
+                const horaStr = dt && !Number.isNaN(dt.getTime())
+                    ? dt.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
+                    : '';
+                const prof = a.psychologist_id ? profilesById.get(String(a.psychologist_id)) : null;
+                return {
+                    id: a.id,
+                    source: 'appointments',
+                    fecha: fechaStr,
+                    hora: horaStr,
+                    estado: a.status || 'Disponible',
+                    nota: a.notes || a.codigo_caso || a.patient_email || '',
+                    psicologo_id: a.psychologist_id || '',
+                    psicologo_nombre: prof?.nombre_completo || ''
+                };
+            });
+
+            proScheduleSlots = [...customSlots, ...dbSlots];
+            renderScheduleSlots();
+
+            if (consentErr) {
+                consentContainer.innerHTML = `<p class="text-xs text-slate-500">No se pudieron cargar los consentimientos (${escapeHtml(consentErr.message)}).</p>`;
+            } else {
+                renderConsentsList();
+            }
+
+            if (isAdminUser) {
+                await cargarDatosAdmin();
+            }
+        }
+
+        async function cargarDisponibilidadSemanal(allPsychologists = []) {
+            const container = document.getElementById('pro-weekly-availability-container');
+            if (!container) return;
+
+            let query = supabaseClient
+                .from('disponibilidad_psicologos')
+                .select('*')
+                .order('dia_semana', { ascending: true })
+                .order('hora_inicio', { ascending: true });
+
+            if (!isAdminUser) {
+                if (!currentPsychologistRow?.id) {
+                    weeklyAvailabilityRows = [];
+                    container.innerHTML = '<p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">Tu perfil aún no está vinculado a un registro en <code>psicologos</code> para configurar disponibilidad semanal.</p>';
+                    return;
+                }
+                query = query.eq('psicologo_id', currentPsychologistRow.id);
+            }
+
+            const { data, error } = await query;
+
+            if (error) {
+                weeklyAvailabilityRows = [];
+                container.innerHTML = `<p class="text-xs text-slate-500">Tabla <code>disponibilidad_psicologos</code> pendiente o sin permisos (${escapeHtml(error.message)}).</p>`;
+                return;
+            }
+
+            const psiById = new Map((allPsychologists || []).map((p) => [String(p.id), p]));
+            weeklyAvailabilityRows = (data || []).map((row) => ({
+                ...row,
+                psicologo_nombre: psiById.get(String(row.psicologo_id))?.nombre || `Psicólogo #${row.psicologo_id}`
+            }));
+
+            renderWeeklyAvailability();
+        }
+
+        function renderWeeklyAvailability() {
+            const container = document.getElementById('pro-weekly-availability-container');
+            if (!container) return;
+
+            if (!weeklyAvailabilityRows.length) {
+                container.innerHTML = '<p class="text-xs text-slate-500">Aún no hay franjas semanales configuradas.</p>';
+                return;
+            }
+
+            container.innerHTML = weeklyAvailabilityRows.map((row) => {
+                const diaLabel = DIAS_SEMANA_LABELS[Number(row.dia_semana)] || `Día ${row.dia_semana}`;
+                const inicio = formatTimeShort(row.hora_inicio);
+                const fin = formatTimeShort(row.hora_fin);
+                const isActive = row.activo !== false;
+                const safeId = escapeHtml(row.id);
+
+                return `
+                    <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                            <span class="font-extrabold text-slate-900">${escapeHtml(diaLabel)}</span>
+                            <span class="font-semibold text-serena-700">${escapeHtml(inicio)} – ${escapeHtml(fin)}</span>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${isActive ? 'bg-emerald-100 text-serena-900' : 'bg-slate-200 text-slate-700'}">
+                                ${isActive ? 'Activa' : 'Inactiva'}
+                            </span>
+                            ${row.psicologo_nombre ? `<span class="text-xs text-slate-500">· ${escapeHtml(row.psicologo_nombre)}</span>` : ''}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="toggleDisponibilidadSemanal('${safeId}', ${!isActive})" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3 py-1.5 rounded-xl text-xs transition">
+                                ${isActive ? 'Pausar franja' : 'Activar franja'}
+                            </button>
+                            <button type="button" onclick="eliminarDisponibilidadSemanal('${safeId}')" class="bg-white hover:bg-red-50 text-red-700 border border-red-200 font-semibold px-3 py-1.5 rounded-xl text-xs transition">
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function guardarDisponibilidadSemanal(event) {
+            event.preventDefault();
+            if (!currentPsychologistRow?.id) {
+                showProToast('No se encontró una ficha vinculada en psicologos para guardar franja semanal.', true);
+                return;
+            }
+
+            const diaSemana = Number(document.getElementById('disp-dia-semana').value);
+            const horaInicio = document.getElementById('disp-hora-inicio').value;
+            const horaFin = document.getElementById('disp-hora-fin').value;
+
+            if (!horaInicio || !horaFin || horaFin <= horaInicio) {
+                showProToast('La hora de fin debe ser posterior a la hora de inicio.', true);
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from('disponibilidad_psicologos')
+                .insert({
+                    psicologo_id: currentPsychologistRow.id,
+                    dia_semana: diaSemana,
+                    hora_inicio: horaInicio,
+                    hora_fin: horaFin,
+                    activo: true
+                });
+
+            if (error) {
+                showProToast(`No se pudo guardar la franja semanal (${error.message}).`, true);
+                return;
+            }
+
+            await cargarDatosProfesional();
+            showProToast('Franja semanal agregada.');
+        }
+
+        async function toggleDisponibilidadSemanal(id, nextActivo) {
+            const { error } = await supabaseClient
+                .from('disponibilidad_psicologos')
+                .update({
+                    activo: nextActivo,
+                    actualizado_en: new Date().toISOString()
+                })
+                .eq('id', id);
+
+            if (error) {
+                showProToast(`No se pudo actualizar la franja (${error.message}).`, true);
+                return;
+            }
+
+            await cargarDatosProfesional();
+            showProToast(nextActivo ? 'Franja activada.' : 'Franja pausada.');
+        }
+
+        async function eliminarDisponibilidadSemanal(id) {
+            const { error } = await supabaseClient
+                .from('disponibilidad_psicologos')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                showProToast(`No se pudo eliminar la franja (${error.message}).`, true);
+                return;
+            }
+
+            await cargarDatosProfesional();
+            showProToast('Franja semanal eliminada.');
+        }
+
+        async function cargarDatosAdmin() {
+            const psiContainer = document.getElementById('admin-psychologists-container');
+
+            const [
+                { data: psiRows, error: psiErr },
+                { data: cfgRows },
+                { data: cntRows },
+                { data: mailRows },
+                { data: auditRows }
+            ] = await Promise.all([
+                supabaseClient
+                    .from('psicologos')
+                    .select('*')
+                    .order('orden', { ascending: true })
+                    .order('id', { ascending: true }),
+                supabaseClient
+                    .from('configuracion_plataforma')
+                    .select('clave, valor'),
+                supabaseClient
+                    .from('contenidos_plataforma')
+                    .select('clave, valor'),
+                supabaseClient
+                    .from('registro_correos')
+                    .select('*')
+                    .order('creado_en', { ascending: false })
+                    .limit(60),
+                supabaseClient
+                    .from('bitacora_admin')
+                    .select('*')
+                    .order('creado_en', { ascending: false })
+                    .limit(60)
+            ]);
+
+            if (psiErr) {
+                psiContainer.innerHTML = `<p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">No se pudo cargar la tabla <code>psicologos</code> (${escapeHtml(psiErr.message)}).</p>`;
+            } else {
+                adminPsychologists = psiRows || [];
+            }
+
+            platformConfigMap = {};
+            (cfgRows || []).forEach((item) => {
+                platformConfigMap[item.clave] = item.valor ?? '';
+            });
+
+            document.getElementById('cfg-tarifa').value = platformConfigMap.tarifa_consulta || '';
+            document.getElementById('cfg-horario').value = platformConfigMap.horario_atencion || '';
+            document.getElementById('cfg-cuenta').value = platformConfigMap.cuenta_pago || '';
+            document.getElementById('cfg-correo-coord').value = platformConfigMap.correo_coordinacion || COORDINACION_EMAIL;
+            document.getElementById('cfg-terminos').value = platformConfigMap.terminos_condiciones || '';
+
+            publicContentsMap = {};
+            (cntRows || []).forEach((item) => {
+                publicContentsMap[item.clave] = item.valor ?? '';
+            });
+            PUBLIC_CONTENT_KEYS.forEach((cfg) => {
+                const el = document.getElementById(cfg.id);
+                if (el) el.value = publicContentsMap[cfg.key] || '';
+            });
+
+            mailLogRows = mailRows || [];
+            if (auditRows && Array.isArray(auditRows)) {
+                auditLogRows = auditRows;
+            }
+
+            renderAdminSectionAll();
+        }
+
+        function renderAdminSectionAll() {
+            renderAdminMetrics();
+            populateAdminAgendaPsychologistSelect();
+            renderAdminReassignList();
+            renderAdminAgendaByPsychologist();
+            renderAdminFinancialSummary();
+            renderAdminPsychologists();
+            renderAdminMailLog();
+            renderAdminAuditLog();
+        }
+
+        function renderAdminMetrics() {
+            const totalCitas = proAppointments.length;
+            const pendientes = proAppointments.filter((a) => {
+                const st = String(a.estado_pago || 'Pendiente').toLowerCase();
+                return st.includes('pend') || st.includes('revis');
+            }).length;
+            const activos = adminPsychologists.filter((p) => p.activo !== false).length;
+            const consentsCount = proConsents.length;
+
+            const elCitas = document.getElementById('metric-total-citas');
+            const elPend = document.getElementById('metric-pagos-pendientes');
+            const elAct = document.getElementById('metric-psi-activos');
+            const elCons = document.getElementById('metric-consentimientos');
+
+            if (elCitas) elCitas.textContent = String(totalCitas);
+            if (elPend) elPend.textContent = String(pendientes);
+            if (elAct) elAct.textContent = String(activos);
+            if (elCons) elCons.textContent = String(consentsCount);
+        }
+
+        function getAssignablePsychologistOptions() {
+            const psiWithProfile = adminPsychologists.filter((p) => p.perfil_id);
+            if (psiWithProfile.length) {
+                return psiWithProfile.map((p) => ({
+                    perfilId: String(p.perfil_id),
+                    label: `${p.nombre} (${p.email || 'sin correo'})`
+                }));
+            }
+            return allProfilesList
+                .filter((pr) => String(pr.rol || '').toLowerCase() !== 'admin')
+                .map((pr) => ({
+                    perfilId: String(pr.id),
+                    label: `${pr.nombre_completo || pr.email} (${pr.email || ''})`
+                }));
+        }
+
+        function renderAdminReassignList() {
+            const container = document.getElementById('admin-reassign-container');
+            if (!container) return;
+            const filter = (document.getElementById('admin-reasign-search')?.value || '').trim().toLowerCase();
+            const options = getAssignablePsychologistOptions();
+
+            const list = proAppointments.filter((a) => {
+                if (!filter) return true;
+                const hay = [a.codigo_caso, a.nombre_consultante, a.correo_consultante, a.psicologo_nombre]
+                    .filter(Boolean).join(' ').toLowerCase();
+                return hay.includes(filter);
+            });
+
+            if (!list.length) {
+                container.innerHTML = '<p class="text-xs text-slate-500">No hay citas o casos para mostrar.</p>';
+                return;
+            }
+
+            container.innerHTML = list.map((appt) => {
+                const safeId = escapeHtml(appt.id);
+                const optsHtml = options.length
+                    ? options.map((o) => `<option value="${escapeHtml(o.perfilId)}" ${String(appt.psicologo_id) === o.perfilId ? 'selected' : ''}>${escapeHtml(o.label)}</option>`).join('')
+                    : `<option value="">Sin perfiles de psicólogo vinculados</option>`;
+
+                return `
+                    <div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs">
+                        <div class="min-w-0">
+                            <p class="font-bold text-slate-900 truncate">${escapeHtml(appt.codigo_caso || 'Sin código')} · ${escapeHtml(appt.nombre_consultante || 'Consultante')}</p>
+                            <p class="text-slate-500">Actual: <strong>${escapeHtml(appt.psicologo_nombre || 'Sin asignar')}</strong> · ${escapeHtml(appt.fecha_sesion || 'Sin fecha')} ${escapeHtml(appt.hora_sesion || '')}</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <select id="reasign-select-${safeId}" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs">
+                                ${optsHtml}
+                            </select>
+                            <button type="button" onclick="reasignarCitaAdmin('${safeId}')" class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-3 py-1.5 rounded-xl text-xs transition">
+                                Reasignar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function reasignarCitaAdmin(apptId) {
+            if (!isAdminUser) return;
+            const appt = proAppointments.find((a) => String(a.id) === String(apptId));
+            const select = document.getElementById(`reasign-select-${apptId}`);
+            const nuevoPsicologoId = select?.value;
+            if (!appt || !nuevoPsicologoId) {
+                showProToast('Selecciona un profesional válido para reasignar.', true);
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from('historias_clinicas')
+                .update({
+                    psicologo_id: nuevoPsicologoId,
+                    actualizado_en: new Date().toISOString()
+                })
+                .eq('id', appt.id);
+
+            if (error) {
+                showProToast(`No se pudo reasignar la cita (${error.message}).`, true);
+                return;
+            }
+
+            const prof = allProfilesList.find((p) => String(p.id) === String(nuevoPsicologoId));
+            await registrarBitacoraAdmin(
+                'Reasignación de cita',
+                `Caso ${appt.codigo_caso || appt.id} (${appt.nombre_consultante}) reasignado a ${prof?.nombre_completo || nuevoPsicologoId}.`
+            );
+            await cargarDatosProfesional();
+            showProToast('Cita reasignada correctamente.');
+        }
+
+        function populateAdminAgendaPsychologistSelect() {
+            const select = document.getElementById('admin-agenda-psi-filter');
+            if (!select) return;
+            const prev = select.value;
+            select.innerHTML = '<option value="">Todos los profesionales</option>' + adminPsychologists.map((p) => {
+                const key = p.perfil_id ? `${p.id}|${p.perfil_id}` : `${p.id}|`;
+                return `<option value="${escapeHtml(key)}">${escapeHtml(p.nombre)} (${escapeHtml(p.area || '')})</option>`;
+            }).join('');
+            if (prev) select.value = prev;
+        }
+
+        function renderAdminAgendaByPsychologist() {
+            const container = document.getElementById('admin-agenda-psi-container');
+            if (!container) return;
+            const rawFilter = document.getElementById('admin-agenda-psi-filter')?.value || '';
+            const [psiIdFilter, perfilIdFilter] = rawFilter.split('|');
+
+            const filteredWeekly = weeklyAvailabilityRows.filter((w) => {
+                if (!psiIdFilter && !perfilIdFilter) return true;
+                return String(w.psicologo_id) === String(psiIdFilter);
+            });
+
+            const filteredSlots = proScheduleSlots.filter((s) => {
+                if (!psiIdFilter && !perfilIdFilter) return true;
+                return String(s.psicologo_id) === String(perfilIdFilter) || String(s.psicologo_id) === String(psiIdFilter);
+            });
+
+            const weeklyHtml = filteredWeekly.length
+                ? filteredWeekly.map((w) => {
+                    const dia = DIAS_SEMANA_LABELS[Number(w.dia_semana)] || w.dia_semana;
+                    return `<div class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs flex flex-wrap items-center justify-between gap-2">
+                        <span><strong>${escapeHtml(w.psicologo_nombre || '')}</strong> · ${escapeHtml(dia)} · <span class="text-serena-700 font-semibold">${escapeHtml(formatTimeShort(w.hora_inicio))} – ${escapeHtml(formatTimeShort(w.hora_fin))}</span></span>
+                        <span class="px-2 py-0.5 rounded-full font-semibold ${w.activo !== false ? 'bg-emerald-100 text-serena-900' : 'bg-slate-200 text-slate-700'}">${w.activo !== false ? 'Activa' : 'Pausada'}</span>
+                    </div>`;
+                }).join('')
+                : '<p class="text-xs text-slate-500">Sin franjas semanales registradas para este filtro.</p>';
+
+            const slotsHtml = filteredSlots.length
+                ? filteredSlots.slice(0, 12).map((s) => `<div class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs flex flex-wrap items-center justify-between gap-2">
+                    <span>${escapeHtml(s.fecha || 'Sin fecha')} · <strong>${escapeHtml(s.hora || '')}</strong> · ${escapeHtml(s.nota || '')}</span>
+                    <span class="px-2 py-0.5 rounded-full font-semibold bg-slate-100 text-slate-800">${escapeHtml(s.estado || 'Disponible')}</span>
+                </div>`).join('')
+                : '<p class="text-xs text-slate-500">Sin franjas puntuales para este filtro.</p>';
+
+            container.innerHTML = `
+                <div class="space-y-1.5">
+                    <p class="text-[11px] font-bold uppercase text-slate-500">Disponibilidad semanal</p>
+                    <div class="space-y-1.5">${weeklyHtml}</div>
+                </div>
+                <div class="space-y-1.5 pt-2">
+                    <p class="text-[11px] font-bold uppercase text-slate-500">Franjas puntuales / agenda</p>
+                    <div class="space-y-1.5">${slotsHtml}</div>
+                </div>
+            `;
+        }
+
+        function renderAdminFinancialSummary() {
+            const container = document.getElementById('admin-financial-container');
+            if (!container) return;
+            const pagoFilter = document.getElementById('admin-fin-pago-filter')?.value || '';
+
+            const psiByPerfil = new Map();
+            const psiByEmail = new Map();
+            adminPsychologists.forEach((p) => {
+                if (p.perfil_id) psiByPerfil.set(String(p.perfil_id), p);
+                if (p.email) psiByEmail.set(String(p.email).trim().toLowerCase(), p);
+            });
+
+            const summaryMap = new Map();
+            adminPsychologists.forEach((p) => {
+                summaryMap.set(String(p.id), {
+                    profesional: p.nombre,
+                    correo: p.email || '',
+                    tarifa_cop: parseTarifaNumber(p.tarifa_cop, DEFAULT_TARIFA_COP),
+                    sesiones: 0,
+                    total_cop: 0
+                });
+            });
+
+            proAppointments.forEach((a) => {
+                const estado = String(a.estado_pago || 'Pendiente');
+                if (pagoFilter && estado !== pagoFilter) return;
+
+                const matchedPsi = (a.psicologo_id && psiByPerfil.get(String(a.psicologo_id)))
+                    || (a.psicologo_email && psiByEmail.get(String(a.psicologo_email).trim().toLowerCase()))
+                    || null;
+
+                const key = matchedPsi ? String(matchedPsi.id) : `unassigned-${a.psicologo_nombre || 'sin'}`;
+                const tarifa = matchedPsi ? parseTarifaNumber(matchedPsi.tarifa_cop, DEFAULT_TARIFA_COP) : DEFAULT_TARIFA_COP;
+
+                if (!summaryMap.has(key)) {
+                    summaryMap.set(key, {
+                        profesional: matchedPsi?.nombre || a.psicologo_nombre || 'Profesional',
+                        correo: matchedPsi?.email || a.psicologo_email || '',
+                        tarifa_cop: tarifa,
+                        sesiones: 0,
+                        total_cop: 0
+                    });
+                }
+
+                const item = summaryMap.get(key);
+                item.sesiones += 1;
+                item.total_cop += item.tarifa_cop;
+            });
+
+            latestFinancialRows = Array.from(summaryMap.values());
+
+            if (!latestFinancialRows.length) {
+                container.innerHTML = '<p class="text-xs text-slate-500 p-4">No hay datos financieros para mostrar.</p>';
+                return;
+            }
+
+            const totalSesiones = latestFinancialRows.reduce((acc, r) => acc + r.sesiones, 0);
+            const totalMonto = latestFinancialRows.reduce((acc, r) => acc + r.total_cop, 0);
+
+            container.innerHTML = `
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase text-slate-600">
+                            <th class="py-2.5 px-4">Profesional</th>
+                            <th class="py-2.5 px-4">Tarifa individual</th>
+                            <th class="py-2.5 px-4">Sesiones</th>
+                            <th class="py-2.5 px-4">Monto acumulado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        ${latestFinancialRows.map((r) => `
+                            <tr>
+                                <td class="py-2.5 px-4 font-bold text-slate-900">${escapeHtml(r.profesional)}</td>
+                                <td class="py-2.5 px-4 text-slate-700">${escapeHtml(formatCop(r.tarifa_cop))}</td>
+                                <td class="py-2.5 px-4 text-slate-700">${escapeHtml(String(r.sesiones))}</td>
+                                <td class="py-2.5 px-4 font-extrabold text-serena-700">${escapeHtml(formatCop(r.total_cop))}</td>
+                            </tr>
+                        `).join('')}
+                        <tr class="bg-emerald-50/60 font-extrabold text-slate-900">
+                            <td class="py-2.5 px-4">Total general</td>
+                            <td class="py-2.5 px-4">—</td>
+                            <td class="py-2.5 px-4">${escapeHtml(String(totalSesiones))}</td>
+                            <td class="py-2.5 px-4 text-serena-800">${escapeHtml(formatCop(totalMonto))}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function exportarFinanzasCsv() {
+            if (!latestFinancialRows.length) {
+                showProToast('No hay datos financieros para exportar.', true);
+                return;
+            }
+            const filtro = document.getElementById('admin-fin-pago-filter')?.value || 'Todos';
+            const header = ['Profesional', 'Correo', 'Tarifa_COP', 'Sesiones', 'Monto_COP', 'Filtro_Estado'];
+            const lines = [
+                header.join(','),
+                ...latestFinancialRows.map((r) => [
+                    `"${String(r.profesional).replace(/"/g, '""')}"`,
+                    `"${String(r.correo).replace(/"/g, '""')}"`,
+                    r.tarifa_cop,
+                    r.sesiones,
+                    r.total_cop,
+                    `"${filtro.replace(/"/g, '""')}"`
+                ].join(','))
+            ];
+            const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `liquidacion-serena-mente-${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showProToast('Archivo CSV descargado.');
+        }
+
+        function renderAdminPsychologists() {
+            const container = document.getElementById('admin-psychologists-container');
+            if (!adminPsychologists.length) {
+                container.innerHTML = '<p class="text-xs text-slate-500">No hay psicólogos registrados.</p>';
+                return;
+            }
+
+            container.innerHTML = adminPsychologists.map((p) => {
+                const isMainAdmin = String(p.email || '').trim().toLowerCase() === COORDINACION_EMAIL;
+                const safeId = escapeHtml(p.id);
+                const safeEmail = escapeHtml(p.email || '');
+                const safePerfilId = escapeHtml(p.perfil_id || '');
+                const tarifaTexto = escapeHtml(formatCop(p.tarifa_cop, DEFAULT_TARIFA_COP));
+                return `
+                    <div class="border border-slate-200 bg-white rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="space-y-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-sm font-extrabold text-slate-900">${escapeHtml(p.nombre)}</span>
+                                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-serena-800 border border-emerald-200">${escapeHtml(p.area)}</span>
+                                <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-sky-50 text-serena-darkblue border border-sky-200">${tarifaTexto}</span>
+                                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${p.activo !== false ? 'bg-emerald-100 text-serena-900' : 'bg-slate-200 text-slate-700'}">
+                                    ${p.activo !== false ? 'Activo' : 'Inactivo'}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-600">Correo: <strong>${safeEmail}</strong></p>
+                            <p class="text-xs text-slate-500 line-clamp-2">${escapeHtml(p.modelo_trabajo || '')}</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" onclick="abrirEditarPsicologoAdmin('${safeId}')" class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs transition shadow-sm">
+                                Editar
+                            </button>
+                            ${isMainAdmin ? '' : `
+                                <button type="button" onclick="eliminarPsicologoAdmin('${safeId}', '${safeEmail}', '${safePerfilId}')" class="bg-white hover:bg-red-50 text-red-700 border border-red-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                    Eliminar
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function abrirEditarPsicologoAdmin(id) {
+            const p = adminPsychologists.find((item) => String(item.id) === String(id));
+            if (!p) return;
+            document.getElementById('edit-psi-id').value = p.id;
+            document.getElementById('edit-psi-nombre').value = p.nombre || '';
+            document.getElementById('edit-psi-email').value = p.email || '';
+            document.getElementById('edit-psi-area').value = p.area || '';
+            document.getElementById('edit-psi-tarifa').value = p.tarifa_cop !== null && p.tarifa_cop !== undefined ? p.tarifa_cop : DEFAULT_TARIFA_COP;
+            document.getElementById('edit-psi-password').value = '';
+            document.getElementById('edit-psi-modelo').value = p.modelo_trabajo || '';
+            document.getElementById('edit-psi-activo').checked = p.activo !== false;
+            document.getElementById('modal-editar-psicologo').classList.remove('hidden');
+        }
+
+        function closeEditPsychologistModal() {
+            document.getElementById('modal-editar-psicologo').classList.add('hidden');
+        }
+
+        async function guardarEdicionPsicologoAdmin(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btn-guardar-edicion-psicologo');
+            const id = document.getElementById('edit-psi-id').value;
+            const nombre = document.getElementById('edit-psi-nombre').value.trim();
+            const email = document.getElementById('edit-psi-email').value.trim().toLowerCase();
+            const area = document.getElementById('edit-psi-area').value.trim();
+            const tarifaRaw = document.getElementById('edit-psi-tarifa').value;
+            const tarifaCop = tarifaRaw === '' ? DEFAULT_TARIFA_COP : Math.max(0, Math.round(Number(tarifaRaw)));
+            const password = document.getElementById('edit-psi-password').value;
+            const modeloTrabajo = document.getElementById('edit-psi-modelo').value.trim();
+            const activo = document.getElementById('edit-psi-activo').checked;
+
+            if (!id || !nombre || !email || !area || !modeloTrabajo || !Number.isFinite(tarifaCop)) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            const { data, error } = await supabaseClient.functions.invoke(ADMIN_EDGE_FUNCTION, {
+                body: {
+                    action: 'update_psychologist',
+                    id,
+                    nombre,
+                    email,
+                    area,
+                    tarifa_cop: tarifaCop,
+                    password: password || undefined,
+                    modelo_trabajo: modeloTrabajo,
+                    activo
+                }
+            });
+
+            if (!error && data?.ok === true) {
+                btn.disabled = false;
+                btn.textContent = 'Guardar cambios';
+                closeEditPsychologistModal();
+                await registrarBitacoraAdmin('Edición de psicólogo', `${nombre} (${email}) · Tarifa ${formatCop(tarifaCop)}.`);
+                await cargarDatosAdmin();
+                showProToast('Datos y tarifa del psicólogo actualizados.');
+                return;
+            }
+
+            const currentPsi = adminPsychologists.find((item) => String(item.id) === String(id));
+            const { error: directPsiErr } = await supabaseClient
+                .from('psicologos')
+                .update({
+                    nombre,
+                    email,
+                    area,
+                    tarifa_cop: tarifaCop,
+                    modelo_trabajo: modeloTrabajo,
+                    activo
+                })
+                .eq('id', id);
+
+            if (directPsiErr) {
+                btn.disabled = false;
+                btn.textContent = 'Guardar cambios';
+                showProToast(data?.error || error?.message || directPsiErr.message || 'No se pudo actualizar el psicólogo.', true);
+                return;
+            }
+
+            if (currentPsi?.perfil_id) {
+                await supabaseClient
+                    .from('perfiles')
+                    .update({
+                        nombre_completo: nombre,
+                        email
+                    })
+                    .eq('id', currentPsi.perfil_id);
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Guardar cambios';
+            closeEditPsychologistModal();
+            await registrarBitacoraAdmin('Edición de psicólogo', `${nombre} (${email}) · Tarifa ${formatCop(tarifaCop)}.`);
+            await cargarDatosAdmin();
+            showProToast('Datos y tarifa del psicólogo actualizados.');
+        }
+
+        async function crearPsicologoAdmin(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btn-crear-psicologo');
+            const nombre = document.getElementById('admin-psi-nombre').value.trim();
+            const email = document.getElementById('admin-psi-email').value.trim().toLowerCase();
+            const password = document.getElementById('admin-psi-password').value;
+            const area = document.getElementById('admin-psi-area').value.trim();
+            const tarifaRaw = document.getElementById('admin-psi-tarifa').value;
+            const tarifaCop = tarifaRaw === '' ? DEFAULT_TARIFA_COP : Math.max(0, Math.round(Number(tarifaRaw)));
+            const modeloTrabajo = document.getElementById('admin-psi-modelo').value.trim();
+
+            if (!nombre || !email || !password || !area || !modeloTrabajo || !Number.isFinite(tarifaCop)) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Creando psicólogo...';
+
+            const { data, error } = await supabaseClient.functions.invoke(ADMIN_EDGE_FUNCTION, {
+                body: {
+                    action: 'create_psychologist',
+                    nombre,
+                    email,
+                    password,
+                    area,
+                    tarifa_cop: tarifaCop,
+                    modelo_trabajo: modeloTrabajo
+                }
+            });
+
+            if (error || data?.ok !== true || !data?.user_id) {
+                btn.disabled = false;
+                btn.textContent = 'Crear psicólogo y asignar correo';
+                showProToast(
+                    data?.error || error?.message || 'No se pudo crear el psicólogo ni su acceso en Auth.',
+                    true
+                );
+                return;
+            }
+
+            await cargarDatosAdmin();
+
+            const createdInList = adminPsychologists.some(
+                (item) => String(item.email || '').trim().toLowerCase() === email
+            );
+
+            btn.disabled = false;
+            btn.textContent = 'Crear psicólogo y asignar correo';
+
+            if (!createdInList) {
+                showProToast(
+                    'La función respondió pero el registro no aparece en psicologos; revisa políticas RLS o logs de admin-psicologos.',
+                    true
+                );
+                return;
+            }
+
+            await registrarBitacoraAdmin('Alta de psicólogo', `Se creó ${nombre} (${email}) con tarifa ${formatCop(tarifaCop)}.`);
+            document.getElementById('form-crear-psicologo').reset();
+            document.getElementById('admin-psi-tarifa').value = DEFAULT_TARIFA_COP;
+            showProToast(`Psicólogo ${nombre} creado con tarifa ${formatCop(tarifaCop)}.`);
+        }
+
+        async function eliminarPsicologoAdmin(id, email, perfilId) {
+            if (!confirm(`¿Eliminar al psicólogo ${email} y revocar su acceso?`)) return;
+
+            const { data, error } = await supabaseClient.functions.invoke(ADMIN_EDGE_FUNCTION, {
+                body: {
+                    action: 'delete_psychologist',
+                    id,
+                    email,
+                    perfil_id: perfilId || null
+                }
+            });
+
+            if (!error && data?.ok === true) {
+                await registrarBitacoraAdmin('Eliminación de psicólogo', `Se eliminó el profesional ${email}.`);
+                await cargarDatosAdmin();
+                showProToast('Psicólogo eliminado correctamente.');
+                return;
+            }
+
+            let query = supabaseClient.from('psicologos').delete();
+            query = id ? query.eq('id', id) : query.ilike('email', String(email || '').trim());
+
+            const { error: directDelErr } = await query;
+
+            if (!directDelErr) {
+                await registrarBitacoraAdmin('Eliminación de psicólogo', `Se eliminó el profesional ${email}.`);
+                await cargarDatosAdmin();
+                showProToast('Psicólogo eliminado correctamente.');
+                return;
+            }
+
+            let deactivateQuery = supabaseClient.from('psicologos').update({ activo: false });
+            deactivateQuery = id
+                ? deactivateQuery.eq('id', id)
+                : deactivateQuery.ilike('email', String(email || '').trim());
+
+            const { error: deactErr } = await deactivateQuery;
+
+            await cargarDatosAdmin();
+
+            if (!deactErr) {
+                await registrarBitacoraAdmin('Desactivación de psicólogo', `Se marcó como Inactivo a ${email}.`);
+                showProToast('El psicólogo tenía registros vinculados y se marcó como Inactivo.');
+                return;
+            }
+
+            showProToast(
+                data?.error || error?.message || directDelErr.message || deactErr.message || 'No se pudo eliminar el psicólogo.',
+                true
+            );
+        }
+
+        async function guardarConfiguracionPlataforma(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btn-guardar-config');
+
+            const entries = [
+                { clave: 'tarifa_consulta', valor: document.getElementById('cfg-tarifa').value.trim() },
+                { clave: 'horario_atencion', valor: document.getElementById('cfg-horario').value.trim() },
+                { clave: 'cuenta_pago', valor: document.getElementById('cfg-cuenta').value.trim() },
+                { clave: 'correo_coordinacion', valor: document.getElementById('cfg-correo-coord').value.trim().toLowerCase() },
+                { clave: 'terminos_condiciones', valor: document.getElementById('cfg-terminos').value }
+            ];
+
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            const { error } = await supabaseClient
+                .from('configuracion_plataforma')
+                .upsert(
+                    entries.map((e) => ({
+                        clave: e.clave,
+                        valor: e.valor,
+                        actualizado_en: new Date().toISOString()
+                    })),
+                    { onConflict: 'clave' }
+                );
+
+            btn.disabled = false;
+            btn.textContent = 'Guardar configuración y términos';
+
+            if (error) {
+                showProToast(`No se pudo guardar la configuración (${error.message}).`, true);
+                return;
+            }
+
+            await registrarBitacoraAdmin('Configuración global', 'Se actualizaron parámetros generales y Términos y Condiciones.');
+            await cargarDatosAdmin();
+            showProToast('Configuración y Términos y Condiciones actualizados.');
+        }
+
+        async function guardarContenidosPublicos(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btn-guardar-contenidos');
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            const rows = PUBLIC_CONTENT_KEYS.map((cfg) => ({
+                clave: cfg.key,
+                valor: (document.getElementById(cfg.id)?.value || '').trim(),
+                pagina: cfg.page,
+                descripcion: cfg.desc,
+                actualizado_en: new Date().toISOString()
+            }));
+
+            const { error } = await supabaseClient
+                .from('contenidos_plataforma')
+                .upsert(rows, { onConflict: 'clave' });
+
+            btn.disabled = false;
+            btn.textContent = 'Guardar contenidos públicos';
+
+            if (error) {
+                showProToast(`No se pudieron guardar los contenidos públicos (${error.message}).`, true);
+                return;
+            }
+
+            await registrarBitacoraAdmin('Contenidos públicos', 'Se actualizaron textos de páginas públicas en contenidos_plataforma.');
+            await cargarDatosAdmin();
+            showProToast('Contenidos públicos guardados.');
+        }
+
+        function renderAdminMailLog() {
+            const container = document.getElementById('admin-mail-log-container');
+            if (!container) return;
+            const filter = (document.getElementById('admin-mail-log-filter')?.value || '').trim().toLowerCase();
+
+            const list = mailLogRows.filter((m) => {
+                if (!filter) return true;
+                return [m.destinatario_email, m.codigo_caso].filter(Boolean).join(' ').toLowerCase().includes(filter);
+            });
+
+            if (!list.length) {
+                container.innerHTML = '<p class="text-slate-500">Sin registros de correos para mostrar.</p>';
+                return;
+            }
+
+            container.innerHTML = list.map((m) => {
+                const fecha = m.creado_en ? new Date(m.creado_en).toLocaleString('es-CO') : '';
+                return `
+                    <div class="border border-slate-100 bg-white rounded-xl p-2.5">
+                        <p class="font-bold text-slate-900">${escapeHtml(m.destinatario_email || 'Sin destinatario')}</p>
+                        <p class="text-slate-500">${m.codigo_caso ? `Ref: ${escapeHtml(m.codigo_caso)} · ` : ''}${escapeHtml(fecha)}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAdminAuditLog() {
+            const container = document.getElementById('admin-audit-log-container');
+            if (!container) return;
+
+            if (!auditLogRows.length) {
+                container.innerHTML = '<p class="text-slate-500">Aún no hay eventos registrados en bitacora_admin.</p>';
+                return;
+            }
+
+            container.innerHTML = auditLogRows.map((item) => {
+                const fecha = item.creado_en ? new Date(item.creado_en).toLocaleString('es-CO') : '';
+                return `
+                    <div class="border border-slate-100 bg-white rounded-xl p-2.5">
+                        <p class="font-bold text-slate-900">${escapeHtml(item.accion || 'Evento')}</p>
+                        <p class="text-slate-600">${escapeHtml(item.detalle || '')}</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(item.actor_email || '')} · ${escapeHtml(fecha)}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAppointmentsTable() {
+            const container = document.getElementById('pro-appointments-container');
+            const query = (document.getElementById('pro-search')?.value || '').trim().toLowerCase();
+            const pagoFilter = document.getElementById('pro-filter-pago')?.value || '';
+            const tipoFilter = document.getElementById('pro-filter-tipo')?.value || '';
+
+            const filtered = proAppointments.filter((a) => {
+                if (pagoFilter && (a.estado_pago || 'Pendiente') !== pagoFilter) {
+                    return false;
+                }
+                if (tipoFilter && normalizeOrientationLabel(a.tipo_caso) !== tipoFilter) {
+                    return false;
+                }
+                if (!query) return true;
+                const hay = [
+                    a.codigo_caso,
+                    a.nombre_consultante,
+                    a.correo_consultante,
+                    a.telefono_consultante,
+                    a.tipo_caso,
+                    a.psicologo_nombre,
+                    a.estado_pago
+                ].filter(Boolean).join(' ').toLowerCase();
+                return hay.includes(query);
+            });
+
+            if (!filtered.length) {
+                container.innerHTML = '<p class="text-sm text-slate-500">No hay citas o casos que coincidan con el filtro.</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map((appt) => {
+                const id = String(appt.id);
+                const safeId = escapeHtml(id);
+                const code = escapeHtml(appt.codigo_caso || 'Sin código');
+                const clientName = escapeHtml(appt.nombre_consultante || 'Consultante');
+                const clientEmail = escapeHtml(appt.correo_consultante || '');
+                const clientPhone = escapeHtml(appt.telefono_consultante || '');
+                const proName = escapeHtml(appt.psicologo_nombre || 'Profesional');
+                const fecha = escapeHtml(appt.fecha_sesion || 'Por confirmar');
+                const hora = escapeHtml(appt.hora_sesion || '');
+                const tipo = escapeHtml(normalizeOrientationLabel(appt.tipo_caso));
+                const pagoActual = escapeHtml(appt.estado_pago || 'Pendiente');
+                const meetActual = escapeHtml(appt.enlace_meet || '');
+                const tieneConsent = Boolean(appt.consentimiento_firmado || appt.consentimiento_aceptado);
+                const tieneHcCompleta = Boolean(
+                    appt.discurso_relato || appt.observacion_clinica || appt.documento_o_nit || appt.edad_o_cargo
+                );
+
+                return `
+                    <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 sm:p-5 space-y-4">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-xs font-bold uppercase text-serena-700">Ref: ${code}</span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-serena-800 border border-emerald-200">${tipo}</span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneHcCompleta ? 'bg-sky-50 text-serena-darkblue border border-sky-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}">
+                                        ${tieneHcCompleta ? 'Historia clínica diligenciada' : 'Historia clínica por diligenciar'}
+                                    </span>
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${tieneConsent ? 'bg-emerald-100 text-serena-900' : 'bg-amber-100 text-amber-900'}">
+                                        ${tieneConsent ? 'Consentimiento firmado' : 'Consentimiento pendiente'}
+                                    </span>
+                                </div>
+                                <p class="text-base font-extrabold text-slate-900 mt-1">${clientName}</p>
+                                <p class="text-xs text-slate-600">
+                                    ${clientEmail ? `Correo: <strong>${clientEmail}</strong>` : 'Sin correo registrado'}
+                                    ${clientPhone ? ` · Tel: ${clientPhone}` : ''}
+                                    · Profesional: <strong>${proName}</strong>
+                                </p>
+                                <p class="text-xs text-slate-500 mt-0.5">Fecha/Hora: ${fecha} ${hora}</p>
+                            </div>
+                            <span class="self-start lg:self-auto text-xs font-bold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-800">
+                                Pago: ${pagoActual}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Estado de pago (editable en cualquier momento)</label>
+                                <select id="pro-pago-${safeId}" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                                    <option value="Pendiente" ${pagoActual === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                                    <option value="En revisión" ${pagoActual === 'En revisión' ? 'selected' : ''}>En revisión</option>
+                                    <option value="Pagado" ${pagoActual === 'Pagado' ? 'selected' : ''}>Pagado</option>
+                                    <option value="Confirmado" ${pagoActual === 'Confirmado' ? 'selected' : ''}>Confirmado</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Enlace Google Meet (https://)</label>
+                                <input id="pro-meet-${safeId}" type="url" value="${meetActual}" placeholder="https://meet.google.com/..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm">
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
+                            <button type="button" onclick="guardarCambiosRapidosCita('${safeId}', true)" class="bg-serena-600 hover:bg-serena-700 text-white font-semibold px-4 py-2 rounded-xl text-xs transition">
+                                Guardar y notificar por correo
+                            </button>
+                            <button type="button" onclick="guardarCambiosRapidosCita('${safeId}', false)" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                Guardar sin correo
+                            </button>
+                            <button type="button" onclick="openCaseModal('${safeId}')" class="bg-serena-50 hover:bg-serena-100 text-serena-900 border border-emerald-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                Historia clínica / editar cita
+                            </button>
+                            <button type="button" onclick="irAEvolucionCaso('${safeId}')" class="bg-white hover:bg-slate-100 text-serena-800 border border-emerald-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                Evolución / seguimiento
+                            </button>
+                            ${appt.consentimiento_firmado ? `
+                                <button type="button" onclick="openConsentModalByRef('${escapeHtml(appt.codigo_caso || '')}')" class="bg-emerald-50 hover:bg-emerald-100 text-serena-900 border border-emerald-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                    Ver consentimiento
+                                </button>
+                            ` : ''}
+                            <button type="button" onclick="openEmailModal('${clientEmail}', 'Actualización de tu sesión (${code}) — Serena Mente', '')" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition">
+                                Enviar correo
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function guardarCambiosRapidosCita(idStr, notificar) {
+            const appt = proAppointments.find((a) => String(a.id) === String(idStr));
+            if (!appt) return;
+
+            const nuevoPago = document.getElementById(`pro-pago-${idStr}`)?.value || 'Pendiente';
+            const nuevoMeet = (document.getElementById(`pro-meet-${idStr}`)?.value || '').trim();
+
+            if (nuevoMeet && !isSafeHttpUrl(nuevoMeet)) {
+                showProToast('Ingresa un enlace válido que comience por https://.', true);
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from('historias_clinicas')
+                .update({
+                    estado_pago: nuevoPago,
+                    enlace_meet: nuevoMeet || null,
+                    link_meet: nuevoMeet || null,
+                    actualizado_en: new Date().toISOString()
+                })
+                .eq('id', appt.id);
+
+            if (error) {
+                showProToast(`No se pudo guardar (${error.message}).`, true);
+                return;
+            }
+
+            let mailOk = true;
+            if (notificar) {
+                mailOk = await enviarNotificacionProfesional({
+                    clientEmail: appt.correo_consultante || '',
+                    codigoCaso: appt.codigo_caso || '',
+                    historiaClinicaId: appt.id,
+                    subject: `Actualización de tu cita (${appt.codigo_caso || 'Serena Mente'}) — Serena Mente`,
+                    title: 'Actualización de tu sesión en Serena Mente',
+                    subtitle: 'Se han actualizado los datos de tu cita o acceso a sesión.',
+                    rows: [
+                        { label: 'Consultante', value: appt.nombre_consultante || appt.correo_consultante || 'N/A' },
+                        { label: 'Orientación', value: normalizeOrientationLabel(appt.tipo_caso) },
+                        { label: 'Código / Referencia', value: appt.codigo_caso || 'N/A' },
+                        { label: 'Profesional', value: appt.psicologo_nombre || 'Profesional asignado' },
+                        { label: 'Fecha / Hora', value: `${appt.fecha_sesion || 'Por confirmar'} ${appt.hora_sesion || ''}`.trim() },
+                        { label: 'Estado de pago', value: nuevoPago },
+                        { label: 'Enlace de sesión', value: nuevoMeet || 'Pendiente por asignar' }
+                    ]
+                });
+            }
+
+            await cargarDatosProfesional();
+            if (!notificar) {
+                showProToast('Cambios guardados en la historia clínica.');
+            } else {
+                showProToast(mailOk ? 'Cambios guardados y correo enviado.' : 'Cambios guardados; revisa el envío de correo.');
+            }
+        }
+
+        function openCaseModal(idStr) {
+            const modal = document.getElementById('modal-caso');
+            const titleEl = document.getElementById('modal-caso-title');
+            const subEl = document.getElementById('modal-caso-subtitle');
+
+            if (!idStr) {
+                titleEl.textContent = 'Nueva cita y formato de historia clínica';
+                subEl.innerHTML = 'Diligenciamiento obligatorio para citas agendadas por consultante o profesional en <code>historias_clinicas</code>.';
+                document.getElementById('caso-id').value = '';
+                document.getElementById('caso-tipo').value = 'Orientación individual';
+                document.getElementById('caso-codigo').value = '';
+                document.getElementById('caso-fecha').value = '';
+                document.getElementById('caso-hora').value = '';
+                document.getElementById('caso-estado-pago').value = 'Pendiente';
+                document.getElementById('caso-meet').value = '';
+                document.getElementById('caso-nombre-consultante').value = '';
+                document.getElementById('caso-cliente-email').value = '';
+                document.getElementById('caso-telefono').value = '';
+                document.getElementById('caso-documento-nit').value = '';
+                document.getElementById('caso-edad-cargo').value = '';
+                document.getElementById('caso-ciudad').value = '';
+                document.getElementById('caso-genero').value = '';
+                document.getElementById('caso-edad').value = '';
+                document.getElementById('caso-orientacion').value = '';
+                document.getElementById('caso-sueno-vigilia').value = '';
+                document.getElementById('caso-alimentacion').value = '';
+                document.getElementById('caso-discurso-relato').value = '';
+                document.getElementById('caso-observacion').value = '';
+                document.getElementById('caso-notificar').checked = true;
+            } else {
+                const appt = proAppointments.find((a) => String(a.id) === String(idStr));
+                if (!appt) return;
+                titleEl.textContent = `Historia clínica y cita · ${appt.codigo_caso || ''}`;
+                subEl.textContent = 'Diligenciamiento de historia clínica y datos de sesión.';
+                document.getElementById('caso-id').value = appt.id;
+                document.getElementById('caso-tipo').value = normalizeOrientationLabel(appt.tipo_caso);
+                document.getElementById('caso-codigo').value = appt.codigo_caso || '';
+                document.getElementById('caso-fecha').value = appt.fecha_sesion || '';
+                document.getElementById('caso-hora').value = appt.hora_sesion || '';
+                document.getElementById('caso-estado-pago').value = appt.estado_pago || 'Pendiente';
+                document.getElementById('caso-meet').value = appt.enlace_meet || '';
+                document.getElementById('caso-nombre-consultante').value = appt.nombre_consultante || '';
+                document.getElementById('caso-cliente-email').value = appt.correo_consultante || '';
+                document.getElementById('caso-telefono').value = appt.telefono_consultante || '';
+                document.getElementById('caso-documento-nit').value = appt.documento_o_nit || '';
+                document.getElementById('caso-edad-cargo').value = appt.edad_o_cargo || '';
+                document.getElementById('caso-ciudad').value = appt.ciudad || '';
+                document.getElementById('caso-genero').value = appt.genero || '';
+                document.getElementById('caso-edad').value = appt.edad || '';
+                document.getElementById('caso-orientacion').value = appt.orientacion_tlp || '';
+                document.getElementById('caso-sueno-vigilia').value = appt.sueno_vigilia || '';
+                document.getElementById('caso-alimentacion').value = appt.alimentacion || '';
+                document.getElementById('caso-discurso-relato').value = appt.discurso_relato || appt.discurso || '';
+                document.getElementById('caso-observacion').value = appt.observacion_clinica || '';
+                document.getElementById('caso-notificar').checked = true;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeCaseModal() {
+            document.getElementById('modal-caso').classList.add('hidden');
+        }
+
+        async function guardarCaso(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btn-guardar-caso');
+            const existingId = document.getElementById('caso-id').value.trim();
+            const tipoCaso = normalizeOrientationLabel(document.getElementById('caso-tipo').value);
+            const codigo = document.getElementById('caso-codigo').value.trim().toUpperCase();
+            const fechaSesion = document.getElementById('caso-fecha').value || null;
+            const horaSesion = document.getElementById('caso-hora').value.trim() || null;
+            const estadoPago = document.getElementById('caso-estado-pago').value || 'Pendiente';
+            const meetUrl = document.getElementById('caso-meet').value.trim();
+            const nombreConsultante = document.getElementById('caso-nombre-consultante').value.trim();
+            const clienteEmail = document.getElementById('caso-cliente-email').value.trim().toLowerCase();
+            const telefono = document.getElementById('caso-telefono').value.trim();
+            const documentoNit = document.getElementById('caso-documento-nit').value.trim();
+            const edadCargo = document.getElementById('caso-edad-cargo').value.trim();
+            const ciudad = document.getElementById('caso-ciudad').value.trim();
+            const genero = document.getElementById('caso-genero').value.trim();
+            const edad = document.getElementById('caso-edad').value.trim();
+            const orientacion = document.getElementById('caso-orientacion').value.trim();
+            const suenoVigilia = document.getElementById('caso-sueno-vigilia').value.trim();
+            const alimentacion = document.getElementById('caso-alimentacion').value.trim();
+            const discursoRelato = document.getElementById('caso-discurso-relato').value.trim();
+            const observacion = document.getElementById('caso-observacion').value.trim();
+            const notificar = document.getElementById('caso-notificar').checked;
+
+            if (meetUrl && !isSafeHttpUrl(meetUrl)) {
+                showProToast('El enlace de Meet debe comenzar con https://.', true);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            const currentAppt = existingId
+                ? proAppointments.find((a) => String(a.id) === String(existingId))
+                : null;
+
+            const nextDetalleJson = {
+                ...(currentAppt?.detalle_clinico_json || {}),
+                linea_orientacion: tipoCaso,
+                documento_o_nit: documentoNit || null,
+                edad_o_cargo: edadCargo || null
+            };
+
+            const payload = {
+                tipo_caso: tipoCaso,
+                codigo_caso: codigo,
+                fecha_sesion: fechaSesion,
+                hora_sesion: horaSesion,
+                estado_pago: estadoPago,
+                enlace_meet: meetUrl || null,
+                link_meet: meetUrl || null,
+                nombre_consultante: nombreConsultante,
+                cliente_email: clienteEmail,
+                telefono_consultante: telefono || null,
+                documento_o_nit: documentoNit || null,
+                edad_o_cargo: edadCargo || null,
+                ciudad: ciudad || null,
+                genero: genero || null,
+                edad: edad || null,
+                orientacion_tlp: orientacion || null,
+                sueno_vigilia: suenoVigilia || null,
+                alimentacion: alimentacion || null,
+                discurso_relato: discursoRelato || null,
+                discurso: discursoRelato || null,
+                observacion_clinica: observacion || null,
+                detalle_clinico_json: nextDetalleJson,
+                actualizado_en: new Date().toISOString()
+            };
+
+            let savedRecord = null;
+            let dbError = null;
+
+            if (existingId) {
+                const { data, error } = await supabaseClient
+                    .from('historias_clinicas')
+                    .update(payload)
+                    .eq('id', existingId)
+                    .select()
+                    .single();
+                savedRecord = data;
+                dbError = error;
+            } else {
+                const { data, error } = await supabaseClient
+                    .from('historias_clinicas')
+                    .insert({
+                        ...payload,
+                        psicologo_id: proUser?.id || null
+                    })
+                    .select()
+                    .single();
+                savedRecord = data;
+                dbError = error;
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Guardar historia clínica y cita';
+
+            if (dbError) {
+                showProToast(`Error al guardar la historia clínica (${dbError.message}).`, true);
+                return;
+            }
+
+            if (notificar) {
+                await enviarNotificacionProfesional({
+                    clientEmail: clienteEmail,
+                    codigoCaso: codigo,
+                    historiaClinicaId: savedRecord?.id || existingId || null,
+                    subject: `${existingId ? 'Actualización de cita' : 'Programación de cita'} (${codigo}) — Serena Mente`,
+                    title: existingId ? 'Actualización de tu cita y registro' : 'Nueva cita programada en Serena Mente',
+                    subtitle: 'Estos son los datos vigentes de tu sesión:',
+                    rows: [
+                        { label: 'Consultante / Entidad', value: nombreConsultante },
+                        { label: 'Línea de orientación', value: tipoCaso },
+                        { label: 'Código / Referencia', value: codigo },
+                        { label: 'Profesional', value: proProfile?.nombre_completo || 'Profesional asignado' },
+                        { label: 'Fecha / Hora', value: `${fechaSesion || 'Por confirmar'} ${horaSesion || ''}`.trim() },
+                        { label: 'Estado de pago', value: estadoPago },
+                        { label: 'Enlace de sesión', value: meetUrl || 'Pendiente por asignar' }
+                    ]
+                });
+            }
+
+            closeCaseModal();
+            await cargarDatosProfesional();
+            showProToast(existingId ? 'Historia clínica y cita actualizadas.' : 'Cita e historia clínica guardadas.');
+        }
+
+        function renderScheduleSlots() {
+            const container = document.getElementById('pro-agenda-container');
+            if (!proScheduleSlots.length) {
+                container.innerHTML = '<p class="text-xs text-slate-500">Aún no hay franjas puntuales de disponibilidad u ocupación registradas.</p>';
+                return;
+            }
+
+            container.innerHTML = proScheduleSlots.map((slot) => {
+                const safeId = escapeHtml(slot.id);
+                const estadoActual = slot.estado || 'Disponible';
+                const badgeClass = estadoActual.toLowerCase().includes('dispon')
+                    ? 'bg-emerald-100 text-serena-900 border-emerald-300'
+                    : 'bg-amber-100 text-amber-900 border-amber-300';
+
+                return `
+                    <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">${escapeHtml(slot.fecha || 'Sin fecha')} · <span class="text-serena-700">${escapeHtml(slot.hora || 'Sin hora')}</span></p>
+                            <p class="text-xs text-slate-600">${escapeHtml(slot.nota || 'Sin observación')}${slot.psicologo_nombre ? ` · Profesional: ${escapeHtml(slot.psicologo_nombre)}` : ''}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold px-3 py-1 rounded-full border ${badgeClass}">${escapeHtml(estadoActual)}</span>
+                            <select onchange="cambiarEstadoFranja('${safeId}', this.value)" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs">
+                                <option value="Disponible" ${estadoActual === 'Disponible' ? 'selected' : ''}>Disponible</option>
+                                <option value="Ocupado" ${estadoActual === 'Ocupado' ? 'selected' : ''}>Ocupado</option>
+                                <option value="Reservado" ${estadoActual === 'Reservado' ? 'selected' : ''}>Reservado</option>
+                                <option value="Bloqueado" ${estadoActual === 'Bloqueado' ? 'selected' : ''}>Bloqueado</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function guardarFranjaAgenda(event) {
+            event.preventDefault();
+            const fecha = document.getElementById('agenda-fecha').value;
+            const hora = document.getElementById('agenda-hora').value.trim();
+            const estado = document.getElementById('agenda-estado').value;
+            const nota = document.getElementById('agenda-nota').value.trim();
+
+            if (!fecha || !hora) return;
+
+            const targetCase = proAppointments.find((a) => String(a.psicologo_id) === String(proUser?.id)) || proAppointments[0];
+            if (targetCase) {
+                const actualDisp = Array.isArray(targetCase.detalle_clinico_json?.disponibilidad)
+                    ? targetCase.detalle_clinico_json.disponibilidad
+                    : [];
+                const nextDisp = [...actualDisp, { fecha, hora, estado, nota }];
+                const nextJson = {
+                    ...(targetCase.detalle_clinico_json || {}),
+                    disponibilidad: nextDisp
+                };
+
+                const { error } = await supabaseClient
+                    .from('historias_clinicas')
+                    .update({
+                        detalle_clinico_json: nextJson,
+                        actualizado_en: new Date().toISOString()
+                    })
+                    .eq('id', targetCase.id);
+
+                if (error) {
+                    showProToast(`No se pudo guardar el horario (${error.message}).`, true);
+                    return;
+                }
+            } else {
+                const isoDate = new Date(`${fecha}T12:00:00`).toISOString();
+                const { error } = await supabaseClient
+                    .from('appointments')
+                    .insert({
+                        psychologist_id: proUser?.id || null,
+                        scheduled_at: isoDate,
+                        duration_minutes: 60,
+                        status: estado,
+                        notes: `${hora}${nota ? ` · ${nota}` : ''}`
+                    });
+
+                if (error) {
+                    showProToast(`No se pudo guardar el horario (${error.message}).`, true);
+                    return;
+                }
+            }
+
+            document.getElementById('agenda-hora').value = '';
+            document.getElementById('agenda-nota').value = '';
+            await cargarDatosProfesional();
+            showProToast('Horario guardado en la agenda.');
+        }
+
+        async function cambiarEstadoFranja(slotId, nuevoEstado) {
+            const slot = proScheduleSlots.find((s) => String(s.id) === String(slotId));
+            if (!slot) return;
+
+            if (slot.source === 'appointments') {
+                const { error } = await supabaseClient
+                    .from('appointments')
+                    .update({ status: nuevoEstado })
+                    .eq('id', slot.id);
+
+                if (error) {
+                    showProToast(`No se pudo actualizar (${error.message}).`, true);
+                    return;
+                }
+            } else if (slot.source === 'hc') {
+                const hc = proAppointments.find((a) => String(a.id) === String(slot.hcId));
+                if (!hc) return;
+                const nextDisp = [...(hc.detalle_clinico_json?.disponibilidad || [])];
+                if (nextDisp[slot.idx]) {
+                    nextDisp[slot.idx] = { ...nextDisp[slot.idx], estado: nuevoEstado };
+                }
+                const { error } = await supabaseClient
+                    .from('historias_clinicas')
+                    .update({
+                        detalle_clinico_json: {
+                            ...(hc.detalle_clinico_json || {}),
+                            disponibilidad: nextDisp
+                        },
+                        actualizado_en: new Date().toISOString()
+                    })
+                    .eq('id', hc.id);
+
+                if (error) {
+                    showProToast(`No se pudo actualizar (${error.message}).`, true);
+                    return;
+                }
+            }
+
+            await cargarDatosProfesional();
+            showProToast(`Horario marcado como ${nuevoEstado}.`);
+        }
+
+        function populateEvolutionSelect() {
+            const select = document.getElementById('evo-select-caso');
+            if (!select) return;
+            const currentVal = select.value;
+
+            select.innerHTML = '<option value="">Selecciona un consultante / caso...</option>' + proAppointments.map((a) => {
+                const label = `${a.codigo_caso || 'Sin código'} — ${a.nombre_consultante || a.correo_consultante || 'Consultante'}`;
+                return `<option value="${escapeHtml(a.id)}">${escapeHtml(label)}</option>`;
+            }).join('');
+
+            if (currentVal && proAppointments.some((a) => String(a.id) === String(currentVal))) {
+                select.value = currentVal;
+            } else if (proAppointments.length > 0) {
+                select.value = String(proAppointments[0].id);
+            }
+        }
+
+        function irAEvolucionCaso(idStr) {
+            switchProTab('evolucion');
+            const select = document.getElementById('evo-select-caso');
+            if (select) {
+                select.value = String(idStr);
+                renderEvolucionCaso();
+            }
+        }
+
+        function renderEvolucionCaso() {
+            const select = document.getElementById('evo-select-caso');
+            const container = document.getElementById('evo-historial-container');
+            if (!select || !container) return;
+
+            const appt = proAppointments.find((a) => String(a.id) === String(select.value));
+            if (!appt) {
+                container.innerHTML = '<p class="text-sm text-slate-500">Selecciona un caso para ver su seguimiento y notas de evolución.</p>';
+                return;
+            }
+
+            const notasArr = Array.isArray(appt.detalle_clinico_json?.evoluciones)
+                ? appt.detalle_clinico_json.evoluciones
+                : [];
+
+            const notasHtml = notasArr.length
+                ? notasArr.slice().reverse().map((n) => `
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-1.5">
+                        <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <span class="font-bold text-serena-700">${escapeHtml(n.titulo || 'Nota de evolución')}</span>
+                            <span class="text-slate-500">${escapeHtml(n.fecha || '')} · ${escapeHtml(n.profesional || appt.psicologo_nombre || '')}</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-700 whitespace-pre-line">${escapeHtml(n.texto || '')}</p>
+                    </div>
+                `).join('')
+                : '<p class="text-xs text-slate-500 bg-white border border-slate-200 rounded-2xl p-4">Aún no hay notas de evolución registradas en el seguimiento de este caso.</p>';
+
+            container.innerHTML = `
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <p class="text-xs font-bold uppercase text-serena-700">Seguimiento del caso · ${escapeHtml(appt.codigo_caso || '')}</p>
+                        <button type="button" onclick="openCaseModal('${escapeHtml(appt.id)}')" class="text-xs font-semibold text-serena-700 hover:underline">
+                            Abrir / editar historia clínica
+                        </button>
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900">${escapeHtml(appt.nombre_consultante || 'Consultante')}</h3>
+                    <p class="text-xs text-slate-600">Línea: <strong>${escapeHtml(normalizeOrientationLabel(appt.tipo_caso))}</strong> · Correo: ${escapeHtml(appt.correo_consultante || 'N/A')} · Pago: ${escapeHtml(appt.estado_pago || 'Pendiente')}</p>
+                    ${appt.documento_o_nit || appt.edad_o_cargo ? `<p class="text-xs text-slate-600">Doc/NIT: ${escapeHtml(appt.documento_o_nit || 'N/A')} · Edad/Cargo: ${escapeHtml(appt.edad_o_cargo || 'N/A')}</p>` : ''}
+                    ${appt.discurso_relato ? `<p class="text-xs text-slate-600 pt-1"><strong>Relato / motivo:</strong> ${escapeHtml(appt.discurso_relato)}</p>` : ''}
+                    ${appt.observacion_clinica ? `<p class="text-xs text-slate-600 pt-1"><strong>Observación clínica:</strong> ${escapeHtml(appt.observacion_clinica)}</p>` : ''}
+                </div>
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600">Historial de evolución</h4>
+                    ${notasHtml}
+                </div>
+            `;
+        }
+
+        async function guardarNotaEvolucion(event) {
+            event.preventDefault();
+            const select = document.getElementById('evo-select-caso');
+            const appt = proAppointments.find((a) => String(a.id) === String(select?.value));
+            if (!appt) {
+                showProToast('Selecciona primero un consultante/caso.', true);
+                return;
+            }
+
+            const fecha = document.getElementById('evo-fecha').value || new Date().toISOString().slice(0, 10);
+            const titulo = document.getElementById('evo-titulo').value.trim() || 'Nota de evolución';
+            const texto = document.getElementById('evo-texto').value.trim();
+            if (!texto) return;
+
+            const actualEvoluciones = Array.isArray(appt.detalle_clinico_json?.evoluciones)
+                ? appt.detalle_clinico_json.evoluciones
+                : [];
+
+            const nuevaNota = {
+                fecha,
+                titulo,
+                texto,
+                profesional: proProfile?.nombre_completo || appt.psicologo_nombre || 'Profesional',
+                registrado_en: new Date().toISOString()
+            };
+
+            const nextEvoluciones = [...actualEvoluciones, nuevaNota];
+            const resumenTexto = nextEvoluciones
+                .map((n) => `[${n.fecha}] ${n.titulo}: ${n.texto}`)
+                .join('\n\n');
+
+            const { error } = await supabaseClient
+                .from('historias_clinicas')
+                .update({
+                    detalle_clinico_json: {
+                        ...(appt.detalle_clinico_json || {}),
+                        evoluciones: nextEvoluciones
+                    },
+                    notas_clinicas: resumenTexto,
+                    actualizado_en: new Date().toISOString()
+                })
+                .eq('id', appt.id);
+
+            if (error) {
+                showProToast(`No se pudo guardar la nota (${error.message}).`, true);
+                return;
+            }
+
+            document.getElementById('evo-titulo').value = '';
+            document.getElementById('evo-texto').value = '';
+            await cargarDatosProfesional();
+            document.getElementById('evo-select-caso').value = String(appt.id);
+            renderEvolucionCaso();
+            showProToast('Nota de evolución guardada.');
+        }
+
+        function renderConsentsList() {
+            const container = document.getElementById('pro-consents-container');
+            if (!proConsents.length) {
+                container.innerHTML = '<p class="text-xs text-slate-500">Aún no hay consentimientos firmados registrados.</p>';
+                return;
+            }
+
+            container.innerHTML = proConsents.map((c) => {
+                const fechaFirma = c.signed_at ? new Date(c.signed_at).toLocaleString('es-CO') : 'Sin fecha';
+                return `
+                    <div class="border border-slate-200 bg-slate-50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+                        <div>
+                            <p class="font-bold text-slate-900 text-sm">${escapeHtml(c.patient_full_name || 'Consultante')} · <span class="text-serena-700">${escapeHtml(c.appointment_reference || '')}</span></p>
+                            <p class="text-slate-600">Doc: ${escapeHtml(c.patient_document || 'N/A')} · Correo: ${escapeHtml(c.patient_email || 'N/A')} · Tel: ${escapeHtml(c.patient_phone || 'N/A')}</p>
+                            <p class="text-slate-500 mt-0.5">Firmado: ${escapeHtml(fechaFirma)}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${c.is_minor ? '<span class="inline-block bg-amber-100 text-amber-900 font-bold px-2.5 py-1 rounded-full">NNA</span>' : ''}
+                            <button type="button" onclick="openConsentModalById('${escapeHtml(c.id)}')" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-semibold px-3.5 py-2 rounded-xl transition">
+                                Ver documento y firmas
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openConsentModalById(consentId) {
+            const c = proConsents.find((item) => String(item.id) === String(consentId));
+            if (c) renderConsentModal(c);
+        }
+
+        function openConsentModalByRef(refCode) {
+            const key = String(refCode || '').trim().toUpperCase();
+            const c = proConsents.find((item) => String(item.appointment_reference || '').trim().toUpperCase() === key);
+            if (!c) {
+                showProToast('No se encontró el registro detallado en informed_consents.', true);
+                return;
+            }
+            renderConsentModal(c);
+        }
+
+        function renderConsentModal(c) {
+            const modal = document.getElementById('modal-consentimiento');
+            const sub = document.getElementById('consent-modal-sub');
+            const body = document.getElementById('consent-modal-body');
+
+            sub.textContent = `Referencia: ${c.appointment_reference || 'N/A'} · Firmado: ${c.signed_at ? new Date(c.signed_at).toLocaleString('es-CO') : 'N/A'}`;
+
+            const guardianBlock = c.is_minor
+                ? `
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-1 text-xs">
+                        <p class="font-bold text-amber-900 uppercase">Acudiente / Representante Legal (NNA)</p>
+                        <p><strong>Nombre:</strong> ${escapeHtml(c.guardian_name || 'N/A')} · <strong>Documento:</strong> ${escapeHtml(c.guardian_document || 'N/A')}</p>
+                        <p><strong>Parentesco:</strong> ${escapeHtml(c.guardian_relationship || 'N/A')} · <strong>Teléfono:</strong> ${escapeHtml(c.guardian_phone || 'N/A')}</p>
+                    </div>
+                `
+                : '';
+
+            const sigImages = [
+                c.signature_data_url ? { label: 'Firma consultante', src: c.signature_data_url } : null,
+                c.guardian_signature_data_url ? { label: 'Firma acudiente / representante', src: c.guardian_signature_data_url } : null,
+                c.minor_assent_signature_data_url ? { label: 'Asentimiento / firma NNA', src: c.minor_assent_signature_data_url } : null
+            ].filter(Boolean);
+
+            const sigHtml = sigImages.length
+                ? `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        ${sigImages.map((s) => `
+                            <div class="border border-slate-200 rounded-2xl p-3 bg-slate-50 space-y-2">
+                                <p class="text-xs font-bold text-slate-700">${escapeHtml(s.label)}</p>
+                                <img src="${escapeHtml(s.src)}" alt="${escapeHtml(s.label)}" class="max-h-32 w-auto bg-white border border-slate-200 rounded-xl p-2">
+                            </div>
+                        `).join('')}
+                    </div>
+                `
+                : '<p class="text-xs text-slate-500">Sin imágenes de firma registradas.</p>';
+
+            body.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs">
+                    <p><strong>Consultante:</strong> ${escapeHtml(c.patient_full_name || 'N/A')}</p>
+                    <p><strong>Documento:</strong> ${escapeHtml(c.patient_document || 'N/A')}</p>
+                    <p><strong>Correo:</strong> ${escapeHtml(c.patient_email || 'N/A')}</p>
+                    <p><strong>Teléfono:</strong> ${escapeHtml(c.patient_phone || 'N/A')}</p>
+                    <p><strong>Edad / F. Nac.:</strong> ${escapeHtml(c.patient_age || 'N/A')} años (${escapeHtml(c.patient_birthdate || 'N/A')})</p>
+                    <p><strong>Ciudad / Dirección:</strong> ${escapeHtml(c.patient_city || 'N/A')} · ${escapeHtml(c.patient_address || 'N/A')}</p>
+                    <p class="sm:col-span-2"><strong>Emergencia:</strong> ${escapeHtml(c.emergency_contact_name || 'N/A')} (${escapeHtml(c.emergency_contact_relationship || 'N/A')}) · ${escapeHtml(c.emergency_contact_phone || 'N/A')}</p>
+                </div>
+                ${guardianBlock}
+                <div class="space-y-2">
+                    <p class="text-xs font-bold uppercase text-slate-700">Firmas registradas</p>
+                    ${sigHtml}
+                </div>
+                ${c.consent_document_html ? `
+                    <div class="space-y-1.5">
+                        <p class="text-xs font-bold uppercase text-slate-700">Texto del consentimiento informado</p>
+                        <div class="max-h-64 overflow-y-auto bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs whitespace-pre-line">${escapeHtml(c.consent_document_html)}</div>
+                    </div>
+                ` : ''}
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeConsentModal() {
+            document.getElementById('modal-consentimiento').classList.add('hidden');
+        }
+
+        function openEmailModal(toEmail, subject, bodyText) {
+            document.getElementById('mail-to').value = toEmail || '';
+            document.getElementById('mail-subject').value = subject || '';
+            document.getElementById('mail-message').value = bodyText || '';
+            document.getElementById('mail-cc-coord').checked = true;
+            document.getElementById('modal-correo').classList.remove('hidden');
+        }
+
+        function closeEmailModal() {
+            document.getElementById('modal-correo').classList.add('hidden');
+        }
+
+        async function enviarCorreoManual(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btn-enviar-correo-manual');
+            const toEmail = document.getElementById('mail-to').value.trim().toLowerCase();
+            const subject = document.getElementById('mail-subject').value.trim();
+            const message = document.getElementById('mail-message').value.trim();
+            const includeCoord = document.getElementById('mail-cc-coord').checked;
+
+            if (!toEmail || !subject || !message) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            const sent = await enviarNotificacionProfesional({
+                clientEmail: toEmail,
+                codigoCaso: '',
+                historiaClinicaId: null,
+                subject,
+                title: subject,
+                subtitle: `Mensaje enviado por ${proProfile?.nombre_completo || 'Serena Mente'}.`,
+                rows: [{ label: 'Comunicación', value: message }],
+                includeCoord
+            });
+
+            btn.disabled = false;
+            btn.textContent = 'Enviar correo';
+
+            if (sent) {
+                closeEmailModal();
+                showProToast('Correo enviado correctamente.');
+            } else {
+                showProToast('No se pudo confirmar el envío del correo.', true);
+            }
+        }
+
+        (async function initPro() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session && session.user) {
+                proUser = session.user;
+                await enterProDashboard();
+            }
+        })();
+    </script>
+</body>
+</html>

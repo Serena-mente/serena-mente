@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contacto — Serena Mente</title>
+    <link rel="icon" type="image/png" href="assets/imagotipo.png">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -49,7 +50,7 @@
         }
     </style>
 </head>
-<body class="bg-[#F4F9F7] text-[#0B2442] antialiased">
+<body class="bg-[#F4F9F7] text-[#0B2442] antialiased min-h-screen flex flex-col">
 
     <!-- Navigation Header -->
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E3F3EE] shadow-sm">
@@ -78,7 +79,7 @@
     </header>
 
     <!-- Main Content: Contacto Institucional -->
-    <main class="py-14 md:py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <main class="flex-1 py-14 md:py-20 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
         <!-- Cabecera Institucional con Isotipo -->
         <section class="bg-white rounded-3xl p-8 md:p-10 border border-[#E3F3EE] shadow-sm">
@@ -163,17 +164,19 @@
     </div>
 
     <!-- Footer Institucional -->
-    <footer class="bg-[#0B2442] border-t border-[#00838F]/40 text-center py-10 px-4 text-[#E3F3EE]/80">
-        <div class="max-w-5xl mx-auto flex flex-col items-center space-y-4">
-            <img src="assets/imagotipo.png" alt="Imagotipo Serena Mente" class="h-11 w-auto object-contain brightness-0 invert opacity-90">
-            <p class="flex flex-wrap justify-center gap-x-5 gap-y-2">
-                <a href="quienes-somos.html" class="hover:text-white transition text-sm">Quiénes somos</a>
-                <a href="conoce-nuestro-equipo.html" class="hover:text-white transition text-sm">Conoce nuestro equipo</a>
-                <a href="faq.html" class="hover:text-white transition text-sm">Preguntas frecuentes</a>
-                <a href="contacto.html" class="hover:text-white transition text-sm">Contacto</a>
+    <footer class="bg-white border-t border-[#E3F3EE] text-center py-8 px-4 text-[#0B2442]/75 mt-12">
+        <div class="max-w-5xl mx-auto flex flex-col items-center space-y-3">
+            <a href="index.html" class="inline-flex items-center justify-center shrink-0" aria-label="Serena Mente">
+                <img src="assets/imagotipo.png" alt="Imagotipo Serena Mente" class="h-9 w-auto object-contain mx-auto">
+            </a>
+            <nav aria-label="Enlaces institucionales" class="flex flex-wrap justify-center gap-x-5 gap-y-2">
+                <a href="quienes-somos.html" class="hover:text-[#009A84] transition text-sm">Quiénes somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-[#009A84] transition text-sm">Conoce nuestro equipo</a>
+                <a href="faq.html" class="hover:text-[#009A84] transition text-sm">Preguntas frecuentes</a>
+                <a href="contacto.html" class="hover:text-[#009A84] transition text-sm">Contacto</a>
                 <a href="legal.html" class="text-[#009A84] hover:underline text-sm font-medium">Términos y condiciones</a>
-            </p>
-            <p class="text-xs text-[#E3F3EE]/60 pt-1">
+            </nav>
+            <p class="text-xs text-[#0B2442]/60 pt-1">
                 &copy; 2026 Serena Mente - Plataforma de orientación psicológica virtual. Todos los derechos reservados.
             </p>
         </div>

@@ -35,6 +35,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -92,7 +93,7 @@
             </div>
 
             <div class="pt-6 space-y-4 text-sm sm:text-base text-[#0B2442]/80 leading-relaxed">
-                <p>
+                <p id="quienes-somos-proposito-dinamico">
                     Serena Mente es un grupo de psicólogos y profesionales de la salud mental que trabajamos de forma articulada para ofrecer orientación psicológica virtual ética, clara y accesible. Reunimos criterios clínicos, formativos y humanos en una plataforma pensada para acompañar a cada persona según su momento de vida, sus necesidades y su disponibilidad, sin perder el rigor profesional ni la calidez del vínculo terapéutico.
                 </p>
             </div>
@@ -207,5 +208,34 @@
         </div>
     </footer>
 
+    <script>
+        (function () {
+            const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+
+            async function aplicarContenidoQuienesSomos() {
+                try {
+                    if (!window.supabase || typeof window.supabase.createClient !== 'function') return;
+                    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    const { data, error } = await client
+                        .from('contenidos_plataforma')
+                        .select('clave, valor')
+                        .eq('clave', 'quienes_somos_proposito');
+
+                    if (!error && Array.isArray(data) && data.length > 0) {
+                        const texto = String(data[0].valor ?? '').trim();
+                        if (texto) {
+                            const el = document.getElementById('quienes-somos-proposito-dinamico');
+                            if (el) el.textContent = texto;
+                        }
+                    }
+                } catch (_) {
+                    // Conserva el texto original del HTML si falla la consulta
+                }
+            }
+
+            window.addEventListener('DOMContentLoaded', aplicarContenidoQuienesSomos);
+        })();
+    </script>
 </body>
 </html>

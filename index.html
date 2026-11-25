@@ -51,6 +51,19 @@
             background: linear-gradient(135deg, #10263D 0%, #078E99 100%);
         }
 
+        /* Avatar uniforme en encuadre y tamaño */
+        .foto-equipo-uniforme {
+            width: 80px;
+            height: 80px;
+            min-width: 80px;
+            min-height: 80px;
+            max-width: 80px;
+            max-height: 80px;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            align-self: flex-start;
+        }
+
         /* Carrusel automático de Conoce nuestro equipo */
         .equipo-marquee-wrapper {
             position: relative;
@@ -66,6 +79,7 @@
         }
         .equipo-marquee-track {
             display: flex;
+            align-items: stretch;
             gap: 1.5rem;
             width: max-content;
             animation: deslizarEquipo 34s linear infinite;
@@ -359,7 +373,8 @@
                 modelo_trabajo: 'Acompañamiento clínico y contención emocional con enfoque estructurado y centrado en la persona.',
                 tarifa_cop: 80000,
                 foto: 'assets/equipo/Psi. Alexander Sarmiento.jpg',
-                fotoFallback: ''
+                fotoFallback: '',
+                encuadre: 'object-[50%_18%]'
             },
             {
                 id: 'kenny-ariza',
@@ -368,7 +383,8 @@
                 modelo_trabajo: 'Acompañamiento terapéutico orientado al bienestar emocional, autoconocimiento y regulación.',
                 tarifa_cop: 80000,
                 foto: 'assets/equipo/Psi. Kenny Ariza.jpg',
-                fotoFallback: ''
+                fotoFallback: '',
+                encuadre: 'object-[50%_18%]'
             },
             {
                 id: 'maria-jarma',
@@ -377,7 +393,8 @@
                 modelo_trabajo: 'Espacio de escucha y orientación psicológica virtual adaptado a tus objetivos y ritmo de proceso.',
                 tarifa_cop: 80000,
                 foto: 'assets/equipo/Psi. María Jarma.jpg',
-                fotoFallback: 'assets/equipo/Psi. Maria Jarma.jpg'
+                fotoFallback: 'assets/equipo/Psi. Maria Jarma.jpg',
+                encuadre: 'object-[50%_18%]'
             }
         ];
 
@@ -397,6 +414,15 @@
                 .slice(0, 2)
                 .map((parte) => parte[0]?.toUpperCase() || '')
                 .join('');
+        }
+
+        function obtenerEncuadreClase(psi) {
+            if (psi.encuadre) return psi.encuadre;
+            const n = String(psi.nombre || '').toLowerCase();
+            if (n.includes('alexander')) return 'object-[50%_18%]';
+            if (n.includes('kenny')) return 'object-[50%_18%]';
+            if (n.includes('maría') || n.includes('maria')) return 'object-[50%_18%]';
+            return 'object-top';
         }
 
         function resolverFotoEquipo(psi) {
@@ -451,24 +477,25 @@
                 : '$80.000 COP';
             const iniciales = escapeHtmlEquipo(obtenerInicialesEquipo(psi.nombre));
             const rutas = resolverFotoEquipo(psi);
+            const encuadre = escapeHtmlEquipo(obtenerEncuadreClase(psi));
             const idEscapado = escapeHtmlEquipo(psi.id || '');
 
             return `
                 <article class="w-[300px] sm:w-[340px] shrink-0 bg-[#F5FAF8] hover:bg-white border border-[#D9F5E8] hover:border-[#07976B] rounded-3xl p-6 shadow-xs hover:shadow-md transition flex flex-col justify-between gap-5">
                     <div class="space-y-4">
-                        <div class="flex items-center gap-4">
+                        <div class="flex items-start gap-4">
                             <img
                                 src="${escapeHtmlEquipo(rutas.principal)}"
                                 alt="${nombreSeguro}"
                                 loading="lazy"
                                 onerror="manejarErrorFotoEquipo(this, '${escapeHtmlEquipo(rutas.alternativa)}')"
-                                class="w-20 h-20 rounded-2xl object-cover object-top border-2 border-[#D9F5E8] bg-white shadow-xs shrink-0"
+                                class="foto-equipo-uniforme ${encuadre} rounded-2xl border-2 border-[#D9F5E8] bg-white shadow-xs"
                             >
-                            <div style="display:none;" class="w-20 h-20 rounded-2xl bg-[#D9F5E8] text-[#10263D] font-extrabold text-xl items-center justify-center shrink-0">
+                            <div style="display:none;" class="foto-equipo-uniforme rounded-2xl bg-[#D9F5E8] text-[#10263D] font-extrabold text-xl items-center justify-center">
                                 ${iniciales}
                             </div>
-                            <div class="min-w-0">
-                                <span class="inline-block text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white text-[#078E99] border border-[#D9F5E8]">
+                            <div class="min-w-0 flex-1">
+                                <span class="inline-block max-w-full truncate text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white text-[#078E99] border border-[#D9F5E8]">
                                     ${areaSegura}
                                 </span>
                                 <h3 class="text-base font-extrabold text-[#10263D] mt-1.5 leading-snug line-clamp-2">
@@ -533,7 +560,17 @@
                     .order('id', { ascending: true });
 
                 if (!error && Array.isArray(data) && data.length > 0) {
-                    lista = data;
+                    lista = data.map((row) => {
+                        const match = EQUIPO_FALLBACK.find(
+                            (f) => String(f.nombre || '').toLowerCase() === String(row.nombre || '').toLowerCase()
+                        );
+                        return {
+                            ...row,
+                            foto: row.foto_url || match?.foto || '',
+                            fotoFallback: match?.fotoFallback || '',
+                            encuadre: match?.encuadre || 'object-[50%_18%]'
+                        };
+                    });
                 }
             } catch (_) {
                 lista = EQUIPO_FALLBACK;

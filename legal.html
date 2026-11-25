@@ -32,6 +32,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -72,7 +73,7 @@
                 <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="h-9 w-auto object-contain">
             </div>
             <h1 class="text-3xl sm:text-4xl font-extrabold text-[#0B2442]">Términos y condiciones</h1>
-            <p class="text-[#0B2442]/75 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+            <p id="legal-aviso-privacidad-dinamico" class="text-[#0B2442]/75 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
                 Información jurídica, ética y operativa que regula la prestación de servicios de orientación psicológica virtual en Serena Mente bajo la legislación de la República de Colombia.
             </p>
         </div>
@@ -132,7 +133,7 @@
                 <p>
                     <strong>Plataforma de conexión:</strong> Las sesiones se realizan de forma sincrónica mediante <em>Google Meet</em>. Corresponde al consultante disponer de un lugar privado, conexión a internet estable y un dispositivo adecuado para resguardar su privacidad durante la sesión.
                 </p>
-                <p>
+                <p id="legal-tarifa-referencia">
                     <strong>Tarifa y mecanismo de pago:</strong> Cada sesión individual tiene un valor estándar de <strong>$80.000 COP</strong>. La reserva queda confirmada una vez validado el comprobante de pago correspondiente.
                 </p>
                 <p>
@@ -172,5 +173,64 @@
         </div>
     </footer>
 
+    <script>
+        (function () {
+            const SUPABASE_URL = 'https://wrtqrefgcbaywmufgvia.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydHFyZWZnY2JheXdtdWZndmlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNTMxNzQsImV4cCI6MjExMDYyOTE3NH0.x_1ZQhRVhas0x1zB8o072_HGjNzmc7O-6Ro7jsc00-c';
+
+            function escapeHtmlLegal(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            async function aplicarContenidoYConfiguracionLegal() {
+                try {
+                    if (!window.supabase || typeof window.supabase.createClient !== 'function') return;
+                    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    const [{ data: cntRows }, { data: cfgRows }] = await Promise.all([
+                        client
+                            .from('contenidos_plataforma')
+                            .select('clave, valor')
+                            .eq('clave', 'legal_aviso_privacidad'),
+                        client
+                            .from('configuracion_plataforma')
+                            .select('clave, valor')
+                            .eq('clave', 'tarifa_consulta')
+                    ]);
+
+                    const avisoTexto = Array.isArray(cntRows) && cntRows.length > 0
+                        ? String(cntRows[0].valor ?? '').trim()
+                        : '';
+                    if (avisoTexto) {
+                        const avisoEl = document.getElementById('legal-aviso-privacidad-dinamico');
+                        if (avisoEl) avisoEl.textContent = avisoTexto;
+                    }
+
+                    const tarifaRaw = Array.isArray(cfgRows) && cfgRows.length > 0
+                        ? String(cfgRows[0].valor ?? '').trim()
+                        : '';
+                    if (tarifaRaw) {
+                        const soloDigitos = tarifaRaw.replace(/[^\d]/g, '');
+                        const num = Number(soloDigitos);
+                        const tarifaTexto = soloDigitos && Number.isFinite(num) && num > 0
+                            ? `$${num.toLocaleString('es-CO')} COP`
+                            : tarifaRaw;
+                        const tarifaEl = document.getElementById('legal-tarifa-referencia');
+                        if (tarifaEl) {
+                            tarifaEl.innerHTML = `<strong>Tarifa y mecanismo de pago:</strong> Cada sesión individual tiene un valor de referencia de <strong>${escapeHtmlLegal(tarifaTexto)}</strong> (sujeto a la tarifa definida por profesional al momento de agendar). La reserva queda confirmada una vez validado el comprobante de pago correspondiente.`;
+                        }
+                    }
+                } catch (_) {
+                    // Conserva el texto original si falla la consulta
+                }
+            }
+
+            window.addEventListener('DOMContentLoaded', aplicarContenidoYConfiguracionLegal);
+        })();
+    </script>
 </body>
 </html>

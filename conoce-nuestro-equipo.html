@@ -273,41 +273,36 @@
             return psi.cropClass || 'object-[50%_15%]';
         }
 
+        function sanitizePhotoUrlForPsychologist(rawUrl, psiName) {
+            const trimmed = String(rawUrl || '').trim();
+            if (!trimmed) return '';
+            const lowerUrl = trimmed.toLowerCase();
+            const lowerName = String(psiName || '').toLowerCase();
+
+            // Evita que un registro incompleto apunte por error a la foto de otro profesional
+            if (lowerName.includes('jesús') || lowerName.includes('jesus') || lowerName.includes('cervera')) {
+                if (lowerUrl.includes('kenny') || lowerUrl.includes('ariza') || lowerUrl.includes('jarma') || lowerUrl.includes('sarmiento')) {
+                    return '';
+                }
+            }
+            return trimmed;
+        }
+
         function buildPhotoCandidates(psi) {
             const rawCandidates = [];
 
-            const directUrl = psi.foto_url && String(psi.foto_url).trim()
-                ? String(psi.foto_url).trim()
-                : (psi.photo ? String(psi.photo).trim() : '');
+            const directUrl = psi.foto_url
+                ? sanitizePhotoUrlForPsychologist(psi.foto_url, psi.name)
+                : sanitizePhotoUrlForPsychologist(psi.photo, psi.name);
 
             if (directUrl) {
                 rawCandidates.push(directUrl);
-                if (!/^https?:\/\//i.test(directUrl)) {
-                    const withoutExt = directUrl.replace(/\.(jpg|jpeg|png|webp)$/i, '');
-                    const unaccentedPath = withoutExt.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-                    [withoutExt, unaccentedPath].forEach(base => {
-                        ['.jpg', '.jpeg', '.png', '.webp'].forEach(ext => {
-                            rawCandidates.push(`${base}${ext}`);
-                        });
-                    });
-                }
             }
 
             if (psi.photoFallback) {
-                rawCandidates.push(String(psi.photoFallback).trim());
+                const safeFallback = sanitizePhotoUrlForPsychologist(psi.photoFallback, psi.name);
+                if (safeFallback) rawCandidates.push(safeFallback);
             }
-
-            const rawName = String(psi.name || '').trim();
-            const prefixed = /^psi\.?\s+/i.test(rawName)
-                ? rawName.replace(/^psi\.?\s+/i, 'Psi. ')
-                : `Psi. ${rawName}`;
-            const unaccentedName = prefixed.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
-            [prefixed, unaccentedName].forEach(baseName => {
-                ['.jpg', '.jpeg', '.png', '.webp'].forEach(ext => {
-                    rawCandidates.push(`assets/equipo/${baseName}${ext}`);
-                });
-            });
 
             const uniqueEncoded = [];
             const seen = new Set();
@@ -332,9 +327,9 @@
 
         function handlePsychologistPhotoError(imgEl, fallbacksJson) {
             let queue = [];
-            if (imgEl.dataset.fallbackQueue) {
+            if (imgEl.dataset.fallbackQueue !== undefined) {
                 try {
-                    queue = JSON.parse(imgEl.dataset.fallbackQueue);
+                    queue = JSON.parse(imgEl.dataset.fallbackQueue || '[]');
                 } catch (_) {
                     queue = [];
                 }
@@ -353,6 +348,7 @@
                 return;
             }
 
+            imgEl.onerror = null;
             imgEl.style.display = 'none';
             if (imgEl.nextElementSibling) {
                 imgEl.nextElementSibling.style.display = 'flex';
@@ -412,14 +408,17 @@
                     FALLBACK_PSYCHOLOGISTS[index] ||
                     null;
 
+                const resolvedName = row.nombre || fallbackMatch?.name || 'Profesional';
+                const safeDbPhoto = sanitizePhotoUrlForPsychologist(row.foto_url, resolvedName);
+
                 return {
                     id: row.id ?? (index + 1),
                     proUuid: row.perfil_id || fallbackMatch?.proUuid || null,
-                    name: row.nombre || fallbackMatch?.name || 'Profesional',
+                    name: resolvedName,
                     area: row.area || fallbackMatch?.area || 'Orientación psicológica',
                     email: row.email || fallbackMatch?.email || '',
                     rateCop: normalizeRateCop(row.tarifa_cop, fallbackMatch?.rateCop ?? DEFAULT_RATE_COP),
-                    photo: row.foto_url || fallbackMatch?.photo || '',
+                    photo: safeDbPhoto || fallbackMatch?.photo || '',
                     photoFallback: fallbackMatch?.photoFallback || '',
                     cropClass: fallbackMatch?.cropClass || 'object-[50%_15%]',
                     modelDescription: row.modelo_trabajo || fallbackMatch?.modelDescription || ''
@@ -571,18 +570,22 @@
                            Dejar comentario
                        </button>`;
 
+                const imgHtml = photoRoutes.principal
+                    ? `<img
+                            src="${escapeHtml(photoRoutes.principal)}"
+                            alt="${escapeHtml(p.name)}"
+                            loading="lazy"
+                            onerror='handlePsychologistPhotoError(this, ${escapeHtml(photoRoutes.fallbacksJson)})'
+                            class="foto-equipo-uniforme ${cropClass} rounded-2xl border border-[#E3F3EE] bg-[#F4F9F7]"
+                        >`
+                    : '';
+
                 return `
                     <div class="h-full bg-white rounded-3xl p-8 shadow-sm border border-[#E3F3EE] flex flex-col justify-between hover:shadow-md hover:border-[#00838F]/40 transition">
                         <div class="space-y-4">
                             <div class="flex items-start gap-4">
-                                <img
-                                    src="${escapeHtml(photoRoutes.principal)}"
-                                    alt="${escapeHtml(p.name)}"
-                                    loading="lazy"
-                                    onerror='handlePsychologistPhotoError(this, ${escapeHtml(photoRoutes.fallbacksJson)})'
-                                    class="foto-equipo-uniforme ${cropClass} rounded-2xl border border-[#E3F3EE] bg-[#F4F9F7]"
-                                >
-                                <div style="display:none;" class="foto-equipo-uniforme rounded-2xl bg-[#E3F3EE] text-[#0B2442] font-extrabold text-lg items-center justify-center">
+                                ${imgHtml}
+                                <div style="display:${photoRoutes.principal ? 'none' : 'flex'};" class="foto-equipo-uniforme rounded-2xl bg-[#E3F3EE] text-[#0B2442] font-extrabold text-lg items-center justify-center">
                                     ${initials}
                                 </div>
                                 <div class="min-w-0 flex-1">

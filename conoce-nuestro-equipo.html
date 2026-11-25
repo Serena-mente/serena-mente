@@ -261,12 +261,16 @@
         }
 
         function getInitials(name) {
-            return String(name || 'SM')
-                .trim()
+            const clean = String(name || 'SM').trim();
+            const lower = clean.toLowerCase();
+            if (lower.includes('jesús') || lower.includes('jesus') || lower.includes('cervera')) {
+                return 'JC';
+            }
+            const parts = clean
+                .replace(/^psi\.?\s+/i, '')
                 .split(/\s+/)
-                .slice(0, 2)
-                .map(part => part[0]?.toUpperCase() || '')
-                .join('');
+                .filter(Boolean);
+            return parts.slice(0, 2).map(part => part[0]?.toUpperCase() || '').join('') || 'SM';
         }
 
         function getCropClass(psi) {
@@ -279,7 +283,6 @@
             const lowerUrl = trimmed.toLowerCase();
             const lowerName = String(psiName || '').toLowerCase();
 
-            // Evita que un registro incompleto apunte por error a la foto de otro profesional
             if (lowerName.includes('jesús') || lowerName.includes('jesus') || lowerName.includes('cervera')) {
                 if (lowerUrl.includes('kenny') || lowerUrl.includes('ariza') || lowerUrl.includes('jarma') || lowerUrl.includes('sarmiento')) {
                     return '';
@@ -291,17 +294,31 @@
         function buildPhotoCandidates(psi) {
             const rawCandidates = [];
 
-            const directUrl = psi.foto_url
-                ? sanitizePhotoUrlForPsychologist(psi.foto_url, psi.name)
-                : sanitizePhotoUrlForPsychologist(psi.photo, psi.name);
+            const dbUrl = sanitizePhotoUrlForPsychologist(psi.foto_url, psi.name);
+            const localUrl = sanitizePhotoUrlForPsychologist(psi.photo, psi.name);
+            const fallbackUrl = sanitizePhotoUrlForPsychologist(psi.photoFallback, psi.name);
 
-            if (directUrl) {
-                rawCandidates.push(directUrl);
-            }
+            // Prioriza la ruta local configurada o la URL de BD si es distinta a la local
+            [localUrl, dbUrl, fallbackUrl].forEach(u => {
+                if (u) rawCandidates.push(u);
+            });
 
-            if (psi.photoFallback) {
-                const safeFallback = sanitizePhotoUrlForPsychologist(psi.photoFallback, psi.name);
-                if (safeFallback) rawCandidates.push(safeFallback);
+            // Variantes de extensión y ruta relativa para Jesús Cervera por si varía respecto a index.html
+            const lowerName = String(psi.name || '').toLowerCase();
+            if (lowerName.includes('jesús') || lowerName.includes('jesus') || lowerName.includes('cervera')) {
+                const bases = [
+                    'assets/equipo/Psi. Jesús Cervera',
+                    'assets/equipo/Psi. Jesus Cervera',
+                    './assets/equipo/Psi. Jesús Cervera',
+                    './assets/equipo/Psi. Jesus Cervera',
+                    '../assets/equipo/Psi. Jesús Cervera',
+                    '../assets/equipo/Psi. Jesus Cervera'
+                ];
+                bases.forEach(base => {
+                    ['.jpg', '.jpeg', '.png'].forEach(ext => {
+                        rawCandidates.push(`${base}${ext}`);
+                    });
+                });
             }
 
             const uniqueEncoded = [];
@@ -418,7 +435,8 @@
                     area: row.area || fallbackMatch?.area || 'Orientación psicológica',
                     email: row.email || fallbackMatch?.email || '',
                     rateCop: normalizeRateCop(row.tarifa_cop, fallbackMatch?.rateCop ?? DEFAULT_RATE_COP),
-                    photo: safeDbPhoto || fallbackMatch?.photo || '',
+                    photo: fallbackMatch?.photo || safeDbPhoto || '',
+                    foto_url: safeDbPhoto,
                     photoFallback: fallbackMatch?.photoFallback || '',
                     cropClass: fallbackMatch?.cropClass || 'object-[50%_15%]',
                     modelDescription: row.modelo_trabajo || fallbackMatch?.modelDescription || ''

@@ -135,6 +135,7 @@
 
         const RECEIPTS_BUCKET = 'comprobantes';
         const DEFAULT_RATE_COP = 80000;
+        const BOOKING_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx99j2dNkuSaKoqLNQTf7-Jpbv9sYBPYL_wq89yWh9O1JyxLF2ZBIePYGsMxJRzBLVX/exec';
 
         const AGENDA_SLOTS = [
             '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -523,10 +524,64 @@
         }
 
         async function sendBookingEmail({ codigoCaso, comprobantePath, psiName, psiEmail, orientationType, clientName, clientEmail, clientPhone, date, time, receiptName, tarifaTexto }) {
-            return {
-                sent: false,
-                reason: 'EmailJS desconectado; envío de correo pendiente o gestionado por otro canal'
-            };
+            if (!BOOKING_APPS_SCRIPT_URL || BOOKING_APPS_SCRIPT_URL.includes('TU_SCRIPT_ID')) {
+                return {
+                    sent: false,
+                    reason: 'Falta configurar BOOKING_APPS_SCRIPT_URL'
+                };
+            }
+
+            const safeCode = escapeHtml(codigoCaso || '');
+            const safePsi = escapeHtml(psiName || '');
+            const safeOrientation = escapeHtml(orientationType || '');
+            const safeClient = escapeHtml(clientName || '');
+            const safeEmail = escapeHtml(clientEmail || '');
+            const safePhone = escapeHtml(clientPhone || '');
+            const safeDate = escapeHtml(date || '');
+            const safeTime = escapeHtml(time || '');
+            const safeReceipt = escapeHtml(receiptName || '');
+            const safePath = escapeHtml(comprobantePath || '');
+            const safeRate = escapeHtml(tarifaTexto || '');
+
+            const htmlBody = `
+                <div style="font-family: Arial, sans-serif; color: #0B2442; line-height: 1.5;">
+                    <h2 style="color: #00838F; margin-bottom: 8px;">Solicitud de cita registrada — Serena Mente</h2>
+                    <p>Se ha registrado una nueva solicitud de orientación y comprobante de pago.</p>
+                    <ul>
+                        <li><strong>Código de caso:</strong> ${safeCode}</li>
+                        <li><strong>Profesional:</strong> ${safePsi}</li>
+                        <li><strong>Tipo de orientación:</strong> ${safeOrientation}</li>
+                        <li><strong>Tarifa:</strong> ${safeRate}</li>
+                        <li><strong>Fecha y hora:</strong> ${safeDate} · ${safeTime}</li>
+                        <li><strong>Consultante:</strong> ${safeClient} (${safeEmail} · ${safePhone})</li>
+                        <li><strong>Comprobante:</strong> ${safeReceipt}${safePath ? ` (${safePath})` : ''}</li>
+                    </ul>
+                </div>
+            `.trim();
+
+            try {
+                await fetch(BOOKING_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify({
+                        to_email: clientEmail || 'serenelyserenamente@gmail.com',
+                        reply_to: psiEmail || 'serenelyserenamente@gmail.com',
+                        modulo: 'reserva_cita',
+                        subject: `Reserva ${codigoCaso || ''} — ${psiName || 'Serena Mente'}`.trim(),
+                        html_body: htmlBody
+                    })
+                });
+
+                return { sent: true };
+            } catch (err) {
+                return {
+                    sent: false,
+                    reason: err?.message || 'Error al enviar petición a Google Apps Script'
+                };
+            }
         }
 
         function renderPsychologists() {

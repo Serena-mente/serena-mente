@@ -7,6 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Portal del Consultante — Serena Mente</title>
+    <link rel="icon" type="image/png" href="assets/imagotipo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -19,6 +20,7 @@
                             500: '#009A84',
                             600: '#009A84',
                             700: '#00838F',
+                            800: '#00838F',
                             900: '#0B2442',
                             light: '#E3F3EE',
                             blue: '#00838F',
@@ -43,15 +45,15 @@
             background-color: #F4F9F7;
             color: #0B2442;
         }
+        .firma-canvas {
+            touch-action: none;
+        }
         .brand-btn-primary {
             background: linear-gradient(135deg, #00838F 0%, #009A84 100%);
             color: #ffffff;
         }
         .brand-btn-primary:hover {
             background: linear-gradient(135deg, #0B2442 0%, #00838F 100%);
-        }
-        .firma-canvas {
-            touch-action: none;
         }
     </style>
 </head>
@@ -73,7 +75,7 @@
                     Portal del Consultante
                 </span>
             </div>
-            <a href="index.html" class="text-xs sm:text-sm font-semibold text-[#0B2442] hover:bg-[#E3F3EE]/70 px-3.5 py-1.5 rounded-xl border border-[#E3F3EE] bg-white transition">
+            <a href="index.html" class="text-xs sm:text-sm font-semibold text-[#0B2442] hover:bg-[#F4F9F7] px-3.5 py-1.5 rounded-xl border border-[#E3F3EE] bg-white transition">
                 Volver a Inicio
             </a>
         </div>
@@ -126,7 +128,7 @@
                     <button
                         type="submit"
                         id="btn-consultar-cita"
-                        class="w-full sm:w-auto brand-btn-primary font-semibold px-7 py-3 rounded-xl text-sm shadow-sm transition"
+                        class="w-full sm:w-auto brand-btn-primary text-white font-semibold px-7 py-3 rounded-xl text-sm shadow-sm transition"
                     >
                         Ver mi sesión
                     </button>
@@ -141,19 +143,23 @@
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-[#0B2442] border-t border-[#00838F]/40 py-6 mt-12">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#E3F3EE]/80">
-            <div class="flex items-center space-x-2.5">
-                <img src="assets/isotipo.png" alt="Isotipo Serena Mente" class="w-7 h-7 object-contain shrink-0" onerror="this.style.display='none'">
-            </div>
-            <div class="flex flex-wrap items-center justify-center gap-4">
-                <a href="quienes-somos.html" class="hover:text-white transition">Quiénes Somos</a>
-                <a href="conoce-nuestro-equipo.html" class="hover:text-white transition">Conoce Nuestro Equipo</a>
-                <a href="faq.html" class="hover:text-white transition">Preguntas Frecuentes</a>
-                <a href="contacto.html" class="hover:text-white transition">Contacto</a>
+    <!-- Footer centrado y limpio -->
+    <footer class="bg-white border-t border-[#E3F3EE] py-6 mt-12">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center gap-3 text-xs text-[#0B2442]/70 text-center">
+            <a href="index.html" class="inline-flex items-center justify-center shrink-0" aria-label="Serena Mente">
+                <img src="assets/imagotipo.png" alt="Serena Mente"
+                    onerror="this.style.display='none'; document.getElementById('footer-iso-fallback').classList.remove('hidden');"
+                    class="h-8 w-auto object-contain mx-auto">
+                <img id="footer-iso-fallback" src="assets/isotipo.png" alt="Isotipo Serena Mente"
+                    class="hidden h-7 w-auto object-contain mx-auto" onerror="this.style.display='none'">
+            </a>
+            <nav aria-label="Enlaces institucionales" class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+                <a href="quienes-somos.html" class="hover:text-[#009A84] transition">Quiénes Somos</a>
+                <a href="conoce-nuestro-equipo.html" class="hover:text-[#009A84] transition">Conoce Nuestro Equipo</a>
+                <a href="faq.html" class="hover:text-[#009A84] transition">Preguntas Frecuentes</a>
+                <a href="contacto.html" class="hover:text-[#009A84] transition">Contacto</a>
                 <a href="legal.html" class="text-[#009A84] hover:underline font-semibold">Términos y Condiciones</a>
-            </div>
+            </nav>
         </div>
     </footer>
 
@@ -480,7 +486,7 @@
             }
 
             doc.setFillColor(244, 249, 247);
-            doc.setDrawColor(203, 213, 225);
+            doc.setDrawColor(227, 243, 238);
             const boxHeight = infoRows.length * 16 + 14;
             ensureSpace(boxHeight + 12);
             doc.roundedRect(margin, y, contentWidth, boxHeight, 6, 6, 'FD');
@@ -551,7 +557,7 @@
                 doc.text(sig.title, margin, y);
                 y += 8;
 
-                doc.setDrawColor(203, 213, 225);
+                doc.setDrawColor(227, 243, 238);
                 doc.setFillColor(255, 255, 255);
                 doc.roundedRect(margin, y, 220, 72, 6, 6, 'FD');
                 try {
@@ -572,7 +578,7 @@
         function buildConsentEmailHtml(payload) {
             const safeLogo = isSafeUrl(BRAND_LOGO_URL)
                 ? `<img src="${escapeHtml(BRAND_LOGO_URL)}" alt="Serena Mente" style="max-height: 44px; width: auto; display: block; border: 0;">`
-                : `<span style="font-size: 18px; font-weight: 800; color: #0B2442;">Serena <span style="color: #009A84;">Mente</span></span>`;
+                : `<span style="font-size: 18px; font-weight: 800; color: #0B2442;">Serena Mente</span>`;
 
             const rows = [
                 { label: 'Referencia de cita', value: payload.codigoCaso || payload.appointment_reference },
@@ -599,7 +605,7 @@
                 .join('');
 
             const fullTextHtml = payload.consent_document_html
-                ? `<div style="margin-top: 16px; background-color: #ffffff; border: 1px solid #E3F3EE; border-radius: 12px; padding: 14px; font-size: 12px; color: #334155; white-space: pre-line;">${escapeHtml(payload.consent_document_html)}</div>`
+                ? `<div style="margin-top: 16px; background-color: #ffffff; border: 1px solid #E3F3EE; border-radius: 12px; padding: 14px; font-size: 12px; color: #0B2442; white-space: pre-line;">${escapeHtml(payload.consent_document_html)}</div>`
                 : '';
 
             return `
@@ -943,8 +949,8 @@
                 const safePago = escapeHtml(rawPago);
                 const esPagado = ['pagado', 'confirmado', 'verificado', 'aprobado'].includes(rawPago.toLowerCase());
                 const badgePagoClass = esPagado
-                    ? 'bg-[#E3F3EE] text-[#0B2442] border-[#009A84]/40'
-                    : 'bg-[#F4F9F7] text-[#00838F] border-[#00838F]/25';
+                    ? 'bg-[#E3F3EE] text-[#0B2442] border-[#009A84]/35'
+                    : 'bg-[#F4F9F7] text-[#00838F] border-[#E3F3EE]';
                 const meetUrl = getMeetUrl(item);
                 const yaFirmado = Boolean(item.consentimiento_aceptado);
 
@@ -954,13 +960,13 @@
                             href="${escapeHtml(meetUrl)}"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="inline-flex items-center justify-center w-full sm:w-auto brand-btn-primary font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
+                            class="inline-flex items-center justify-center w-full sm:w-auto brand-btn-primary text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
                         >
                             Unirme a la videollamada (Google Meet)
                         </a>
                     `
                     : `
-                        <p class="text-xs text-[#0B2442]/65 bg-[#F4F9F7] border border-[#E3F3EE] rounded-xl p-3">
+                        <p class="text-xs text-[#0B2442]/70 bg-[#F4F9F7] border border-[#E3F3EE] rounded-xl p-3">
                             El enlace de videollamada se mostrará aquí cuando corresponda a tu sesión.
                         </p>
                     `;
@@ -988,7 +994,7 @@
                         </div>
 
                         <div class="space-y-2">
-                            <p class="text-xs font-bold uppercase tracking-wider text-[#00838F]">Acceso a tu sesión</p>
+                            <p class="text-xs font-bold uppercase tracking-wider text-[#0B2442]/65">Acceso a tu sesión</p>
                             ${meetBlock}
                         </div>
 
@@ -1031,7 +1037,7 @@
                                             <span id="badge-menor-${safeId}" class="hidden text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full">
                                                 Menor de edad detectado
                                             </span>
-                                            <span class="text-xs font-semibold text-[#0B2442]/60">Ref: ${safeCode}</span>
+                                            <span class="text-xs font-semibold text-[#0B2442]/65">Ref: ${safeCode}</span>
                                         </div>
                                     </div>
 
@@ -1057,12 +1063,12 @@
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                                 <div>
                                                     <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Nombre completo *</label>
-                                                    <input type="text" id="ci-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                    <input type="text" id="ci-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                                 </div>
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                     <div>
                                                         <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Tipo de documento *</label>
-                                                        <select id="ci-tipo-doc-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                        <select id="ci-tipo-doc-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-2.5 py-1.5 text-xs">
                                                             <option value="">Selecciona</option>
                                                             <option value="CC">Cédula de Ciudadanía (CC)</option>
                                                             <option value="TI">Tarjeta de Identidad (TI)</option>
@@ -1075,32 +1081,32 @@
                                                     </div>
                                                     <div>
                                                         <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Número de documento *</label>
-                                                        <input type="text" id="ci-num-doc-${safeId}" placeholder="Número" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                        <input type="text" id="ci-num-doc-${safeId}" placeholder="Número" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Fecha de nacimiento</label>
-                                                    <input type="date" id="ci-fnac-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                    <input type="date" id="ci-fnac-${safeId}" onchange="evaluarMinoridad('${safeId}')" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                                 </div>
                                                 <div>
                                                     <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Edad</label>
-                                                    <input type="number" min="0" max="120" id="ci-edad-${safeId}" oninput="evaluarMinoridad('${safeId}')" placeholder="Edad" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                    <input type="number" min="0" max="120" id="ci-edad-${safeId}" oninput="evaluarMinoridad('${safeId}')" placeholder="Edad" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                                 </div>
                                                 <div>
                                                     <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Correo electrónico</label>
-                                                    <input type="text" value="${escapeHtml(email)}" readonly class="w-full bg-[#E3F3EE]/60 border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs text-[#0B2442]/70">
+                                                    <input type="text" value="${escapeHtml(email)}" readonly class="w-full bg-[#E3F3EE]/60 border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs text-[#0B2442]/75">
                                                 </div>
                                                 <div>
                                                     <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Número de contacto</label>
-                                                    <input type="text" id="ci-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                    <input type="text" id="ci-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                                 </div>
                                                 <div>
                                                     <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Ciudad y departamento de residencia</label>
-                                                    <input type="text" id="ci-ciudad-${safeId}" placeholder="Ciudad y departamento de residencia" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                    <input type="text" id="ci-ciudad-${safeId}" placeholder="Ciudad y departamento de residencia" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                                 </div>
                                                 <div>
                                                     <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Dirección o ubicación habitual</label>
-                                                    <input type="text" id="ci-dir-${safeId}" placeholder="Dirección o ubicación habitual" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                    <input type="text" id="ci-dir-${safeId}" placeholder="Dirección o ubicación habitual" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                                 </div>
                                             </div>
 
@@ -1108,15 +1114,15 @@
                                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                                                 <div>
                                                     <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Nombre completo</label>
-                                                    <input type="text" id="ci-emerg-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                    <input type="text" id="ci-emerg-nombre-${safeId}" placeholder="Nombre completo" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                                 </div>
                                                 <div>
                                                     <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Parentesco o relación</label>
-                                                    <input type="text" id="ci-emerg-parentesco-${safeId}" placeholder="Parentesco o relación" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                    <input type="text" id="ci-emerg-parentesco-${safeId}" placeholder="Parentesco o relación" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                                 </div>
                                                 <div>
                                                     <label class="block text-[11px] font-semibold text-[#0B2442]/75 mb-1">Número de contacto</label>
-                                                    <input type="text" id="ci-emerg-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                    <input type="text" id="ci-emerg-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-[#F4F9F7] border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                                 </div>
                                             </div>
                                         </div>
@@ -1230,7 +1236,7 @@
                                             <button
                                                 type="button"
                                                 onclick="limpiarFirma('${safeId}')"
-                                                class="text-xs font-semibold text-[#00838F] hover:text-[#0B2442] underline"
+                                                class="text-xs font-semibold text-[#0B2442]/70 hover:text-[#0B2442] underline"
                                             >
                                                 Limpiar firma
                                             </button>
@@ -1253,20 +1259,20 @@
 
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                                             <div>
-                                                <label class="block text-[11px] font-semibold text-[#0B2442]/80 mb-1">Nombre completo padre, madre o representante legal *</label>
-                                                <input type="text" id="ci-acudiente-nombre-${safeId}" placeholder="Nombre del acudiente" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                <label class="block text-[11px] font-semibold text-[#0B2442] mb-1">Nombre completo padre, madre o representante legal *</label>
+                                                <input type="text" id="ci-acudiente-nombre-${safeId}" placeholder="Nombre del acudiente" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                             </div>
                                             <div>
-                                                <label class="block text-[11px] font-semibold text-[#0B2442]/80 mb-1">Documento del padre, madre o representante legal *</label>
-                                                <input type="text" id="ci-acudiente-doc-${safeId}" placeholder="Tipo y número de documento" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                <label class="block text-[11px] font-semibold text-[#0B2442] mb-1">Documento del padre, madre o representante legal *</label>
+                                                <input type="text" id="ci-acudiente-doc-${safeId}" placeholder="Tipo y número de documento" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                             </div>
                                             <div>
-                                                <label class="block text-[11px] font-semibold text-[#0B2442]/80 mb-1">Parentesco o calidad de representante</label>
-                                                <input type="text" id="ci-acudiente-parentesco-${safeId}" placeholder="Ej. Madre / Padre / Representante legal" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                <label class="block text-[11px] font-semibold text-[#0B2442] mb-1">Parentesco o calidad de representante</label>
+                                                <input type="text" id="ci-acudiente-parentesco-${safeId}" placeholder="Ej. Madre / Padre / Representante legal" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                             </div>
                                             <div>
-                                                <label class="block text-[11px] font-semibold text-[#0B2442]/80 mb-1">Teléfono del padre, madre o representante</label>
-                                                <input type="text" id="ci-acudiente-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#00838F]">
+                                                <label class="block text-[11px] font-semibold text-[#0B2442] mb-1">Teléfono del padre, madre o representante</label>
+                                                <input type="text" id="ci-acudiente-tel-${safeId}" placeholder="Número de contacto" class="w-full bg-white border border-[#E3F3EE] rounded-lg px-3 py-1.5 text-xs">
                                             </div>
                                         </div>
 
@@ -1278,7 +1284,7 @@
                                                 <button
                                                     type="button"
                                                     onclick="limpiarFirma('acudiente-${safeId}')"
-                                                    class="text-xs font-semibold text-[#00838F] hover:text-[#0B2442] underline"
+                                                    class="text-xs font-semibold text-[#0B2442]/70 hover:text-[#0B2442] underline"
                                                 >
                                                     Limpiar firma acudiente
                                                 </button>
@@ -1297,7 +1303,7 @@
                                                 <button
                                                     type="button"
                                                     onclick="limpiarFirma('menor-${safeId}')"
-                                                    class="text-xs font-semibold text-[#00838F] hover:text-[#0B2442] underline"
+                                                    class="text-xs font-semibold text-[#0B2442]/70 hover:text-[#0B2442] underline"
                                                 >
                                                     Limpiar firma menor
                                                 </button>
@@ -1315,7 +1321,7 @@
                                         type="button"
                                         id="btn-guardar-consentimiento-${safeId}"
                                         onclick="guardarConsentimientoFirmado('${safeId}', '${escapeHtml(email)}', '${safeCode}')"
-                                        class="brand-btn-primary font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition disabled:opacity-60"
+                                        class="brand-btn-primary text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition disabled:opacity-60"
                                     >
                                         Guardar consentimiento informado
                                     </button>

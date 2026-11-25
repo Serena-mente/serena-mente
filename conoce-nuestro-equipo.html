@@ -531,6 +531,17 @@
                 };
             }
 
+            const recipients = [clientEmail, psiEmail]
+                .map(addr => String(addr || '').trim())
+                .filter((addr, idx, arr) => addr && arr.indexOf(addr) === idx);
+
+            if (recipients.length === 0) {
+                return {
+                    sent: false,
+                    reason: 'No hay correos válidos de consultante ni profesional'
+                };
+            }
+
             const safeCode = escapeHtml(codigoCaso || '');
             const safePsi = escapeHtml(psiName || '');
             const safeOrientation = escapeHtml(orientationType || '');
@@ -567,8 +578,9 @@
                         'Content-Type': 'text/plain;charset=utf-8'
                     },
                     body: JSON.stringify({
-                        to_email: clientEmail || 'serenelyserenamente@gmail.com',
-                        reply_to: psiEmail || 'serenelyserenamente@gmail.com',
+                        to_email: recipients.join(', '),
+                        cc_email: psiEmail || '',
+                        reply_to: psiEmail || clientEmail || '',
                         modulo: 'reserva_cita',
                         subject: `Reserva ${codigoCaso || ''} — ${psiName || 'Serena Mente'}`.trim(),
                         html_body: htmlBody

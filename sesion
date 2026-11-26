@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sala de Sesión | Serena Mente</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://meet.jit.si/external_api.js"></script>
+  <style>
+    :root {
+      --bg: #f3f6f5;
+      --card: #ffffff;
+      --text: #182226;
+      --muted: #5a6b73;
+      --primary: #1b6b63;
+      --primary-hover: #14534d;
+      --border: #dce4e2;
+      --soft: #eef5f4;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .auth-gate {
+      max-width: 440px;
+      margin: 40px auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .grid {
+      display: none;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 16px;
+      padding: 16px 20px;
+      min-height: calc(100vh - 60px);
+    }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #jitsi-container {
+      width: 100%;
+      min-height: 450px;
+      flex: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0f1717;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .chat-box {
+      flex: 1;
+      max-height: 360px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px;
+      background: var(--bg);
+      border-radius: 8px;
+    }
+    .msg {
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .msg .meta { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .row { display: flex; gap: 8px; }
+    input, select, textarea, button {
+      font-size: 13px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+    }
+    input, select, textarea { width: 100%; background: #fff; }
+    label { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 4px; }
+    button.primary {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    button.primary:hover { background: var(--primary-hover); }
+    button.secondary {
+      background: var(--soft);
+      color: var(--primary);
+      border: 1px solid #c5ddd9;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .box-soft {
+      background: var(--soft);
+      border: 1px solid #c5ddd9;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .item-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <strong>Sala de Sesión · Serena Mente</strong>
+      <span id="info-caso" style="color: var(--muted); margin-left: 8px; font-size: 13px;">Verificando acceso...</span>
+    </div>
+    <span id="badge-rol" class="badge">Sesión</span>
+  </header>
+
+  <!-- Acceso del consultante con correo + código de caso (HC-YYYY-...) -->
+  <section id="gate-consultante" class="auth-gate">
+    <h3 style="margin:0;">Ingreso del Consultante</h3>
+    <p style="margin:0; font-size:13px; color:var(--muted);">
+      Ingresa el correo con el que agendaste y tu número de caso (ej. <code>HC-2026-1234</code>).
+    </p>
+    <div>
+      <label for="gate-email">Correo electrónico</label>
+      <input id="gate-email" type="email" placeholder="consultante@correo.com" />
+    </div>
+    <div>
+      <label for="gate-codigo">Número de caso</label>
+      <input id="gate-codigo" type="text" placeholder="HC-2026-0000" />
+    </div>
+    <button class="primary" type="button" onclick="validarIngresoConsultante()">Entrar a la sala</button>
+    <div id="gate-error" style="font-size:12px; color:#b42318;"></div>
+  </section>
+
+  <!-- Sala principal -->
+  <main id="sala-principal" class="grid">
+    <section class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong>Videollamada</strong>
+        <span style="font-size:12px; color:var(--muted);">Video, audio y compartir pantalla en la misma sesión</span>
+      </div>
+      <div id="jitsi-container"></div>
+    </section>
+
+    <aside class="panel">
+      <div class="tabs">
+        <button id="tab-chat" class="tab-btn active" onclick="cambiarTab('chat')">Chat de sesión</button>
+        <button id="tab-pruebas" class="tab-btn" onclick="cambiarTab('pruebas')">Pruebas / Instrumentos</button>
+      </div>
+
+      <!-- Chat en vivo guardado -->
+      <div id="vista-chat" style="display:flex; flex-direction:column; gap:10px; flex:1;">
+        <div id="chat-mensajes" class="chat-box"></div>
+        <form id="form-chat" class="row" onsubmit="enviarMensaje(event)">
+          <input id="input-mensaje" type="text" placeholder="Escribe un mensaje (queda registrado para apuntes)..." required />
+          <button class="primary" type="submit">Enviar</button>
+        </form>
+      </div>
+
+      <!-- Módulo de pruebas: pegar para que llene el consultante O editar en vivo el psicólogo -->
+      <div id="vista-pruebas" style="display:none; flex-direction:column; gap:12px; flex:1; overflow-y:auto;">
+        <div id="panel-psicologo" class="box-soft" style="display:none;">
+          <strong>Preparar o suministrar instrumento en vivo</strong>
+
+          <div>
+            <label for="modo-instrumento">Modo de uso</label>
+            <select id="modo-instrumento" onchange="alternarModoPsicologo()">
+              <option value="autoaplicable">Pegar preguntas / ítems para que llene el consultante</option>
+              <option value="editable_profesional">Editar / diligenciar directamente el profesional (visible al consultante)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="titulo-instrumento">Título del instrumento o registro</label>
+            <input id="titulo-instrumento" type="text" placeholder="Ej. Escala / cuestionario / registro de sesión" />
+          </div>
+
+          <!-- Modo 1: Pegar preguntas/ítems (una por línea) -->
+          <div id="bloque-pegar-items">
+            <label for="texto-items">Pega aquí las preguntas o ítems (una por línea)</label>
+            <textarea id="texto-items" rows="4" placeholder="Pega aquí las preguntas o ítems que el consultante debe responder..."></textarea>
+            <button class="primary" style="margin-top:8px;" type="button" onclick="enviarInstrumentoAutoaplicable()">
+              Enviar al consultante para llenar
+            </button>
+          </div>
+
+          <!-- Modo 2: Diligenciado/editado en vivo por el profesional -->
+          <div id="bloque-editar-profesional" style="display:none;">
+            <label for="texto-editable-prof">Contenido / diligenciamiento del profesional (se sincroniza en vivo)</label>
+            <textarea id="texto-editable-prof" rows="5" placeholder="Escribe o pega aquí lo que irás completando o mostrando al consultante..." oninput="sincronizarEdicionProfesional()"></textarea>
+            <button class="secondary" style="margin-top:8px;" type="button" onclick="crearODestacarRegistroEditable()">
+              Activar / guardar registro visible al consultante
+            </button>
+          </div>
+        </div>
+
+        <!-- Instrumento activo -->
+        <div id="instrumento-activo" class="box-soft">
+          <span style="font-size:13px; color:var(--muted);">No hay instrumentos activos en esta sesión todavía.</span>
+        </div>
+
+        <!-- Historial -->
+        <div id="historial-instrumentos" style="display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'TU_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const params = new URLSearchParams(window.location.search);
+    const historiaId = params.get('historia_id');
+
+    let sesionActiva = null; // { rol: 'psicologo' | 'consultante', user, caso, codigoCaso, email }
+    let instrumentoActual = null;
+    let registroEditableId = null;
+
+    function cambiarTab(tab) {
+      document.getElementById('tab-chat').classList.toggle('active', tab === 'chat');
+      document.getElementById('tab-pruebas').classList.toggle('active', tab === 'pruebas');
+      document.getElementById('vista-chat').style.display = tab === 'chat' ? 'flex' : 'none';
+      document.getElementById('vista-pruebas').style.display = tab === 'pruebas' ? 'flex' : 'none';
+    }
+
+    function alternarModoPsicologo() {
+      const modo = document.getElementById('modo-instrumento').value;
+      document.getElementById('bloque-pegar-items').style.display = modo === 'autoaplicable' ? 'block' : 'none';
+      document.getElementById('bloque-editar-profesional').style.display = modo === 'editable_profesional' ? 'block' : 'none';
+    }
+
+    function iniciarJitsi(roomName, displayName) {
+      new JitsiMeetExternalAPI('meet.jit.si', {
+        roomName,
+        parentNode: document.getElementById('jitsi-container'),
+        userInfo: { displayName },
+        configOverwrite: {
+          prejoinPageEnabled: false,
+          startWithAudioMuted: false,
+          startWithVideoMuted: false
+        }
+      });
+    }
+
+    async function cargarMensajes() {
+      const { data, error } = await sb
+        .from('mensajes_sesion')
+        .select('*')
+        .eq('historia_id', historiaId)
+        .order('creado_en', { ascending: true });
+
+      if (error) return console.error('Error cargando mensajes:', error);
+      const box = document.getElementById('chat-mensajes');
+      box.innerHTML = '';
+      (data || []).forEach(pintarMensaje);
+    }
+
+    function pintarMensaje(m) {
+      const box = document.getElementById('chat-mensajes');
+      const div = document.createElement('div');
+      div.className = 'msg';
+      const hora = new Date(m.creado_en).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+      div.innerHTML = `<div class="meta"><strong>${m.remitente_rol === 'psicologo' ? 'Profesional' : 'Consultante'}</strong> · ${hora}</div><div>${escapeHtml(m.contenido)}</div>`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function enviarMensaje(e) {
+      e.preventDefault();
+      const input = document.getElementById('input-mensaje');
+      const texto = input.value.trim();
+      if (!texto || !sesionActiva) return;
+
+      const { error } = await sb.from('mensajes_sesion').insert({
+        historia_id: historiaId,
+        remitente_rol: sesionActiva.rol,
+        remitente_email: sesionActiva.email,
+        contenido: texto
+      });
+
+      if (error) return alert('No se pudo enviar el mensaje: ' + error.message);
+      input.value = '';
+    }
+
+    async function enviarInstrumentoAutoaplicable() {
+      if (sesionActiva?.rol !== 'psicologo') return;
+      const titulo = document.getElementById('titulo-instrumento').value.trim() || 'Instrumento aplicado en sesión';
+      const lineas = document.getElementById('texto-items').value
+        .split('\n')
+        .map(l => l.trim())
+        .filter(Boolean);
+
+      if (!lineas.length) return alert('Pega o escribe al menos una pregunta o ítem.');
+
+      const preguntas = lineas.map((texto, idx) => ({
+        id: `item_${idx + 1}`,
+        texto
+      }));
+
+      const { error } = await sb.from('aplicaciones_pruebas').insert({
+        historia_id: historiaId,
+        psicologo_id: sesionActiva.user.id,
+        area_enfoque: 'autoaplicable',
+        titulo_prueba: titulo,
+        preguntas_json: preguntas,
+        respuestas_json: { modo: 'autoaplicable', respuestas: {} },
+        estado: 'enviada'
+      });
+
+      if (error) return alert('Error al enviar instrumento: ' + error.message);
+      document.getElementById('texto-items').value = '';
+      document.getElementById('titulo-instrumento').value = '';
+    }
+
+    async function crearODestacarRegistroEditable() {
+      if (sesionActiva?.rol !== 'psicologo') return;
+      const titulo = document.getElementById('titulo-instrumento').value.trim() || 'Registro diligenciado por el profesional';
+      const contenido = document.getElementById('texto-editable-prof').value;
+
+      if (!registroEditableId) {
+        const { data, error } = await sb.from('aplicaciones_pruebas').insert({
+          historia_id: historiaId,
+          psicologo_id: sesionActiva.user.id,
+          area_enfoque: 'editable_profesional',
+          titulo_prueba: titulo,
+          preguntas_json: [],
+          respuestas_json: { modo: 'editable_profesional', contenido },
+          estado: 'enviada'
+        }).select('id').single();
+
+        if (error) return alert('No se pudo crear el registro: ' + error.message);
+        registroEditableId = data.id;
+      } else {
+        await sincronizarEdicionProfesional(titulo);
+      }
+    }
+
+    async function sincronizarEdicionProfesional(tituloForzado = null) {
+      if (sesionActiva?.rol !== 'psicologo' || !registroEditableId) return;
+      const contenido = document.getElementById('texto-editable-prof').value;
+      const titulo = tituloForzado || document.getElementById('titulo-instrumento').value.trim() || 'Registro diligenciado por el profesional';
+
+      await sb.from('aplicaciones_pruebas')
+        .update({
+          titulo_prueba: titulo,
+          respuestas_json: { modo: 'editable_profesional', contenido }
+        })
+        .eq('id', registroEditableId);
+    }
+
+    async function cargarInstrumentos() {
+      const { data, error } = await sb
+        .from('aplicaciones_pruebas')
+        .select('*')
+        .eq('historia_id', historiaId)
+        .order('creado_en', { ascending: false });
+
+      if (error) return console.error('Error cargando instrumentos:', error);
+      const lista = data || [];
+      instrumentoActual = lista.find(p => p.estado === 'enviada') || lista[0] || null;
+      renderInstrumentoActivo();
+      renderHistorial(lista);
+    }
+
+    function renderInstrumentoActivo() {
+      const cont = document.getElementById('instrumento-activo');
+      if (!instrumentoActual) {
+        cont.innerHTML = '<span style="font-size:13px; color:var(--muted);">No hay instrumentos activos en esta sesión todavía.</span>';
+        return;
+      }
+
+      const modo = instrumentoActual.respuestas_json?.modo || 'autoaplicable';
+
+      if (modo === 'editable_profesional') {
+        const textoProf = instrumentoActual.respuestas_json?.contenido || '';
+        if (sesionActiva?.rol === 'psicologo') {
+          registroEditableId = instrumentoActual.id;
+        }
+        cont.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>${escapeHtml(instrumentoActual.titulo_prueba)}</strong>
+            <span class="badge">Diligenciado por profesional</span>
+          </div>
+          <div class="item-card" style="white-space:pre-wrap; font-size:13px;">${escapeHtml(textoProf || 'Sin contenido aún.')}</div>
+        `;
+        return;
+      }
+
+      const preguntas = Array.isArray(instrumentoActual.preguntas_json) ? instrumentoActual.preguntas_json : [];
+      const respuestasPrevias = instrumentoActual.respuestas_json?.respuestas || {};
+      const puedeResponder = sesionActiva?.rol === 'consultante' && instrumentoActual.estado === 'enviada';
+
+      let html = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong>${escapeHtml(instrumentoActual.titulo_prueba)}</strong>
+          <span class="badge">${instrumentoActual.estado === 'completada' ? 'Completado' : 'Activo'}</span>
+        </div>
+      `;
+
+      preguntas.forEach(q => {
+        const val = respuestasPrevias[q.id] ?? '';
+        html += `<div class="item-card"><div style="font-size:13px; margin-bottom:6px;">${escapeHtml(q.texto)}</div>`;
+        if (puedeResponder) {
+          html += `<textarea rows="2" data-qid="${q.id}" placeholder="Escribe tu respuesta...">${escapeHtml(String(val))}</textarea>`;
+        } else {
+          html += `<div style="font-size:13px; color:var(--primary); font-weight:600;">${val !== '' ? escapeHtml(String(val)) : 'Pendiente de respuesta'}</div>`;
+        }
+        html += `</div>`;
+      });
+
+      if (puedeResponder) {
+        html += `<button class="primary" type="button" onclick="enviarRespuestasConsultante('${instrumentoActual.id}')">Enviar respuestas</button>`;
+      }
+
+      cont.innerHTML = html;
+    }
+
+    async function enviarRespuestasConsultante(id) {
+      const respuestas = {};
+      document.querySelectorAll('#instrumento-activo [data-qid]').forEach(el => {
+        respuestas[el.getAttribute('data-qid')] = el.value.trim();
+      });
+
+      const { error } = await sb.from('aplicaciones_pruebas')
+        .update({
+          respuestas_json: { modo: 'autoaplicable', respuestas },
+          estado: 'completada',
+          completado_en: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) return alert('No se pudieron enviar las respuestas: ' + error.message);
+      alert('Respuestas enviadas.');
+    }
+
+    function renderHistorial(lista) {
+      const hist = document.getElementById('historial-instrumentos');
+      const completados = lista.filter(p => p.estado === 'completada');
+      if (!completados.length) {
+        hist.innerHTML = '';
+        return;
+      }
+      hist.innerHTML = '<strong style="font-size:12px; color:var(--muted);">Completados en sesión</strong>' +
+        completados.map(p => `
+          <div class="item-card">
+            <strong>${escapeHtml(p.titulo_prueba)}</strong>
+            <pre style="white-space:pre-wrap; font-size:12px; margin:6px 0 0;">${escapeHtml(JSON.stringify(p.respuestas_json?.respuestas || p.respuestas_json, null, 2))}</pre>
+          </div>
+        `).join('');
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+
+    async function montarSala(datos) {
+      sesionActiva = datos;
+      document.getElementById('gate-consultante').style.display = 'none';
+      document.getElementById('sala-principal').style.display = 'grid';
+
+      document.getElementById('badge-rol').textContent = datos.rol === 'psicologo' ? 'Profesional' : 'Consultante';
+      document.getElementById('info-caso').textContent =
+        `Caso ${datos.caso.codigo_caso} · ${datos.caso.fecha_sesion} · ${datos.caso.hora_sesion}`;
+
+      if (datos.rol === 'psicologo') {
+        document.getElementById('panel-psicologo').style.display = 'flex';
+      }
+
+      const roomCode = `SerenaMente-${historiaId.replace(/-/g, '').slice(0, 18)}`;
+      iniciarJitsi(roomCode, datos.rol === 'psicologo' ? 'Profesional' : 'Consultante');
+
+      await cargarMensajes();
+      await cargarInstrumentos();
+
+      sb.channel('sesion-' + historiaId)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensajes_sesion', filter: `historia_id=eq.${historiaId}` }, payload => {
+          pintarMensaje(payload.new);
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'aplicaciones_pruebas', filter: `historia_id=eq.${historiaId}` }, () => {
+          cargarInstrumentos();
+          if (datos.rol === 'consultante') cambiarTab('pruebas');
+        })
+        .subscribe();
+    }
+
+    async function validarIngresoConsultante() {
+      const email = document.getElementById('gate-email').value.trim().toLowerCase();
+      const codigo = document.getElementById('gate-codigo').value.trim().toUpperCase();
+      const errEl = document.getElementById('gate-error');
+      errEl.textContent = '';
+
+      if (!email || !codigo || !historiaId) {
+        errEl.textContent = 'Completa tu correo, número de caso y el identificador de sesión.';
+        return;
+      }
+
+      const { data, error } = await sb.rpc('obtener_contexto_sesion_consultante', {
+        p_historia_id: historiaId,
+        p_codigo_caso: codigo,
+        p_cliente_email: email
+      });
+
+      if (error || !data || !data.length) {
+        errEl.textContent = 'No se encontró una sesión activa que coincida con ese correo y número de caso.';
+        return;
+      }
+
+      await montarSala({
+        rol: 'consultante',
+        user: null,
+        caso: data[0],
+        codigoCaso: codigo,
+        email
+      });
+    }
+
+    async function init() {
+      if (!historiaId) {
+        document.getElementById('info-caso').textContent = 'Falta historia_id en la URL.';
+        return;
+      }
+
+      const { data: { user } } = await sb.auth.getUser();
+      if (user) {
+        const { data: hc } = await sb
+          .from('historias_clinicas')
+          .select('id, codigo_caso, fecha_sesion, hora_sesion, tipo_caso, psicologo_id, cliente_email')
+          .eq('id', historiaId)
+          .single();
+
+        if (hc && hc.psicologo_id === user.id) {
+          await montarSala({
+            rol: 'psicologo',
+            user,
+            caso: hc,
+            codigoCaso: hc.codigo_caso,
+            email: user.email
+          });
+          return;
+        }
+      }
+
+      // Si no hay sesión de profesional o es consultante, mostrar acceso por correo + código de caso
+      const qEmail = params.get('email');
+      const qCodigo = params.get('codigo_caso');
+      if (qEmail) document.getElementById('gate-email').value = qEmail;
+      if (qCodigo) document.getElementById('gate-codigo').value = qCodigo;
+
+      document.getElementById('info-caso').textContent = 'Ingresa tu correo y número de caso';
+      document.getElementById('gate-consultante').style.display = 'flex';
+      if (qEmail && qCodigo) {
+        await validarIngresoConsultante();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

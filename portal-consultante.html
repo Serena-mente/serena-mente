@@ -96,7 +96,7 @@
             </div>
 
             <p class="text-sm text-[#0B2442]/75 leading-relaxed">
-                Ingresa el correo con el que agendaste y la clave o código de tu cita para revisar los detalles de tu sesión, firmar tu consentimiento informado y acceder a tu videollamada.
+                Ingresa el correo con el que agendaste y la clave o código de tu cita para revisar los detalles de tu sesión, firmar tu consentimiento informado y acceder a tu consulta en la plataforma.
             </p>
 
             <form onsubmit="consultarCita(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
@@ -173,6 +173,7 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const signaturePads = {};
         window.citasCargadas = {};
+        let ventanaSesionInterval = null;
 
         function escapeHtml(value) {
             return String(value ?? '')
@@ -192,8 +193,137 @@
             }
         }
 
-        function getMeetUrl(item) {
-            return (item?.enlace_meet || item?.link_meet || '').trim();
+        function parsearFechaHoraCita(fechaStr, horaStr) {
+            if (!fechaStr) return null;
+            const fechaMatch = String(fechaStr).trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (!fechaMatch) return null;
+
+            const year = parseInt(fechaMatch[1], 10);
+            const month = parseInt(fechaMatch[2], 10) - 1;
+            const day = parseInt(fechaMatch[3], 10);
+
+            let hours = 9;
+            let minutes = 0;
+
+            if (horaStr) {
+                const rawHora = String(horaStr).trim();
+                const ampmMatch = rawHora.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
+                const h24Match = rawHora.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+
+                if (ampmMatch) {
+                    hours = parseInt(ampmMatch[1], 10);
+                    minutes = ampmMatch[2] ? parseInt(ampmMatch[2], 10) : 0;
+                    const meridiano = ampmMatch[3].toUpperCase();
+                    if (meridiano === 'PM' && hours < 12) hours += 12;
+                    if (meridiano === 'AM' && hours === 12) hours = 0;
+                } else if (h24Match) {
+                    hours = parseInt(h24Match[1], 10);
+                    minutes = parseInt(h24Match[2], 10);
+                }
+            }
+
+            const dt = new Date(year, month, day, hours, minutes, 0, 0);
+            return Number.isNaN(dt.getTime()) ? null : dt;
+        }
+
+        function evaluarVentanaSesion(item, ahora = new Date()) {
+            const inicioCita = parsearFechaHoraCita(item?.fecha_sesion, item?.hora_sesion);
+            if (!inicioCita) {
+                return {
+                    habilitado: true,
+                    estado: 'sin_hora',
+                    mensaje: 'El botón se habilita 5 minutos antes de la hora programada.'
+                };
+            }
+
+            const apertura = new Date(inicioCita.getTime() - 5 * 60 * 1000);
+            const cierre = new Date(inicioCita.getTime() + 75 * 60 * 1000);
+
+            if (ahora >= apertura && ahora <= cierre) {
+                return {
+                    habilitado: true,
+                    estado: 'abierta',
+                    mensaje: 'Tu sala de consulta ya está disponible para ingresar.'
+                };
+            }
+
+            if (ahora < apertura) {
+                const minutosRestantes = Math.max(1, Math.ceil((apertura.getTime() - ahora.getTime()) / 60000));
+                const horaAperturaStr = apertura.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                return {
+                    habilitado: false,
+                    estado: 'pendiente',
+                    mensaje: `Disponible 5 minutos antes de tu cita (se habilita a las ${horaAperturaStr}, en ~${minutosRestantes} min).`
+                };
+            }
+
+            return {
+                habilitado: false,
+                estado: 'finalizada',
+                mensaje: 'La ventana de acceso para este horario ya finalizó. Si necesitas reprogramar, contacta a coordinación.'
+            };
+        }
+
+        function buildSesionUrl(item, codigoFallback, emailFallback) {
+            const url = new URL('sesion.html', window.location.href);
+            url.searchParams.set('historia_id', String(item.id));
+            const cod = (item.codigo_caso || codigoFallback || '').trim();
+            const mail = (item.cliente_email || emailFallback || '').trim();
+            if (cod) url.searchParams.set('codigo_caso', cod);
+            if (mail) url.searchParams.set('email', mail);
+            return url.toString();
+        }
+
+        function renderBloqueAccesoSesion(item, codigoFallback, emailFallback) {
+            const safeId = escapeHtml(item.id);
+            const info = evaluarVentanaSesion(item);
+            const sesionUrl = escapeHtml(buildSesionUrl(item, codigoFallback, emailFallback));
+
+            if (info.habilitado) {
+                return `
+                    <a
+                        id="btn-entrar-sesion-${safeId}"
+                        href="${sesionUrl}"
+                        class="inline-flex items-center justify-center w-full sm:w-auto brand-btn-primary text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
+                    >
+                        Entrar a mi consulta
+                    </a>
+                    <p id="estado-ventana-sesion-${safeId}" class="text-xs text-[#009A84] font-medium">${escapeHtml(info.mensaje)}</p>
+                `;
+            }
+
+            return `
+                <button
+                    type="button"
+                    id="btn-entrar-sesion-${safeId}"
+                    disabled
+                    class="inline-flex items-center justify-center w-full sm:w-auto bg-[#E3F3EE] text-[#0B2442]/50 border border-[#009A84]/20 font-semibold px-6 py-3 rounded-xl text-sm cursor-not-allowed transition"
+                >
+                    Entrar a mi consulta (habilitado -5 min)
+                </button>
+                <p id="estado-ventana-sesion-${safeId}" class="text-xs text-[#0B2442]/70">${escapeHtml(info.mensaje)}</p>
+            `;
+        }
+
+        function refrescarBotonesSesion() {
+            const entries = Object.values(window.citasCargadas || {});
+            entries.forEach((item) => {
+                const container = document.getElementById(`acceso-sesion-box-${item.id}`);
+                if (container) {
+                    container.innerHTML = renderBloqueAccesoSesion(
+                        item,
+                        item.codigo_caso || '',
+                        item.cliente_email || ''
+                    );
+                }
+            });
+        }
+
+        function iniciarMonitorVentanaSesion() {
+            if (ventanaSesionInterval) {
+                clearInterval(ventanaSesionInterval);
+            }
+            ventanaSesionInterval = setInterval(refrescarBotonesSesion, 30000);
         }
 
         function calcularEdadDesdeFecha(fechaStr) {
@@ -936,10 +1066,15 @@
             window.citasCargadas = {};
 
             contentEl.innerHTML = data.map(item => {
-                window.citasCargadas[String(item.id)] = item;
+                const citaNormalizada = {
+                    ...item,
+                    codigo_caso: item.codigo_caso || codigoCaso,
+                    cliente_email: item.cliente_email || email
+                };
+                window.citasCargadas[String(item.id)] = citaNormalizada;
 
                 const safeId = escapeHtml(item.id);
-                const safeCode = escapeHtml(item.codigo_caso || codigoCaso);
+                const safeCode = escapeHtml(citaNormalizada.codigo_caso);
                 const safeProName = escapeHtml(item.psicologo_nombre || 'Profesional asignado');
                 const safeProEmail = escapeHtml(item.psicologo_email || 'Por confirmar');
                 const safeTipo = escapeHtml(item.tipo_caso || 'Modalidad virtual');
@@ -951,25 +1086,7 @@
                 const badgePagoClass = esPagado
                     ? 'bg-[#E3F3EE] text-[#0B2442] border-[#009A84]/35'
                     : 'bg-[#F4F9F7] text-[#00838F] border-[#E3F3EE]';
-                const meetUrl = getMeetUrl(item);
                 const yaFirmado = Boolean(item.consentimiento_aceptado);
-
-                const meetBlock = (meetUrl && isSafeUrl(meetUrl))
-                    ? `
-                        <a
-                            href="${escapeHtml(meetUrl)}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center justify-center w-full sm:w-auto brand-btn-primary text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm transition"
-                        >
-                            Unirme a la videollamada (Google Meet)
-                        </a>
-                    `
-                    : `
-                        <p class="text-xs text-[#0B2442]/70 bg-[#F4F9F7] border border-[#E3F3EE] rounded-xl p-3">
-                            El enlace de videollamada se mostrará aquí cuando corresponda a tu sesión.
-                        </p>
-                    `;
 
                 return `
                     <div class="bg-white rounded-3xl border border-[#E3F3EE] p-6 sm:p-8 shadow-sm space-y-6">
@@ -995,7 +1112,9 @@
 
                         <div class="space-y-2">
                             <p class="text-xs font-bold uppercase tracking-wider text-[#0B2442]/65">Acceso a tu sesión</p>
-                            ${meetBlock}
+                            <div id="acceso-sesion-box-${safeId}" class="space-y-2">
+                                ${renderBloqueAccesoSesion(citaNormalizada, codigoCaso, email)}
+                            </div>
                         </div>
 
                         <div class="pt-4 border-t border-[#E3F3EE] space-y-4">
@@ -1332,6 +1451,8 @@
                     </div>
                 `;
             }).join('');
+
+            iniciarMonitorVentanaSesion();
         }
     </script>
 </body>
